@@ -1,5 +1,5 @@
-﻿#ifndef DOCUMENT_MANAGER_H
-#define DOCUMENT_MANAGER_H
+﻿#ifndef NAIVIS_IO_DOCUMENTMANAGER_H
+#define NAIVIS_IO_DOCUMENTMANAGER_H
 
 #include <AIS_InteractiveContext.hxx>
 #include <BinXCAFDrivers.hxx>

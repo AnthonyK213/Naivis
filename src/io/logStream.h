@@ -1,5 +1,5 @@
-﻿#ifndef LOG_STREAM_H
-#define LOG_STREAM_H
+﻿#ifndef NAIVIS_IO_LOGSTREAM_H
+#define NAIVIS_IO_LOGSTREAM_H
 
 #include <QTextBrowser>
 

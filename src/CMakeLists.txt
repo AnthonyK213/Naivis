@@ -2,18 +2,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJECT_SOURCES
   main.cpp
-  naivis/naivis.cpp
-  naivis/naivis.h
-  naivis/naivis.ui
-  occtViewer/occtViewer.cpp
-  occtViewer/occtViewer.h
+  cmd/cmdRemoveObjects.cpp
+  cmd/cmdReplaceObjects.cpp
+  cmd/cmdTransformObjects.cpp
   mesh/HalfEdgeMesh_DataSource.cxx
-  mesh/HalfEdgeMesh_DataSource.hxx
   mesh/XSDRAWSTLVRML_DataSource.cxx
-  mesh/XSDRAWSTLVRML_DataSource.hxx
+  naivis/naivis.cpp
+  naivis/naivis.ui
   io/documentManager.cpp
-  io/documentManager.h
-  io/logStream.h
+  widgets/occtViewer.cpp
   )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

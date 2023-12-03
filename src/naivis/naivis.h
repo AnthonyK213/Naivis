@@ -20,7 +20,7 @@
 #include <TopoDS_Shape.hxx>
 
 #include <io/logStream.h>
-#include <occtViewer/occtViewer.h>
+#include <widgets/occtViewer.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

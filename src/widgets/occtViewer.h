@@ -1,5 +1,5 @@
-﻿#ifndef OCCT_VIEWER_H
-#define OCCT_VIEWER_H
+﻿#ifndef NAIVIS_WIDGETS_OCCTVIEWER_H
+#define NAIVIS_WIDGETS_OCCTVIEWER_H
 
 #ifdef _WIN32
 #include <windows.h>
