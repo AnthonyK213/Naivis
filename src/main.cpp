@@ -1,4 +1,4 @@
-#include "Naivis/naivis.h"
+#include <widgets/naivis.h>
 
 #include <QApplication>
 

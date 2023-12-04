@@ -7,9 +7,9 @@ set(PROJECT_SOURCES
   cmd/cmdTransformObjects.cpp
   mesh/HalfEdgeMesh_DataSource.cxx
   mesh/XSDRAWSTLVRML_DataSource.cxx
-  naivis/naivis.cpp
-  naivis/naivis.ui
   io/documentManager.cpp
+  widgets/naivis.cpp
+  widgets/naivis.ui
   widgets/occtViewer.cpp
   )
 
