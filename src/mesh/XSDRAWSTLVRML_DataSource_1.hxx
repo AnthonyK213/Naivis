@@ -14,8 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _XSDRAWSTLVRML_DataSource_HeaderFile
-#define _XSDRAWSTLVRML_DataSource_HeaderFile
+#ifndef _XSDRAWSTLVRML_DataSource_1_HeaderFile
+#define _XSDRAWSTLVRML_DataSource_1_HeaderFile
 
 #include <Standard.hxx>
 
@@ -29,14 +29,14 @@
 #include <TColStd_HArray2OfInteger.hxx>
 #include <TColStd_HArray2OfReal.hxx>
 
-class XSDRAWSTLVRML_DataSource;
-DEFINE_STANDARD_HANDLE(XSDRAWSTLVRML_DataSource, MeshVS_DataSource)
+class XSDRAWSTLVRML_DataSource_1;
+DEFINE_STANDARD_HANDLE(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)
 
 //! The sample DataSource for working with STLMesh_Mesh
-class XSDRAWSTLVRML_DataSource : public MeshVS_DataSource {
+class XSDRAWSTLVRML_DataSource_1 : public MeshVS_DataSource {
 public:
   //! Constructor
-  Standard_EXPORT XSDRAWSTLVRML_DataSource(const Handle(Poly_Triangulation) &
+  Standard_EXPORT XSDRAWSTLVRML_DataSource_1(const Handle(Poly_Triangulation) &
                                            aMesh);
 
   //! Returns geometry information about node (if IsElement is False) or element
@@ -87,7 +87,7 @@ public:
     return myMesh;
   }
 
-  DEFINE_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource, MeshVS_DataSource)
+  DEFINE_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)
 
 protected:
 private:
@@ -99,4 +99,4 @@ private:
   Handle(TColStd_HArray2OfReal) myElemNormals;
 };
 
-#endif // _XSDRAWSTLVRML_DataSource_HeaderFile
+#endif // _XSDRAWSTLVRML_DataSource_1_HeaderFile

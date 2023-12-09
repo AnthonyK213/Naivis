@@ -6,7 +6,7 @@ set(PROJECT_SOURCES
   cmd/cmdReplaceObjects.cpp
   cmd/cmdTransformObjects.cpp
   mesh/HalfEdgeMesh_DataSource.cxx
-  mesh/XSDRAWSTLVRML_DataSource.cxx
+  mesh/XSDRAWSTLVRML_DataSource_1.cxx
   io/documentManager.cpp
   widgets/naivis.cpp
   widgets/naivis.ui

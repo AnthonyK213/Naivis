@@ -297,10 +297,13 @@ OcctViewer::OcctViewer(QWidget *theParent)
   aGlFormat.setDepthBufferSize(24);
   aGlFormat.setStencilBufferSize(8);
   // aGlFormat.setOption (QSurfaceFormat::DebugContext, true);
+  aDriver->ChangeOptions().contextDebug =
+      aGlFormat.testOption(QSurfaceFormat::DebugContext);
   // aGlFormat.setOption (QSurfaceFormat::DeprecatedFunctions, true);
   if (myIsCoreProfile) {
     aGlFormat.setVersion(4, 5);
   }
+
   aGlFormat.setProfile(myIsCoreProfile ? QSurfaceFormat::CoreProfile
                                        : QSurfaceFormat::CompatibilityProfile);
 
@@ -320,7 +323,7 @@ OcctViewer::OcctViewer(QWidget *theParent)
 
   setFormat(aGlFormat);
 
-#if defined(_WIN32)
+#ifdef _WIN32
   // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
@@ -392,11 +395,13 @@ void OcctViewer::initializeGL() {
     aWindow->SetVirtual(true);
 
 #ifdef _WIN32
-    // HGLRC aWglCtx = wglGetCurrentContext();
     HDC aWglDevCtx = wglGetCurrentDC();
     HWND aWglWin = WindowFromDC(aWglDevCtx);
     Aspect_Drawable aNativeWin = (Aspect_Drawable)aWglWin;
+#else
+    Aspect_Drawable aNativeWin = Aspect_Drawable(window()->winId());
 #endif
+
     aWindow->SetNativeHandle(aNativeWin);
     aWindow->SetSize(aViewSize.x(), aViewSize.y());
     myView->SetWindow(aWindow, aGlCtx->RenderingContext());

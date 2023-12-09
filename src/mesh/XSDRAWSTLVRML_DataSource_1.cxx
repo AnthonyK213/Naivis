@@ -18,15 +18,15 @@
 #include <Standard_Type.hxx>
 #include <TColStd_DataMapOfIntegerReal.hxx>
 
-#include "XSDRAWSTLVRML_DataSource.hxx"
+#include "XSDRAWSTLVRML_DataSource_1.hxx"
 
-IMPLEMENT_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource, MeshVS_DataSource)
+IMPLEMENT_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)
 
 //================================================================
 // Function : Constructor
 // Purpose  :
 //================================================================
-XSDRAWSTLVRML_DataSource::XSDRAWSTLVRML_DataSource(
+XSDRAWSTLVRML_DataSource_1::XSDRAWSTLVRML_DataSource_1(
     const Handle(Poly_Triangulation) & aMesh) {
   myMesh = aMesh;
 
@@ -88,7 +88,7 @@ XSDRAWSTLVRML_DataSource::XSDRAWSTLVRML_DataSource(
 // Function : GetGeom
 // Purpose  :
 //================================================================
-Standard_Boolean XSDRAWSTLVRML_DataSource::GetGeom(
+Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetGeom(
     const Standard_Integer ID, const Standard_Boolean IsElement,
     TColStd_Array1OfReal &Coords, Standard_Integer &NbNodes,
     MeshVS_EntityType &Type) const {
@@ -126,7 +126,7 @@ Standard_Boolean XSDRAWSTLVRML_DataSource::GetGeom(
 // Purpose  :
 //================================================================
 Standard_Boolean
-XSDRAWSTLVRML_DataSource::GetGeomType(const Standard_Integer,
+XSDRAWSTLVRML_DataSource_1::GetGeomType(const Standard_Integer,
                                       const Standard_Boolean IsElement,
                                       MeshVS_EntityType &Type) const {
   if (IsElement) {
@@ -143,7 +143,7 @@ XSDRAWSTLVRML_DataSource::GetGeomType(const Standard_Integer,
 // Purpose  :
 //================================================================
 Standard_Address
-XSDRAWSTLVRML_DataSource::GetAddr(const Standard_Integer,
+XSDRAWSTLVRML_DataSource_1::GetAddr(const Standard_Integer,
                                   const Standard_Boolean) const {
   return NULL;
 }
@@ -152,7 +152,7 @@ XSDRAWSTLVRML_DataSource::GetAddr(const Standard_Integer,
 // Function : GetNodesByElement
 // Purpose  :
 //================================================================
-Standard_Boolean XSDRAWSTLVRML_DataSource::GetNodesByElement(
+Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNodesByElement(
     const Standard_Integer ID, TColStd_Array1OfInteger &theNodeIDs,
     Standard_Integer & /*theNbNodes*/) const {
   if (myMesh.IsNull())
@@ -173,7 +173,7 @@ Standard_Boolean XSDRAWSTLVRML_DataSource::GetNodesByElement(
 // Purpose  :
 //================================================================
 const TColStd_PackedMapOfInteger &
-XSDRAWSTLVRML_DataSource::GetAllNodes() const {
+XSDRAWSTLVRML_DataSource_1::GetAllNodes() const {
   return myNodes;
 }
 
@@ -182,7 +182,7 @@ XSDRAWSTLVRML_DataSource::GetAllNodes() const {
 // Purpose  :
 //================================================================
 const TColStd_PackedMapOfInteger &
-XSDRAWSTLVRML_DataSource::GetAllElements() const {
+XSDRAWSTLVRML_DataSource_1::GetAllElements() const {
   return myElements;
 }
 
@@ -190,7 +190,7 @@ XSDRAWSTLVRML_DataSource::GetAllElements() const {
 // Function : GetNormal
 // Purpose  :
 //================================================================
-Standard_Boolean XSDRAWSTLVRML_DataSource::GetNormal(const Standard_Integer Id,
+Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNormal(const Standard_Integer Id,
                                                      const Standard_Integer Max,
                                                      Standard_Real &nx,
                                                      Standard_Real &ny,

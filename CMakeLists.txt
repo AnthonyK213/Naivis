@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 if(WIN32)
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-  list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
 endif()
+
+list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
