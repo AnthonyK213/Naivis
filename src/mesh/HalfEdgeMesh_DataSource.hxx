@@ -13,7 +13,7 @@
 #include <TColStd_HArray2OfInteger.hxx>
 #include <TColStd_HArray2OfReal.hxx>
 
-#include <naivecgl/Shape/HalfEdgeMesh.hpp>
+#include <naivecgl/Shape/HalfEdgeMesh.h>
 
 using HalfEdgeMesh_Mesh =
     naivecgl::shape::HalfEdgeMesh<Standard_Real, Standard_Integer>;

@@ -5,6 +5,7 @@ if(WIN32)
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{NAIVECGL_DIR}/lib/cmake/naivecgl")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
@@ -44,14 +45,19 @@ message("OCC-Lib-Dir: ${OpenCASCADE_LIBRARY_DIR}")
 message("OCC-Libs: ${OpenCASCADE_LIBRARIES}")
 
 find_package(Eigen3 REQUIRED)
+find_package(NaiveCGL REQUIRED)
+
+message("NaiveCGL-Include-Dir: ${NaiveCGL_INCLUDE_DIRS}")
+message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIRS}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
-  3rd/NaiveCGL/include/
+  ${NaiveCGL_INCLUDE_DIR}
   )
 
 link_directories(
   ${OpenCASCADE_LIBRARY_DIR}
+  ${NaiveCGL_LIBRARY_DIR}
   )
 
 add_subdirectory(src)

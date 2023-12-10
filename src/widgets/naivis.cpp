@@ -1,6 +1,9 @@
 #include "naivis.h"
 #include "./ui_naivis.h"
 
+#include <mesh/util.h>
+#include <naivecgl/Tessellation/Sphere.h>
+
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
 
@@ -44,6 +47,21 @@ void Naivis::selectAll() {}
 
 void Naivis::removeCurrentSelection() {}
 
+void Naivis::meshing() {
+  auto aSphere = naivecgl::tessellation::octasphere({42, -10, 66}, 10, 4);
+
+  if (aSphere.get() == nullptr)
+    return;
+
+  auto aMesh = naivis::mesh::naivePoly3DToMesh(*aSphere);
+  auto aMeshPrs = naivis::mesh::createMeshVS(aMesh);
+
+  if (aMeshPrs.IsNull())
+    return;
+
+  occtViewer()->Context()->Display(aMeshPrs, true);
+}
+
 // }}}
 
 void Naivis::setupActions() {
@@ -72,6 +90,9 @@ void Naivis::setupActions() {
     ui->actionPerspective->setChecked(true);
     setViewProjectionType(Graphic3d_Camera::Projection::Projection_Perspective);
   });
+
+  /// Mesh
+  connect(ui->actionMeshing, &QAction::triggered, this, &Naivis::meshing);
 
   /// Help
 }

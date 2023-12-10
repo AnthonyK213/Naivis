@@ -1,5 +1,5 @@
-#ifndef NAIVIS_H
-#define NAIVIS_H
+#ifndef _Naivis_Widgets_Naivis_Header
+#define _Naivis_Widgets_Naivis_Header
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -60,6 +60,12 @@ private slots:
   void removeCurrentSelection();
 
   // }}}
+
+  // Mesh {{{
+
+  void meshing();
+
+  /// }}}
 
 private:
   void setupActions();

@@ -7,6 +7,7 @@ set(PROJECT_SOURCES
   cmd/cmdTransformObjects.cpp
   mesh/HalfEdgeMesh_DataSource.cxx
   mesh/XSDRAWSTLVRML_DataSource_1.cxx
+  mesh/util.cpp
   io/documentManager.cpp
   widgets/naivis.cpp
   widgets/naivis.ui
@@ -46,6 +47,7 @@ target_link_libraries(
   Qt${QT_VERSION_MAJOR}::OpenGL
   ${OpenCASCADE_LIBRARIES}
   ${OPENGL_LIBRARIES}
+  ${NaiveCGL_LIBRARIES}
   )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
