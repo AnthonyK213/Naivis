@@ -47,8 +47,8 @@ message("OCC-Libs: ${OpenCASCADE_LIBRARIES}")
 find_package(Eigen3 REQUIRED)
 find_package(NaiveCGL REQUIRED)
 
-message("NaiveCGL-Include-Dir: ${NaiveCGL_INCLUDE_DIRS}")
-message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIRS}")
+message("NaiveCGL-Include-Dir: ${NaiveCGL_INCLUDE_DIR}")
+message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIR}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
