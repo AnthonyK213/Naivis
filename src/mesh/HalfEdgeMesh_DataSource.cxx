@@ -15,8 +15,8 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   const Standard_Integer aNbNodes = aMesh->NbNodes();
   const Standard_Integer aNbTris = aMesh->NbTriangles();
 
-  std::vector<Eigen::Vector3d> vertices{};
-  std::vector<Eigen::Vector3i> triangles{};
+  std::vector<Naive_Vector3d> vertices{};
+  std::vector<Naive_Vector3i> triangles{};
 
   vertices.reserve(aNbNodes);
   triangles.reserve(aNbTris);
@@ -62,7 +62,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
 
     const auto &aFace = item.second;
 
-    Eigen::Vector3d V[3];
+    Naive_Vector3d V[3];
 
     Standard_Integer idxEdge = 1;
     for (auto it = aFace.edgeIter(); it.more(); it.next(), ++idxEdge) {
@@ -75,10 +75,10 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
       V[idxEdge - 1] = aEdge->origin()->coordinates();
     }
 
-    Eigen::Vector3d aV1 = V[1] - V[0];
-    Eigen::Vector3d aV2 = V[2] - V[1];
+    Naive_Vector3d aV1 = V[1] - V[0];
+    Naive_Vector3d aV2 = V[2] - V[1];
 
-    Eigen::Vector3d aN = aV1.cross(aV2);
+    Naive_Vector3d aN = aV1.cross(aV2);
     if (aN.squaredNorm() > Precision::SquareConfusion())
       aN.normalize();
     else
