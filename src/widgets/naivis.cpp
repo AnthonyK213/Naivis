@@ -48,7 +48,7 @@ void Naivis::selectAll() {}
 void Naivis::removeCurrentSelection() {}
 
 void Naivis::meshing() {
-  auto aSphere = naivecgl::tessellation::octasphere({42, -10, 66}, 10, 4);
+  auto aSphere = naivecgl::tessellation::tetrasphere({42, -10, 66}, 10);
 
   if (aSphere.get() == nullptr)
     return;
