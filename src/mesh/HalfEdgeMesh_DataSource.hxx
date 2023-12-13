@@ -13,10 +13,7 @@
 #include <TColStd_HArray2OfInteger.hxx>
 #include <TColStd_HArray2OfReal.hxx>
 
-#include <naivecgl/Shape/HalfEdgeMesh.h>
-
-using HalfEdgeMesh_Mesh =
-    naivecgl::shape::HalfEdgeMesh<Standard_Real, Standard_Integer>;
+#include <naivecgl/Common/geometry.h>
 
 class HalfEdgeMesh_DataSource;
 DEFINE_STANDARD_HANDLE(HalfEdgeMesh_DataSource, MeshVS_DataSource)
@@ -70,9 +67,7 @@ public:
             Standard_Real &nx, Standard_Real &ny,
             Standard_Real &nz) const Standard_OVERRIDE;
 
-  Standard_EXPORT const HalfEdgeMesh_Mesh &GetHalfEdgeMesh() const {
-    return *myMesh;
-  }
+  Standard_EXPORT const Naive_Mesh &GetHalfEdgeMesh() const { return *myMesh; }
 
   Standard_EXPORT const Handle(Poly_Triangulation) & GetTriangulation() const {
     return myTriangulation;
@@ -84,7 +79,7 @@ protected:
 private:
   Standard_Boolean myIsValid;
   Handle(Poly_Triangulation) myTriangulation;
-  std::shared_ptr<HalfEdgeMesh_Mesh> myMesh;
+  Naive_H_Mesh myMesh;
   TColStd_PackedMapOfInteger myNodes;
   TColStd_PackedMapOfInteger myElements;
   Handle(TColStd_HArray2OfInteger) myElemNodes;

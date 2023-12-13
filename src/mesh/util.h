@@ -20,7 +20,7 @@
 
 #include "XSDRAWSTLVRML_DataSource_1.hxx"
 
-#include <naivecgl/Common/mesh.h>
+#include <naivecgl/Common/geometry.h>
 
 namespace naivis {
 namespace mesh {
@@ -56,7 +56,7 @@ Handle(Poly_Triangulation)
 /// @brief
 /// @param thePoly3D
 /// @return
-Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly3D &thePoly3D);
+Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly &thePoly);
 
 /// @brief
 /// @param

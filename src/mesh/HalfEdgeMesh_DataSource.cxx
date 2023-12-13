@@ -16,7 +16,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   const Standard_Integer aNbTris = aMesh->NbTriangles();
 
   std::vector<Naive_Vector3d> vertices{};
-  std::vector<Naive_Vector3i> triangles{};
+  std::vector<Naive_Triangle> triangles{};
 
   vertices.reserve(aNbNodes);
   triangles.reserve(aNbTris);
@@ -32,12 +32,12 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     triangles.push_back({aTri(1) - 1, aTri(2) - 1, aTri(3) - 1});
   }
 
-  naivecgl::shape::TriangleSoup soup{std::move(vertices), std::move(triangles)};
+  Naive_Poly soup{std::move(vertices), std::move(triangles)};
 
   if (!soup.isValid())
     return;
 
-  myMesh = std::make_shared<HalfEdgeMesh_Mesh>(soup);
+  myMesh = std::make_shared<Naive_Mesh>(soup);
 
   myNodeCoords = new TColStd_HArray2OfReal(1, aNbNodes, 1, 3);
 

@@ -121,9 +121,9 @@ Handle(Poly_Triangulation)
   return aMesh;
 }
 
-Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly3D &thePoly3D) {
-  const auto &vertices = thePoly3D.vertices();
-  const auto &triangles = thePoly3D.triangles();
+Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly &thePoly) {
+  const auto &vertices = thePoly.vertices();
+  const auto &triangles = thePoly.triangles();
 
   if (vertices.empty() || triangles.empty()) {
     return nullptr;
@@ -137,7 +137,7 @@ Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly3D &thePoly3D) {
                      {vertices[i].x(), vertices[i].y(), vertices[i].z()});
   }
 
-  for (int i = 0; i < thePoly3D.triangles().size(); ++i) {
+  for (int i = 0; i < thePoly.triangles().size(); ++i) {
     aTriangles.SetValue(i + 1, {triangles[i].x() + 1, triangles[i].y() + 1,
                                 triangles[i].z() + 1});
   }
