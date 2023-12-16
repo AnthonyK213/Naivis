@@ -82,7 +82,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -129,9 +129,17 @@
    </widget>
    <widget class="QMenu" name="menuMesh">
     <property name="title">
-     <string>Mesh</string>
+     <string>Algo</string>
     </property>
+    <widget class="QMenu" name="menu2D">
+     <property name="title">
+      <string>2D</string>
+     </property>
+     <addaction name="actionConvexHull2D"/>
+    </widget>
     <addaction name="actionMeshing"/>
+    <addaction name="separator"/>
+    <addaction name="menu2D"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEidt"/>
@@ -279,6 +287,11 @@
   <action name="actionMeshing">
    <property name="text">
     <string>Meshing</string>
+   </property>
+  </action>
+  <action name="actionConvexHull2D">
+   <property name="text">
+    <string>Convex Hull</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,10 @@
 #include "./ui_naivis.h"
 
 #include <mesh/util.h>
+#include <naivecgl/BndShape/ConvexHull.h>
 #include <naivecgl/Tessellation/Sphere.h>
+
+#include <BRepBuilderAPI_MakeVertex.hxx>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
@@ -48,7 +51,7 @@ void Naivis::selectAll() {}
 void Naivis::removeCurrentSelection() {}
 
 void Naivis::meshing() {
-  auto aSphere = naivecgl::tessellation::tetrasphere({42, -10, 66}, 10);
+  auto aSphere = naivecgl::tessellation::tetrasphere({42, -10, 66}, 100);
 
   if (aSphere.get() == nullptr)
     return;
@@ -62,21 +65,54 @@ void Naivis::meshing() {
   occtViewer()->Context()->Display(aMeshPrs, true);
 }
 
+void Naivis::convexHull2D() {
+  Naive_List<Naive_Point2d> points(512);
+
+  std::srand(std::time(0));
+
+  for (Naive_Point2d &point : points) {
+    point(0) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
+    point(1) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
+    
+    point *= (Naive_Real)std::rand() / RAND_MAX;
+
+    BRepBuilderAPI_MakeVertex vertex({point.x(), point.y(), 0.0});
+    Handle(AIS_Shape) shape = new AIS_Shape(vertex);
+
+    occtViewer()->Context()->Display(shape, false);
+  }
+
+  Naive_List<Naive_Integer> convexIndices{};
+  naivecgl::bndshape::convexHull2D(points, convexIndices);
+
+  for (Naive_Integer i = 0; i < convexIndices.size(); ++i) {
+    Naive_Integer j = (i + 1) % convexIndices.size();
+
+    const Naive_Point2d &a = points[convexIndices[i]];
+    const Naive_Point2d &b = points[convexIndices[j]];
+    BRepBuilderAPI_MakeEdge edge({a.x(), a.y(), 0.0}, {b.x(), b.y(), 0.0});
+    Handle(AIS_Shape) shape = new AIS_Shape(edge);
+
+    occtViewer()->Context()->Display(shape, false);
+  }
+}
+
 // }}}
+
+#define CONNECT_ACTION(A, F) connect(A, &QAction::triggered, this, &Naivis::F);
 
 void Naivis::setupActions() {
   /// File
-  connect(ui->actionImport, &QAction::triggered, this, &Naivis::importFile);
-  connect(ui->actionExport, &QAction::triggered, this, &Naivis::exportFile);
-  connect(ui->actionQuit, &QAction::triggered, this, &Naivis::quit);
+  CONNECT_ACTION(ui->actionImport, importFile);
+  CONNECT_ACTION(ui->actionExport, exportFile);
+  CONNECT_ACTION(ui->actionQuit, quit);
 
   /// Edit
-  connect(ui->actionUndo, &QAction::triggered, this, &Naivis::undo);
-  connect(ui->actionRedo, &QAction::triggered, this, &Naivis::redo);
-  connect(ui->actionTransform, &QAction::triggered, this, &Naivis::transform);
-  connect(ui->actionSelectAll, &QAction::triggered, this, &Naivis::selectAll);
-  connect(ui->actionDelete, &QAction::triggered, this,
-          &Naivis::removeCurrentSelection);
+  CONNECT_ACTION(ui->actionUndo, undo);
+  CONNECT_ACTION(ui->actionRedo, redo);
+  CONNECT_ACTION(ui->actionTransform, transform);
+  CONNECT_ACTION(ui->actionSelectAll, selectAll);
+  CONNECT_ACTION(ui->actionDelete, removeCurrentSelection);
 
   /// View
   connect(ui->actionOrthographic, &QAction::triggered, [this] {
@@ -91,11 +127,14 @@ void Naivis::setupActions() {
     setViewProjectionType(Graphic3d_Camera::Projection::Projection_Perspective);
   });
 
-  /// Mesh
-  connect(ui->actionMeshing, &QAction::triggered, this, &Naivis::meshing);
+  /// Algo
+  CONNECT_ACTION(ui->actionMeshing, meshing);
+  CONNECT_ACTION(ui->actionConvexHull2D, convexHull2D);
 
   /// Help
 }
+
+#undef CONNECT_ACTION
 
 void Naivis::setupOutputBuffer() {
   ui->outputBuffer->document()->setMaximumBlockCount(9001);

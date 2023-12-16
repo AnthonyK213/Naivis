@@ -61,9 +61,11 @@ private slots:
 
   // }}}
 
-  // Mesh {{{
+  // Algo {{{
 
   void meshing();
+
+  void convexHull2D();
 
   /// }}}
 
