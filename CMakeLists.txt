@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-if(WIN32)
-  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-endif()
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
 list(APPEND CMAKE_PREFIX_PATH "$ENV{NAIVECGL_DIR}/lib/cmake/naivecgl")
@@ -53,6 +51,7 @@ message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIR}")
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
   ${NaiveCGL_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIRS}
   )
 
 link_directories(

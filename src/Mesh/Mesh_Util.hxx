@@ -1,5 +1,5 @@
-#ifndef _Naivis_Mesh_Util_Header
-#define _Naivis_Mesh_Util_Header
+#ifndef _Naivis_Mesh_Util_HeaderFile
+#define _Naivis_Mesh_Util_HeaderFile
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_TFace.hxx>
@@ -18,52 +18,29 @@
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 
+#include "Mesh_MeshBuilder.hxx"
 #include "XSDRAWSTLVRML_DataSource_1.hxx"
 
 #include <naivecgl/Common/geometry.h>
 
-namespace naivis {
-namespace mesh {
-
-class MeshBuilder {
-public:
-  MeshBuilder();
-
-  ~MeshBuilder();
-
-public:
-  bool add(Handle(Poly_Triangulation) theMesh,
-           const TopLoc_Location &theLocation);
-
-  void clear();
-
-  Handle(Poly_Triangulation) mesh() const;
-
-  void transform(const gp_Trsf &theT);
-
-private:
-  std::vector<gp_Pnt> myNodes{};
-
-  std::vector<Poly_Triangle> myTriangles{};
-};
+namespace Mesh_Util {
 
 /// @brief
 Handle(Poly_Triangulation)
-    shapeToMesh(const TopoDS_Shape &theShape,
+    ShapeToMesh(const TopoDS_Shape &theShape,
                 const IMeshTools_Parameters &theMeshParams,
                 const TopLoc_Location &theLocation);
 
 /// @brief
 /// @param thePoly3D
 /// @return
-Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly &thePoly);
+Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly);
 
 /// @brief
 /// @param
 /// @return
-Handle(MeshVS_Mesh) createMeshVS(const Handle(Poly_Triangulation) & theMesh);
+Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh);
 
-} // namespace mesh
-} // namespace naivis
+} // namespace Mesh_Util
 
 #endif

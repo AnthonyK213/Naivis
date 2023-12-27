@@ -1,4 +1,4 @@
-﻿#include "occtViewer.h"
+﻿#include "Widget_OcctViewer.hxx"
 
 namespace {
 
@@ -237,7 +237,7 @@ public:
   }
 };
 
-OcctViewer::OcctViewer(QWidget *theParent)
+Widget_OcctViewer::Widget_OcctViewer(QWidget *theParent)
     : QOpenGLWidget(theParent), myIsCoreProfile(true) {
   Handle(Aspect_DisplayConnection) aDisp = new Aspect_DisplayConnection();
   Handle(OpenGl_GraphicDriver) aDriver = new OpenGl_GraphicDriver(aDisp, false);
@@ -329,7 +329,7 @@ OcctViewer::OcctViewer(QWidget *theParent)
 #endif
 }
 
-OcctViewer::~OcctViewer() {
+Widget_OcctViewer::~Widget_OcctViewer() {
   // hold on X11 display connection till making another connection active by
   // glXMakeCurrent() to workaround sudden crash in QOpenGLWidget destructor
   Handle(Aspect_DisplayConnection) aDisp =
@@ -347,7 +347,7 @@ OcctViewer::~OcctViewer() {
   aDisp.Nullify();
 }
 
-void OcctViewer::dumpGlInfo(bool theIsBasic, bool theToPrint) {
+void Widget_OcctViewer::dumpGlInfo(bool theIsBasic, bool theToPrint) {
   TColStd_IndexedDataMapOfStringString aGlCapsDict;
   myView->DiagnosticInformation(aGlCapsDict,
                                 theIsBasic ? Graphic3d_DiagnosticInfo_Basic
@@ -369,7 +369,7 @@ void OcctViewer::dumpGlInfo(bool theIsBasic, bool theToPrint) {
   myGlInfo = QString::fromUtf8(anInfo.ToCString());
 }
 
-void OcctViewer::initializeGL() {
+void Widget_OcctViewer::initializeGL() {
   const QRect aRect = rect();
   const Graphic3d_Vec2i aViewSize(aRect.right() - aRect.left(),
                                   aRect.bottom() - aRect.top());
@@ -411,13 +411,13 @@ void OcctViewer::initializeGL() {
   }
 }
 
-void OcctViewer::displayViewCube() {
+void Widget_OcctViewer::displayViewCube() {
   myContext->Display(myViewCube, 0, 0, false);
 }
 
-void OcctViewer::closeEvent(QCloseEvent *theEvent) { theEvent->accept(); }
+void Widget_OcctViewer::closeEvent(QCloseEvent *theEvent) { theEvent->accept(); }
 
-void OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
+void Widget_OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
   Aspect_VKey aKey = qtKey2VKey(theEvent->key());
   switch (aKey) {
   case Aspect_VKey_Escape: {
@@ -433,7 +433,7 @@ void OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
   QOpenGLWidget::keyPressEvent(theEvent);
 }
 
-void OcctViewer::mousePressEvent(QMouseEvent *theEvent) {
+void Widget_OcctViewer::mousePressEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mousePressEvent(theEvent);
   const Graphic3d_Vec2i aPnt(theEvent->pos().x() * screenScale(),
                              theEvent->pos().y() * screenScale());
@@ -445,7 +445,7 @@ void OcctViewer::mousePressEvent(QMouseEvent *theEvent) {
   }
 }
 
-void OcctViewer::mouseReleaseEvent(QMouseEvent *theEvent) {
+void Widget_OcctViewer::mouseReleaseEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mouseReleaseEvent(theEvent);
   const Graphic3d_Vec2i aPnt(theEvent->pos().x() * screenScale(),
                              theEvent->pos().y() * screenScale());
@@ -457,7 +457,7 @@ void OcctViewer::mouseReleaseEvent(QMouseEvent *theEvent) {
   }
 }
 
-void OcctViewer::mouseMoveEvent(QMouseEvent *theEvent) {
+void Widget_OcctViewer::mouseMoveEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mouseMoveEvent(theEvent);
   const Graphic3d_Vec2i aNewPos(theEvent->pos().x() * screenScale(),
                                 theEvent->pos().y() * screenScale());
@@ -469,7 +469,7 @@ void OcctViewer::mouseMoveEvent(QMouseEvent *theEvent) {
   }
 }
 
-void OcctViewer::wheelEvent(QWheelEvent *theEvent) {
+void Widget_OcctViewer::wheelEvent(QWheelEvent *theEvent) {
   QOpenGLWidget::wheelEvent(theEvent);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
   const Graphic3d_Vec2i aPos(
@@ -486,12 +486,12 @@ void OcctViewer::wheelEvent(QWheelEvent *theEvent) {
   }
 }
 
-void OcctViewer::updateView() {
+void Widget_OcctViewer::updateView() {
   update();
   // if (window() != NULL) { window()->update(); }
 }
 
-void OcctViewer::paintGL() {
+void Widget_OcctViewer::paintGL() {
   if (myView->Window().IsNull()) {
     return;
   }
@@ -533,7 +533,7 @@ void OcctViewer::paintGL() {
   FlushViewEvents(myContext, myView, true);
 }
 
-void OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) & theCtx,
+void Widget_OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) & theCtx,
                                   const Handle(V3d_View) & theView) {
   AIS_ViewController::handleViewRedraw(theCtx, theView);
   if (myToAskNextFrame) {
@@ -542,7 +542,7 @@ void OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) & theCtx,
   }
 }
 
-qreal OcctViewer::screenScale() const {
+qreal Widget_OcctViewer::screenScale() const {
   return reinterpret_cast<QMainWindow *>(parent()->parent())
       ->devicePixelRatio();
 }

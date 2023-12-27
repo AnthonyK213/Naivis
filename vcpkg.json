@@ -4,6 +4,7 @@
   "dependencies": [
     {
       "name": "opencascade",
+      "platform": "windows",
       "host": true
     },
     {

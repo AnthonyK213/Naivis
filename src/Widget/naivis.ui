@@ -42,7 +42,7 @@
        <property name="childrenCollapsible">
         <bool>false</bool>
        </property>
-       <widget class="OcctViewer" name="occtViewer"/>
+       <widget class="Widget_OcctViewer" name="occtViewer"/>
        <widget class="QTextBrowser" name="outputBuffer"/>
       </widget>
       <widget class="QSplitter" name="splitterRight">
@@ -297,9 +297,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>OcctViewer</class>
+   <class>Widget_OcctViewer</class>
    <extends>QOpenGLWidget</extends>
-   <header>widgets/occtViewer.h</header>
+   <header>Widget/Widget_OcctViewer.hxx</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -26,50 +26,50 @@
 #include <XCAFPrs_DocumentNode.hxx>
 
 /// @brief XCAF document manager.
-class DocumentManager {
+class Document_NaiveDoc {
 public:
-  DocumentManager();
+  Document_NaiveDoc();
 
-  virtual ~DocumentManager();
+  virtual ~Document_NaiveDoc();
 
 public:
   /// @brief Create new XCAF document.
-  void newDocument();
+  void NewDocument();
 
   /// @brief Current document.
   /// @return
-  Handle(TDocStd_Document) document() const;
+  Handle(TDocStd_Document) Document() const;
 
   /// @brief Iterator of objects in current document.
   /// @param flags
   /// @return
   XCAFPrs_DocumentExplorer
-  explorer(const XCAFPrs_DocumentExplorerFlags flags =
-               XCAFPrs_DocumentExplorerFlags_None) const;
+  GetExplorer(const XCAFPrs_DocumentExplorerFlags flags =
+                  XCAFPrs_DocumentExplorerFlags_None) const;
 
-  bool importStep(const char *filePath);
+  bool ImportStep(const char *filePath);
 
-  bool exportStep(const char *filePath);
+  bool ExportStep(const char *filePath);
 
-  Handle(Poly_Triangulation) importStl(const char *filePath);
+  Handle(Poly_Triangulation) ImportStl(const char *filePath);
 
-  bool exportStl(const char *filePath,
+  bool ExportStl(const char *filePath,
                  const Handle(Poly_Triangulation) & theMesh);
 
-  void dumpXcafDocumentTree() const;
+  void DumpXcafDocumentTree() const;
 
 public:
   static TCollection_AsciiString
-  getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+  GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
                        bool theIsInstanceName, int theLowerDepth = 0);
 
 protected:
-  bool createXcafApp();
+  bool CreateXcafApp();
 
 protected:
-  Handle(TDocStd_Application) m_app;
+  Handle(TDocStd_Application) myApp;
 
-  Handle(TDocStd_Document) m_doc;
+  Handle(TDocStd_Document) myDoc;
 };
 
 #endif

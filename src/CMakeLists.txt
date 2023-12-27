@@ -2,16 +2,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJECT_SOURCES
   main.cpp
-  cmd/cmdRemoveObjects.cpp
-  cmd/cmdReplaceObjects.cpp
-  cmd/cmdTransformObjects.cpp
-  mesh/HalfEdgeMesh_DataSource.cxx
-  mesh/XSDRAWSTLVRML_DataSource_1.cxx
-  mesh/util.cpp
-  io/documentManager.cpp
-  widgets/naivis.cpp
-  widgets/naivis.ui
-  widgets/occtViewer.cpp
+  Command/Command_AddObjects.cxx
+  Command/Command_RemoveObjects.cxx
+  Command/Command_ReplaceObjects.cxx
+  Command/Command_TransformObjects.cxx
+  Mesh/HalfEdgeMesh_DataSource.cxx
+  Mesh/XSDRAWSTLVRML_DataSource_1.cxx
+  Mesh/Mesh_MeshBuilder.cxx
+  Mesh/Mesh_Util.cxx
+  Document/Document_NaiveDoc.cxx
+  IO/IO_LogStream.cxx
+  Widget/naivis.cpp
+  Widget/naivis.ui
+  Widget/Widget_OcctViewer.cxx
   )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

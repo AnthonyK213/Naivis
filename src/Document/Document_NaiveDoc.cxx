@@ -1,16 +1,16 @@
-﻿#include "documentManager.h"
+﻿#include "Document_NaiveDoc.hxx"
 
-DocumentManager::DocumentManager() { createXcafApp(); }
+Document_NaiveDoc::Document_NaiveDoc() { CreateXcafApp(); }
 
-DocumentManager::~DocumentManager() {}
+Document_NaiveDoc::~Document_NaiveDoc() {}
 
-bool DocumentManager::createXcafApp() {
-  if (!m_app.IsNull())
+bool Document_NaiveDoc::CreateXcafApp() {
+  if (!myApp.IsNull())
     return true;
 
   try {
-    m_app = new TDocStd_Application();
-    BinXCAFDrivers::DefineFormat(m_app);
+    myApp = new TDocStd_Application();
+    BinXCAFDrivers::DefineFormat(myApp);
     return true;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Error: " << theFailure.GetMessageString() << std::endl;
@@ -18,33 +18,33 @@ bool DocumentManager::createXcafApp() {
   }
 }
 
-void DocumentManager::newDocument() {
-  if (!m_doc.IsNull()) {
-    if (m_doc->HasOpenCommand())
-      m_doc->AbortCommand();
+void Document_NaiveDoc::NewDocument() {
+  if (!myDoc.IsNull()) {
+    if (myDoc->HasOpenCommand())
+      myDoc->AbortCommand();
 
-    m_doc->Main().Root().ForgetAllAttributes(Standard_True);
-    m_app->Close(m_doc);
-    m_doc.Nullify();
+    myDoc->Main().Root().ForgetAllAttributes(Standard_True);
+    myApp->Close(myDoc);
+    myDoc.Nullify();
   }
 
-  if (!m_app.IsNull())
-    m_app->NewDocument(TCollection_ExtendedString("BinXCAF"), m_doc);
+  if (!myApp.IsNull())
+    myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), myDoc);
 
-  if (!m_doc.IsNull())
-    m_doc->SetUndoLimit(10);
+  if (!myDoc.IsNull())
+    myDoc->SetUndoLimit(10);
 }
 
-Handle(TDocStd_Document) DocumentManager::document() const { return m_doc; }
+Handle(TDocStd_Document) Document_NaiveDoc::Document() const { return myDoc; }
 
-XCAFPrs_DocumentExplorer
-DocumentManager::explorer(const XCAFPrs_DocumentExplorerFlags flags) const {
-  return {m_doc, flags};
+XCAFPrs_DocumentExplorer Document_NaiveDoc::GetExplorer(
+    const XCAFPrs_DocumentExplorerFlags flags) const {
+  return {myDoc, flags};
 }
 
-bool DocumentManager::importStep(const char *filePath) {
-  createXcafApp();
-  newDocument();
+bool Document_NaiveDoc::ImportStep(const char *filePath) {
+  CreateXcafApp();
+  NewDocument();
 
   STEPCAFControl_Controller::Init();
   STEPControl_Controller::Init();
@@ -62,7 +62,7 @@ bool DocumentManager::importStep(const char *filePath) {
       return false;
     }
 
-    if (!aReader.Transfer(m_doc)) {
+    if (!aReader.Transfer(myDoc)) {
       std::cout << "Error: On transferring STEP file " << filePath << '\n';
       return false;
     }
@@ -76,7 +76,7 @@ bool DocumentManager::importStep(const char *filePath) {
   }
 }
 
-bool DocumentManager::exportStep(const char *filePath) {
+bool Document_NaiveDoc::ExportStep(const char *filePath) {
   STEPCAFControl_Writer aWriter;
 
   aWriter.SetColorMode(Standard_True);
@@ -85,7 +85,7 @@ bool DocumentManager::exportStep(const char *filePath) {
   aWriter.SetSHUOMode(Standard_True);
 
   try {
-    if (aWriter.Transfer(m_doc) != IFSelect_RetDone) {
+    if (aWriter.Transfer(myDoc) != IFSelect_RetDone) {
       std::cout << "Error: On transferring STEP file " << filePath << '\n';
       return false;
     }
@@ -104,7 +104,7 @@ bool DocumentManager::exportStep(const char *filePath) {
   }
 }
 
-Handle(Poly_Triangulation) DocumentManager::importStl(const char *filePath) {
+Handle(Poly_Triangulation) Document_NaiveDoc::ImportStl(const char *filePath) {
   try {
     Handle(Poly_Triangulation) aStlMesh = RWStl::ReadFile(filePath);
     return aStlMesh;
@@ -115,8 +115,8 @@ Handle(Poly_Triangulation) DocumentManager::importStl(const char *filePath) {
   }
 }
 
-bool DocumentManager::exportStl(const char *filePath,
-                                const Handle(Poly_Triangulation) & theMesh) {
+bool Document_NaiveDoc::ExportStl(const char *filePath,
+                                  const Handle(Poly_Triangulation) & theMesh) {
   try {
     OSD_Path aPath{filePath};
     return RWStl::WriteAscii(theMesh, aPath);
@@ -127,14 +127,14 @@ bool DocumentManager::exportStl(const char *filePath,
   }
 }
 
-void DocumentManager::dumpXcafDocumentTree() const {
-  if (m_doc.IsNull())
+void Document_NaiveDoc::DumpXcafDocumentTree() const {
+  if (myDoc.IsNull())
     return;
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = explorer(); aDocExpl.More();
+  for (XCAFPrs_DocumentExplorer aDocExpl = GetExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     TCollection_AsciiString aName =
-        getXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth());
+        GetXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth());
     aName = TCollection_AsciiString(aDocExpl.CurrentDepth() * 2, ' ') + aName +
             " @" + aDocExpl.Current().Id;
     std::cout << aName << '\n';
@@ -144,9 +144,9 @@ void DocumentManager::dumpXcafDocumentTree() const {
 }
 
 TCollection_AsciiString
-DocumentManager::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                                      bool theIsInstanceName,
-                                      int theLowerDepth) {
+Document_NaiveDoc::GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+                                        bool theIsInstanceName,
+                                        int theLowerDepth) {
   TCollection_AsciiString aPath;
 
   for (int aDepth = theLowerDepth; aDepth <= theExpl.CurrentDepth(); ++aDepth) {

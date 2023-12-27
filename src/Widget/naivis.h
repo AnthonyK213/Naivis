@@ -1,5 +1,5 @@
-#ifndef _Naivis_Widgets_Naivis_Header
-#define _Naivis_Widgets_Naivis_Header
+#ifndef _Naivis_Widget_Naivis_Header
+#define _Naivis_Widget_Naivis_Header
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -19,8 +19,8 @@
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Shape.hxx>
 
-#include <io/logStream.h>
-#include <widgets/occtViewer.h>
+#include <IO/IO_LogStream.hxx>
+#include <Widget/Widget_OcctViewer.hxx>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -74,14 +74,14 @@ private:
 
   void setupOutputBuffer();
 
-  OcctViewer *occtViewer();
+  Widget_OcctViewer *occtViewer();
 
   void setViewProjectionType(Graphic3d_Camera::Projection projectionType);
 
 private:
   Ui::Naivis *ui;
 
-  LogStream *m_logStream;
+  IO_LogStream *myLogStream;
 };
 
 #endif // NAIVIS_H

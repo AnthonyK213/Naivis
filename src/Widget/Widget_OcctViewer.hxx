@@ -1,5 +1,5 @@
-﻿#ifndef _Naivis_Widgets_OcctViewer_Header
-#define _Naivis_Widgets_OcctViewer_Header
+﻿#ifndef _Naivis_Widget_OcctViewer_HeaderFile
+#define _Naivis_Widget_OcctViewer_HeaderFile
 
 #ifdef _WIN32
 #include <windows.h>
@@ -52,13 +52,13 @@
 #include <QOpenGLWidget>
 #include <QStringList>
 
-class OcctViewer : public QOpenGLWidget, public AIS_ViewController {
+class Widget_OcctViewer : public QOpenGLWidget, public AIS_ViewController {
   Q_OBJECT
 
 public:
-  OcctViewer(QWidget *theParent = nullptr);
+  Widget_OcctViewer(QWidget *theParent = nullptr);
 
-  virtual ~OcctViewer();
+  virtual ~Widget_OcctViewer();
 
   const Handle(V3d_Viewer) & Viewer() const { return myViewer; }
 

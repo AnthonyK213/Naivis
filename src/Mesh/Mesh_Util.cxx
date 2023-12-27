@@ -1,71 +1,17 @@
-#include "util.h"
+#include "Mesh_Util.hxx"
 
-namespace naivis {
-namespace mesh {
-
-MeshBuilder::MeshBuilder() {}
-
-MeshBuilder::~MeshBuilder() {}
-
-bool MeshBuilder::add(Handle(Poly_Triangulation) theMesh,
-                      const TopLoc_Location &theLocation) {
-  Standard_Integer nbNodes = static_cast<Standard_Integer>(myNodes.size());
-
-  for (Standard_Integer i = 1; i <= theMesh->NbNodes(); ++i) {
-    gp_Pnt aNode = theMesh->Node(i);
-    aNode.Transform(theLocation);
-    myNodes.push_back(aNode);
-  }
-
-  for (Standard_Integer i = 1; i <= theMesh->NbTriangles(); ++i) {
-    const Poly_Triangle &triangle = theMesh->Triangle(i);
-    myTriangles.push_back(
-        {nbNodes + triangle(1), nbNodes + triangle(2), nbNodes + triangle(3)});
-  }
-
-  return true;
-}
-
-void MeshBuilder::clear() {
-  myNodes.clear();
-  myTriangles.clear();
-}
-
-Handle(Poly_Triangulation) MeshBuilder::mesh() const {
-  if (myNodes.empty() || myTriangles.empty()) {
-    return nullptr;
-  }
-
-  TColgp_Array1OfPnt aPoints{1, (int)myNodes.size()};
-  Poly_Array1OfTriangle aTriangles{1, (int)myTriangles.size()};
-
-  for (int i = 0; i < myNodes.size(); ++i) {
-    aPoints.SetValue(i + 1, myNodes[i]);
-  }
-
-  for (int i = 0; i < myTriangles.size(); ++i) {
-    aTriangles.SetValue(i + 1, myTriangles[i]);
-  }
-
-  return new Poly_Triangulation(aPoints, aTriangles);
-}
-
-void MeshBuilder::transform(const gp_Trsf &theT) {
-  for (gp_Pnt &aNode : myNodes) {
-    aNode.Transform(theT);
-  }
-}
+namespace Mesh_Util {
 
 Handle(Poly_Triangulation)
-    shapeToMesh(const TopoDS_Shape &theShape,
+    ShapeToMesh(const TopoDS_Shape &theShape,
                 const IMeshTools_Parameters &theMeshParams,
                 const TopLoc_Location &theLocation) {
   if (theShape.IsNull())
     return nullptr;
 
-  MeshBuilder aMeshBuilder{};
+  Mesh_MeshBuilder aMeshBuilder{};
 
-  /// TopoDS_Face mesh backup, to preserve the triangulation for the view.
+  /// TopoDS_Face mesh backup, to preserve the triangulation in the view.
   std::vector<Poly_ListOfTriangulation> polysBackup{};
   std::vector<Handle(Poly_Triangulation)> activePolyBackup{};
 
@@ -105,13 +51,13 @@ Handle(Poly_Triangulation)
     if (facing.IsNull())
       continue;
 
-    aMeshBuilder.add(facing, loc);
+    aMeshBuilder.Add(facing, loc);
   }
 
-  aMeshBuilder.transform(theLocation.Transformation());
+  aMeshBuilder.Transform(theLocation.Transformation());
 
-  Handle(Poly_Triangulation) aMesh = aMeshBuilder.mesh();
-  aMeshBuilder.clear();
+  Handle(Poly_Triangulation) aMesh = aMeshBuilder.Mesh();
+  aMeshBuilder.Clear();
 
   if (aMesh.IsNull())
     return nullptr;
@@ -121,7 +67,7 @@ Handle(Poly_Triangulation)
   return aMesh;
 }
 
-Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly &thePoly) {
+Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
   const auto &vertices = thePoly.vertices();
   const auto &triangles = thePoly.triangles();
 
@@ -145,7 +91,7 @@ Handle(Poly_Triangulation) naivePoly3DToMesh(const Naive_Poly &thePoly) {
   return new Poly_Triangulation(aPoints, aTriangles);
 }
 
-Handle(MeshVS_Mesh) createMeshVS(const Handle(Poly_Triangulation) & theMesh) {
+Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   if (theMesh.IsNull())
     return nullptr;
 
@@ -173,5 +119,4 @@ Handle(MeshVS_Mesh) createMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   return aMeshPrs;
 }
 
-} // namespace mesh
-} // namespace naivis
+} // namespace Mesh_Util

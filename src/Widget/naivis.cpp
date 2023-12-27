@@ -1,7 +1,7 @@
 #include "naivis.h"
 #include "./ui_naivis.h"
 
-#include <mesh/util.h>
+#include <Mesh/Mesh_Util.hxx>
 #include <naivecgl/BndShape/ConvexHull.h>
 #include <naivecgl/Tessellation/Sphere.h>
 
@@ -24,7 +24,7 @@ void Naivis::importFile() {
   QString selectedFilter{};
 
   QString filePath = QFileDialog::getOpenFileName(
-      this, "Open", "", tr("STEP (*.stp;*.step);;STL (*.stl)"),
+      this, "Open", "", tr("STEP (*.stp *.step);;STL (*.stl)"),
       &selectedFilter);
 
   if (filePath.isEmpty())
@@ -56,8 +56,8 @@ void Naivis::meshing() {
   if (aSphere.get() == nullptr)
     return;
 
-  auto aMesh = naivis::mesh::naivePoly3DToMesh(*aSphere);
-  auto aMeshPrs = naivis::mesh::createMeshVS(aMesh);
+  auto aMesh = Mesh_Util::NaivePoly3DToMesh(*aSphere);
+  auto aMeshPrs = Mesh_Util::CreateMeshVS(aMesh);
 
   if (aMeshPrs.IsNull())
     return;
@@ -138,10 +138,10 @@ void Naivis::setupActions() {
 
 void Naivis::setupOutputBuffer() {
   ui->outputBuffer->document()->setMaximumBlockCount(9001);
-  m_logStream = new LogStream(std::cout, ui->outputBuffer);
+  myLogStream = new IO_LogStream(std::cout, ui->outputBuffer);
 }
 
-OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
+Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
 
 void Naivis::setViewProjectionType(
     Graphic3d_Camera::Projection projectionType) {
