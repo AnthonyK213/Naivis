@@ -1,4 +1,4 @@
-#ifndef _Naivis_Command_ReplaceObjects_HeaderFile
+﻿#ifndef _Naivis_Command_ReplaceObjects_HeaderFile
 #define _Naivis_Command_ReplaceObjects_HeaderFile
 
 #include <QListView>

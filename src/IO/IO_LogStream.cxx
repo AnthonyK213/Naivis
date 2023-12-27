@@ -1,4 +1,4 @@
-#include "IO_LogStream.hxx"
+﻿#include "IO_LogStream.hxx"
 
 IO_LogStream::IO_LogStream(std::ostream &stream, QTextBrowser *textBrowser)
     : myStream(stream) {

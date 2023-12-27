@@ -1,4 +1,4 @@
-#ifndef _Naivis_Widget_Naivis_Header
+﻿#ifndef _Naivis_Widget_Naivis_Header
 #define _Naivis_Widget_Naivis_Header
 
 #include <QFileDialog>

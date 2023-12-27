@@ -1,11 +1,11 @@
-#include "Mesh_MeshBuilder.hxx"
+﻿#include "Mesh_MeshBuilder.hxx"
 
 Mesh_MeshBuilder::Mesh_MeshBuilder() {}
 
 Mesh_MeshBuilder::~Mesh_MeshBuilder() {}
 
-bool Mesh_MeshBuilder::Add(Handle(Poly_Triangulation) theMesh,
-                           const TopLoc_Location &theLocation) {
+Standard_Boolean Mesh_MeshBuilder::Add(Handle(Poly_Triangulation) theMesh,
+                                       const TopLoc_Location &theLocation) {
   Standard_Integer nbNodes = static_cast<Standard_Integer>(myNodes.size());
 
   for (Standard_Integer i = 1; i <= theMesh->NbNodes(); ++i) {
@@ -20,7 +20,7 @@ bool Mesh_MeshBuilder::Add(Handle(Poly_Triangulation) theMesh,
         {nbNodes + triangle(1), nbNodes + triangle(2), nbNodes + triangle(3)});
   }
 
-  return true;
+  return Standard_True;
 }
 
 void Mesh_MeshBuilder::Clear() {
@@ -33,14 +33,14 @@ Handle(Poly_Triangulation) Mesh_MeshBuilder::Mesh() const {
     return nullptr;
   }
 
-  TColgp_Array1OfPnt aPoints{1, (int)myNodes.size()};
-  Poly_Array1OfTriangle aTriangles{1, (int)myTriangles.size()};
+  TColgp_Array1OfPnt aPoints{1, (Standard_Integer)myNodes.size()};
+  Poly_Array1OfTriangle aTriangles{1, (Standard_Integer)myTriangles.size()};
 
-  for (int i = 0; i < myNodes.size(); ++i) {
+  for (Standard_Integer i = 0; i < myNodes.size(); ++i) {
     aPoints.SetValue(i + 1, myNodes[i]);
   }
 
-  for (int i = 0; i < myTriangles.size(); ++i) {
+  for (Standard_Integer i = 0; i < myTriangles.size(); ++i) {
     aTriangles.SetValue(i + 1, myTriangles[i]);
   }
 

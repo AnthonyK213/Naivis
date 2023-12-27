@@ -1,4 +1,4 @@
-#ifndef _Naivis_Mesh_Util_HeaderFile
+﻿#ifndef _Naivis_Mesh_Util_HeaderFile
 #define _Naivis_Mesh_Util_HeaderFile
 
 #include <BRepMesh_IncrementalMesh.hxx>

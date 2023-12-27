@@ -1,4 +1,4 @@
-#ifndef _Naivis_Command_TransformObjects_HeaderFile
+﻿#ifndef _Naivis_Command_TransformObjects_HeaderFile
 #define _Naivis_Command_TransformObjects_HeaderFile
 
 #include <QListView>

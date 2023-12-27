@@ -1,4 +1,4 @@
-#ifndef _HalfEdgeMesh_DataSource_HeaderFile
+﻿#ifndef _HalfEdgeMesh_DataSource_HeaderFile
 #define _HalfEdgeMesh_DataSource_HeaderFile
 
 #include <Standard.hxx>

@@ -1,4 +1,4 @@
-#ifndef _Naivis_Mesh_MeshBuilder_HeaderFile
+﻿#ifndef _Naivis_Mesh_MeshBuilder_HeaderFile
 #define _Naivis_Mesh_MeshBuilder_HeaderFile
 
 #include <BRepMesh_IncrementalMesh.hxx>
@@ -25,8 +25,8 @@ public:
   ~Mesh_MeshBuilder();
 
 public:
-  bool Add(Handle(Poly_Triangulation) theMesh,
-           const TopLoc_Location &theLocation);
+  Standard_Boolean Add(Handle(Poly_Triangulation) theMesh,
+                       const TopLoc_Location &theLocation);
 
   void Clear();
 
@@ -36,7 +36,6 @@ public:
 
 private:
   std::vector<gp_Pnt> myNodes{};
-
   std::vector<Poly_Triangle> myTriangles{};
 };
 

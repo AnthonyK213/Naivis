@@ -1,4 +1,4 @@
-#include "Mesh_Util.hxx"
+﻿#include "Mesh_Util.hxx"
 
 namespace Mesh_Util {
 
@@ -75,15 +75,15 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
     return nullptr;
   }
 
-  TColgp_Array1OfPnt aPoints{1, (int)vertices.size()};
-  Poly_Array1OfTriangle aTriangles{1, (int)triangles.size()};
+  TColgp_Array1OfPnt aPoints{1, (Standard_Integer)vertices.size()};
+  Poly_Array1OfTriangle aTriangles{1, (Standard_Integer)triangles.size()};
 
-  for (int i = 0; i < vertices.size(); ++i) {
+  for (Standard_Integer i = 0; i < vertices.size(); ++i) {
     aPoints.SetValue(i + 1,
                      {vertices[i].x(), vertices[i].y(), vertices[i].z()});
   }
 
-  for (int i = 0; i < thePoly.triangles().size(); ++i) {
+  for (Standard_Integer i = 0; i < thePoly.triangles().size(); ++i) {
     aTriangles.SetValue(i + 1, {triangles[i].x() + 1, triangles[i].y() + 1,
                                 triangles[i].z() + 1});
   }

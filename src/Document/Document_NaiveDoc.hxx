@@ -1,5 +1,5 @@
-﻿#ifndef _Naivis_Io_DocumentManager_Header
-#define _Naivis_Io_DocumentManager_Header
+﻿#ifndef _Naivis_IO_Document_NaiveDoc_HeaderFile
+#define _Naivis_IO_Document_NaiveDoc_HeaderFile
 
 #include <AIS_InteractiveContext.hxx>
 #include <BinXCAFDrivers.hxx>
@@ -25,7 +25,6 @@
 #include <XCAFPrs_DocumentExplorer.hxx>
 #include <XCAFPrs_DocumentNode.hxx>
 
-/// @brief XCAF document manager.
 class Document_NaiveDoc {
 public:
   Document_NaiveDoc();
@@ -33,38 +32,33 @@ public:
   virtual ~Document_NaiveDoc();
 
 public:
-  /// @brief Create new XCAF document.
   void NewDocument();
 
-  /// @brief Current document.
-  /// @return
   Handle(TDocStd_Document) Document() const;
 
-  /// @brief Iterator of objects in current document.
-  /// @param flags
-  /// @return
   XCAFPrs_DocumentExplorer
-  GetExplorer(const XCAFPrs_DocumentExplorerFlags flags =
+  GetExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
                   XCAFPrs_DocumentExplorerFlags_None) const;
 
-  bool ImportStep(const char *filePath);
+  Standard_Boolean ImportStep(Standard_CString theFilePath);
 
-  bool ExportStep(const char *filePath);
+  Standard_Boolean ExportStep(Standard_CString theFilePath);
 
-  Handle(Poly_Triangulation) ImportStl(const char *filePath);
+  Handle(Poly_Triangulation) ImportStl(Standard_CString theFilePath);
 
-  bool ExportStl(const char *filePath,
-                 const Handle(Poly_Triangulation) & theMesh);
+  Standard_Boolean ExportStl(Standard_CString theFilePath,
+                             const Handle(Poly_Triangulation) & theMesh);
 
   void DumpXcafDocumentTree() const;
 
 public:
   static TCollection_AsciiString
   GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                       bool theIsInstanceName, int theLowerDepth = 0);
+                       Standard_Boolean theIsInstanceName,
+                       Standard_Integer theLowerDepth = 0);
 
 protected:
-  bool CreateXcafApp();
+  Standard_Boolean createXcafApp();
 
 protected:
   Handle(TDocStd_Application) myApp;

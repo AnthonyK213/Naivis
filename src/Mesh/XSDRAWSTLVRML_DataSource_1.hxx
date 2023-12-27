@@ -1,4 +1,4 @@
-// Created on: 2004-06-10
+﻿// Created on: 2004-06-10
 // Created by: Alexander SOLOVYOV
 // Copyright (c) 2004-2014 OPEN CASCADE SAS
 //

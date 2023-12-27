@@ -1,10 +1,10 @@
 ﻿#include "Document_NaiveDoc.hxx"
 
-Document_NaiveDoc::Document_NaiveDoc() { CreateXcafApp(); }
+Document_NaiveDoc::Document_NaiveDoc() { createXcafApp(); }
 
 Document_NaiveDoc::~Document_NaiveDoc() {}
 
-bool Document_NaiveDoc::CreateXcafApp() {
+Standard_Boolean Document_NaiveDoc::createXcafApp() {
   if (!myApp.IsNull())
     return true;
 
@@ -42,8 +42,8 @@ XCAFPrs_DocumentExplorer Document_NaiveDoc::GetExplorer(
   return {myDoc, flags};
 }
 
-bool Document_NaiveDoc::ImportStep(const char *filePath) {
-  CreateXcafApp();
+Standard_Boolean Document_NaiveDoc::ImportStep(Standard_CString theFilePath) {
+  createXcafApp();
   NewDocument();
 
   STEPCAFControl_Controller::Init();
@@ -57,26 +57,26 @@ bool Document_NaiveDoc::ImportStep(const char *filePath) {
   aReader.SetSHUOMode(Standard_True);
 
   try {
-    if (aReader.ReadFile(filePath) != IFSelect_RetDone) {
-      std::cout << "Error: On reading STEP file " << filePath << '\n';
-      return false;
+    if (aReader.ReadFile(theFilePath) != IFSelect_RetDone) {
+      std::cout << "Error: On reading STEP file " << theFilePath << '\n';
+      return Standard_False;
     }
 
     if (!aReader.Transfer(myDoc)) {
-      std::cout << "Error: On transferring STEP file " << filePath << '\n';
-      return false;
+      std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
+      return Standard_False;
     }
 
-    std::cout << "File " << filePath << " is imported successfully" << '\n';
-    return true;
+    std::cout << "File " << theFilePath << " is imported successfully" << '\n';
+    return Standard_True;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STEP import: "
               << theFailure.GetMessageString() << '\n';
-    return false;
+    return Standard_False;
   }
 }
 
-bool Document_NaiveDoc::ExportStep(const char *filePath) {
+Standard_Boolean Document_NaiveDoc::ExportStep(Standard_CString theFilePath) {
   STEPCAFControl_Writer aWriter;
 
   aWriter.SetColorMode(Standard_True);
@@ -86,27 +86,28 @@ bool Document_NaiveDoc::ExportStep(const char *filePath) {
 
   try {
     if (aWriter.Transfer(myDoc) != IFSelect_RetDone) {
-      std::cout << "Error: On transferring STEP file " << filePath << '\n';
-      return false;
+      std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
+      return Standard_False;
     }
 
-    if (aWriter.Write(filePath) != IFSelect_RetDone) {
-      std::cout << "Error: On writing STEP file " << filePath << '\n';
-      return false;
+    if (aWriter.Write(theFilePath) != IFSelect_RetDone) {
+      std::cout << "Error: On writing STEP file " << theFilePath << '\n';
+      return Standard_False;
     }
 
-    std::cout << "File " << filePath << " is exported successfully" << '\n';
-    return true;
+    std::cout << "File " << theFilePath << " is exported successfully" << '\n';
+    return Standard_True;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STEP export: "
               << theFailure.GetMessageString() << '\n';
-    return false;
+    return Standard_True;
   }
 }
 
-Handle(Poly_Triangulation) Document_NaiveDoc::ImportStl(const char *filePath) {
+Handle(Poly_Triangulation)
+    Document_NaiveDoc::ImportStl(Standard_CString theFilePath) {
   try {
-    Handle(Poly_Triangulation) aStlMesh = RWStl::ReadFile(filePath);
+    Handle(Poly_Triangulation) aStlMesh = RWStl::ReadFile(theFilePath);
     return aStlMesh;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STL import: "
@@ -115,15 +116,16 @@ Handle(Poly_Triangulation) Document_NaiveDoc::ImportStl(const char *filePath) {
   }
 }
 
-bool Document_NaiveDoc::ExportStl(const char *filePath,
-                                  const Handle(Poly_Triangulation) & theMesh) {
+Standard_Boolean Document_NaiveDoc::ExportStl(Standard_CString theFilePath,
+                                              const Handle(Poly_Triangulation) &
+                                                  theMesh) {
   try {
-    OSD_Path aPath{filePath};
+    OSD_Path aPath{theFilePath};
     return RWStl::WriteAscii(theMesh, aPath);
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STL export: "
               << theFailure.GetMessageString() << '\n';
-    return false;
+    return Standard_False;
   }
 }
 
@@ -145,11 +147,12 @@ void Document_NaiveDoc::DumpXcafDocumentTree() const {
 
 TCollection_AsciiString
 Document_NaiveDoc::GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                                        bool theIsInstanceName,
-                                        int theLowerDepth) {
+                                        Standard_Boolean theIsInstanceName,
+                                        Standard_Integer theLowerDepth) {
   TCollection_AsciiString aPath;
 
-  for (int aDepth = theLowerDepth; aDepth <= theExpl.CurrentDepth(); ++aDepth) {
+  for (Standard_Integer aDepth = theLowerDepth;
+       aDepth <= theExpl.CurrentDepth(); ++aDepth) {
     const XCAFPrs_DocumentNode &aNode = theExpl.Current(aDepth);
     TCollection_AsciiString aName;
     Handle(TDataStd_Name) aNodeName;

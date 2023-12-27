@@ -1,4 +1,4 @@
-#ifndef _Naivis_Command_RemoveObjects_HeaderFile
+﻿#ifndef _Naivis_Command_RemoveObjects_HeaderFile
 #define _Naivis_Command_RemoveObjects_HeaderFile
 
 #include <QListView>
