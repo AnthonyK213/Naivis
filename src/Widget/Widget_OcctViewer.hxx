@@ -52,6 +52,8 @@
 #include <QOpenGLWidget>
 #include <QStringList>
 
+#include <NaiveDoc/NaiveDoc_Document.hxx>
+
 class Widget_OcctViewer : public QOpenGLWidget, public AIS_ViewController {
   Q_OBJECT
 
@@ -113,16 +115,13 @@ signals:
 
 private:
   Handle(V3d_Viewer) myViewer;
-
   Handle(V3d_View) myView;
-
   Handle(AIS_InteractiveContext) myContext;
-
   Handle(AIS_ViewCube) myViewCube;
-
   QString myGlInfo;
-
-  bool myIsCoreProfile;
+  Standard_Boolean myIsCoreProfile;
+  
+  Handle(NaiveDoc_Document) myDoc;
 };
 
 #endif

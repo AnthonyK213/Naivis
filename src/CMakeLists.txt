@@ -10,7 +10,9 @@ set(PROJECT_SOURCES
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
   Mesh/Mesh_MeshBuilder.cxx
   Mesh/Mesh_Util.cxx
-  Document/Document_NaiveDoc.cxx
+  NaiveDoc/NaiveDoc_Document.cxx
+  NaiveDoc/NaiveDoc_Object.cxx
+  NaiveDoc/NaiveDoc_ObjectTable.cxx
   IO/IO_LogStream.cxx
   Widget/naivis.cpp
   Widget/naivis.ui

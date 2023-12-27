@@ -1,10 +1,12 @@
-﻿#include "Document_NaiveDoc.hxx"
+﻿#include "NaiveDoc_Document.hxx"
 
-Document_NaiveDoc::Document_NaiveDoc() { createXcafApp(); }
+IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
-Document_NaiveDoc::~Document_NaiveDoc() {}
+NaiveDoc_Document::NaiveDoc_Document() { createXcafApp(); }
 
-Standard_Boolean Document_NaiveDoc::createXcafApp() {
+NaiveDoc_Document::~NaiveDoc_Document() {}
+
+Standard_Boolean NaiveDoc_Document::createXcafApp() {
   if (!myApp.IsNull())
     return true;
 
@@ -18,7 +20,7 @@ Standard_Boolean Document_NaiveDoc::createXcafApp() {
   }
 }
 
-void Document_NaiveDoc::NewDocument() {
+void NaiveDoc_Document::NewDocument() {
   if (!myDoc.IsNull()) {
     if (myDoc->HasOpenCommand())
       myDoc->AbortCommand();
@@ -35,14 +37,14 @@ void Document_NaiveDoc::NewDocument() {
     myDoc->SetUndoLimit(10);
 }
 
-Handle(TDocStd_Document) Document_NaiveDoc::Document() const { return myDoc; }
+Handle(TDocStd_Document) NaiveDoc_Document::Document() const { return myDoc; }
 
-XCAFPrs_DocumentExplorer Document_NaiveDoc::GetExplorer(
+XCAFPrs_DocumentExplorer NaiveDoc_Document::GetExplorer(
     const XCAFPrs_DocumentExplorerFlags flags) const {
   return {myDoc, flags};
 }
 
-Standard_Boolean Document_NaiveDoc::ImportStep(Standard_CString theFilePath) {
+Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
   createXcafApp();
   NewDocument();
 
@@ -76,7 +78,7 @@ Standard_Boolean Document_NaiveDoc::ImportStep(Standard_CString theFilePath) {
   }
 }
 
-Standard_Boolean Document_NaiveDoc::ExportStep(Standard_CString theFilePath) {
+Standard_Boolean NaiveDoc_Document::ExportStep(Standard_CString theFilePath) {
   STEPCAFControl_Writer aWriter;
 
   aWriter.SetColorMode(Standard_True);
@@ -105,7 +107,7 @@ Standard_Boolean Document_NaiveDoc::ExportStep(Standard_CString theFilePath) {
 }
 
 Handle(Poly_Triangulation)
-    Document_NaiveDoc::ImportStl(Standard_CString theFilePath) {
+    NaiveDoc_Document::ImportStl(Standard_CString theFilePath) {
   try {
     Handle(Poly_Triangulation) aStlMesh = RWStl::ReadFile(theFilePath);
     return aStlMesh;
@@ -116,7 +118,7 @@ Handle(Poly_Triangulation)
   }
 }
 
-Standard_Boolean Document_NaiveDoc::ExportStl(Standard_CString theFilePath,
+Standard_Boolean NaiveDoc_Document::ExportStl(Standard_CString theFilePath,
                                               const Handle(Poly_Triangulation) &
                                                   theMesh) {
   try {
@@ -129,7 +131,7 @@ Standard_Boolean Document_NaiveDoc::ExportStl(Standard_CString theFilePath,
   }
 }
 
-void Document_NaiveDoc::DumpXcafDocumentTree() const {
+void NaiveDoc_Document::DumpXcafDocumentTree() const {
   if (myDoc.IsNull())
     return;
 
@@ -146,7 +148,7 @@ void Document_NaiveDoc::DumpXcafDocumentTree() const {
 }
 
 TCollection_AsciiString
-Document_NaiveDoc::GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+NaiveDoc_Document::GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
                                         Standard_Boolean theIsInstanceName,
                                         Standard_Integer theLowerDepth) {
   TCollection_AsciiString aPath;
