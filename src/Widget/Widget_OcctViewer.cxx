@@ -1,5 +1,8 @@
 ﻿#include "Widget_OcctViewer.hxx"
 
+#include <NaiveDoc/NaiveDoc_Document.hxx>
+#include <Sketch/Sketch_Manager.hxx>
+
 namespace {
 
 //! Map Qt buttons bitmask to virtual keys.
@@ -327,8 +330,6 @@ Widget_OcctViewer::Widget_OcctViewer(QWidget *theParent)
   // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
-  
-  myDoc = new NaiveDoc_Document();
 }
 
 Widget_OcctViewer::~Widget_OcctViewer() {
@@ -417,7 +418,9 @@ void Widget_OcctViewer::displayViewCube() {
   myContext->Display(myViewCube, 0, 0, false);
 }
 
-void Widget_OcctViewer::closeEvent(QCloseEvent *theEvent) { theEvent->accept(); }
+void Widget_OcctViewer::closeEvent(QCloseEvent *theEvent) {
+  theEvent->accept();
+}
 
 void Widget_OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
   Aspect_VKey aKey = qtKey2VKey(theEvent->key());
@@ -535,8 +538,9 @@ void Widget_OcctViewer::paintGL() {
   FlushViewEvents(myContext, myView, true);
 }
 
-void Widget_OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) & theCtx,
-                                  const Handle(V3d_View) & theView) {
+void Widget_OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) &
+                                             theCtx,
+                                         const Handle(V3d_View) & theView) {
   AIS_ViewController::handleViewRedraw(theCtx, theView);
   if (myToAskNextFrame) {
     // ask more frames for animation

@@ -2,17 +2,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJECT_SOURCES
   main.cpp
-  Command/Command_AddObjects.cxx
-  Command/Command_RemoveObjects.cxx
-  Command/Command_ReplaceObjects.cxx
-  Command/Command_TransformObjects.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
   Mesh/Mesh_MeshBuilder.cxx
   Mesh/Mesh_Util.cxx
+  NaiveDoc/NaiveDoc_CmdAddObjects.cxx
+  NaiveDoc/NaiveDoc_CmdRemoveObjects.cxx
   NaiveDoc/NaiveDoc_Document.cxx
   NaiveDoc/NaiveDoc_Object.cxx
   NaiveDoc/NaiveDoc_ObjectTable.cxx
+  Sketch/Sketch_Command.cxx
+  Sketch/Sketch_Manager.cxx
   IO/IO_LogStream.cxx
   Widget/naivis.cpp
   Widget/naivis.ui

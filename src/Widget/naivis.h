@@ -20,6 +20,7 @@
 #include <TopoDS_Shape.hxx>
 
 #include <IO/IO_LogStream.hxx>
+#include <NaiveDoc/NaiveDoc_Document.hxx>
 #include <Widget/Widget_OcctViewer.hxx>
 
 QT_BEGIN_NAMESPACE
@@ -80,8 +81,8 @@ private:
 
 private:
   Ui::Naivis *ui;
-
   IO_LogStream *myLogStream;
+  Handle(NaiveDoc_Document) myDoc;
 };
 
 #endif // NAIVIS_H

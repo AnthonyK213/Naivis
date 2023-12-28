@@ -51,8 +51,10 @@
 #include <QMouseEvent>
 #include <QOpenGLWidget>
 #include <QStringList>
+#include <QUndoStack>
 
-#include <NaiveDoc/NaiveDoc_Document.hxx>
+class NaiveDoc_Document;
+class Sketch_Manager;
 
 class Widget_OcctViewer : public QOpenGLWidget, public AIS_ViewController {
   Q_OBJECT
@@ -120,8 +122,8 @@ private:
   Handle(AIS_ViewCube) myViewCube;
   QString myGlInfo;
   Standard_Boolean myIsCoreProfile;
-  
-  Handle(NaiveDoc_Document) myDoc;
+
+  Handle(Sketch_Manager) mySktMgr;
 };
 
 #endif

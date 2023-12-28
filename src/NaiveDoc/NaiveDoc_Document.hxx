@@ -2,6 +2,7 @@
 #define _Naivis_NaiveDoc_Document_HeaderFile
 
 #include <AIS_InteractiveContext.hxx>
+#include <AIS_InteractiveObject.hxx>
 #include <BinXCAFDrivers.hxx>
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
@@ -28,6 +29,13 @@
 #include <XCAFPrs_DocumentExplorer.hxx>
 #include <XCAFPrs_DocumentNode.hxx>
 
+#include <QUndoStack>
+
+#include "NaiveDoc_Object.hxx"
+
+class NaiveDoc_CmdAddObjects;
+class NaiveDoc_ObjectTable;
+
 class NaiveDoc_Document;
 DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
 
@@ -41,6 +49,12 @@ public:
   void NewDocument();
 
   Handle(TDocStd_Document) Document() const;
+
+  Handle(NaiveDoc_ObjectTable) Objects() const;
+
+  Handle(AIS_InteractiveContext) Context() const;
+
+  void SetContext(const Handle(AIS_InteractiveContext) & theContext);
 
   XCAFPrs_DocumentExplorer
   GetExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
@@ -57,20 +71,32 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-public:
-  static TCollection_AsciiString
-  GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                       Standard_Boolean theIsInstanceName,
-                       Standard_Integer theLowerDepth = 0);
+  void Undo();
+
+  void Redo();
+
+  void AddObjects(const NaiveDoc_ObjectList &theObjects);
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
 protected:
   Standard_Boolean createXcafApp();
 
+  void displayXcafDoc();
+
+  static TCollection_AsciiString
+  getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+                       Standard_Boolean theIsInstanceName,
+                       Standard_Integer theLowerDepth = 0);
+
+  Standard_Boolean importStep(Standard_CString theFilePath);
+
 protected:
   Handle(TDocStd_Application) myApp;
   Handle(TDocStd_Document) myDoc;
+  Handle(NaiveDoc_ObjectTable) myObjects;
+  Handle(AIS_InteractiveContext) myContext;
+  QUndoStack *myUndoStack;
 };
 
 #endif

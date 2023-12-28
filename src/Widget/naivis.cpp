@@ -13,6 +13,9 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupActions();
   setupOutputBuffer();
 
+  myDoc = new NaiveDoc_Document();
+  myDoc->SetContext(ui->occtViewer->Context());
+
   ui->actionOrthographic->trigger();
 }
 
@@ -29,6 +32,8 @@ void Naivis::importFile() {
 
   if (filePath.isEmpty())
     return;
+
+  myDoc->ImportStep(filePath.toUtf8().toStdString().c_str());
 }
 
 void Naivis::exportFile() {
@@ -42,9 +47,9 @@ void Naivis::quit() { close(); }
 
 void Naivis::transform() {}
 
-void Naivis::undo() {}
+void Naivis::undo() { myDoc->Undo(); }
 
-void Naivis::redo() {}
+void Naivis::redo() { myDoc->Redo(); }
 
 void Naivis::selectAll() {}
 
@@ -73,7 +78,7 @@ void Naivis::convexHull2D() {
   for (Naive_Point2d &point : points) {
     point(0) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
     point(1) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
-    
+
     point *= (Naive_Real)std::rand() / RAND_MAX;
 
     BRepBuilderAPI_MakeVertex vertex({point.x(), point.y(), 0.0});
