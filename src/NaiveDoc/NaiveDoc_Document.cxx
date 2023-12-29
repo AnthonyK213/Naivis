@@ -1,5 +1,7 @@
-﻿#include "NaiveDoc_Document.hxx"
+﻿#include <V3d_Viewer.hxx>
+
 #include "NaiveDoc_CmdAddObjects.hxx"
+#include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
@@ -139,6 +141,31 @@ void NaiveDoc_Document::Undo() { myUndoStack->undo(); }
 
 void NaiveDoc_Document::Redo() { myUndoStack->redo(); }
 
+void NaiveDoc_Document::UpdateView() { myContext->CurrentViewer()->Redraw(); }
+
+void NaiveDoc_Document::AddObject(const TopoDS_Shape &theShape,
+                                  Standard_Boolean theToUpdate) {
+  Handle(AIS_Shape) anIntObj = new AIS_Shape(theShape);
+  anIntObj->SetDisplayMode(AIS_Shaded);
+  Handle(NaiveDoc_Object) anObj = new NaiveDoc_Object(anIntObj);
+  anObj->SetId();
+  anObj->SetName("");
+  AddObject(anObj, theToUpdate);
+}
+
+void NaiveDoc_Document::AddObject(const Handle(NaiveDoc_Object) & theObject,
+                                  Standard_Boolean theToUpdate) {
+  NaiveDoc_ObjectList anObjectList{theObject};
+  AddObjects(anObjectList, theToUpdate);
+}
+
+void NaiveDoc_Document::AddObjects(const NaiveDoc_ObjectList &theObjects,
+                                   Standard_Boolean theToUpdate) {
+  NaiveDoc_CmdAddObjects *cmd =
+      new NaiveDoc_CmdAddObjects(this, theObjects, theToUpdate);
+  myUndoStack->push(cmd);
+}
+
 TCollection_AsciiString
 NaiveDoc_Document::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
                                         Standard_Boolean theIsInstanceName,
@@ -175,11 +202,6 @@ NaiveDoc_Document::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
   return aPath;
 }
 
-void NaiveDoc_Document::AddObjects(const NaiveDoc_ObjectList &theObjects) {
-  NaiveDoc_CmdAddObjects *cmd = new NaiveDoc_CmdAddObjects(this, theObjects);
-  myUndoStack->push(cmd);
-}
-
 void NaiveDoc_Document::displayXcafDoc() {
   if (myDoc.IsNull()) {
     return;
@@ -214,7 +236,7 @@ void NaiveDoc_Document::displayXcafDoc() {
     anObjList.push_back(anObj);
   }
 
-  AddObjects(anObjList);
+  AddObjects(anObjList, Standard_True);
 }
 
 Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {

@@ -1,25 +1,40 @@
 ﻿#include "naivis.h"
 #include "./ui_naivis.h"
 
+#include <QIcon>
+#include <QStyle>
+
 #include <Mesh/Mesh_Util.hxx>
 #include <naivecgl/BndShape/ConvexHull.h>
 #include <naivecgl/Tessellation/Sphere.h>
 
-#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <Ext/Ext_NaiveDoc.hxx>
+#include <LuaOCCT/luaocct.h>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
 
   setupActions();
+  setupActionIcons();
   setupOutputBuffer();
+  setupScriptEditor();
 
   myDoc = new NaiveDoc_Document();
   myDoc->SetContext(ui->occtViewer->Context());
 
+  ui->occtViewer->Context()
+      ->HighlightStyle(Prs3d_TypeOfHighlight_Selected)
+      ->SetColor(Quantity_NOC_YELLOW);
+
+  setupLuaState();
+
   ui->actionOrthographic->trigger();
 }
 
-Naivis::~Naivis() { delete ui; }
+Naivis::~Naivis() {
+  lua_close(myL);
+  delete ui;
+}
 
 // SLOTS {{{
 
@@ -27,7 +42,7 @@ void Naivis::importFile() {
   QString selectedFilter{};
 
   QString filePath = QFileDialog::getOpenFileName(
-      this, "Open", "", tr("STEP (*.stp *.step);;STL (*.stl)"),
+      this, "Import", "", tr("STEP (*.stp *.step);;STL (*.stl)"),
       &selectedFilter);
 
   if (filePath.isEmpty())
@@ -43,62 +58,57 @@ void Naivis::exportFile() {
     return;
 }
 
+void Naivis::openScript() {
+  QString filePath =
+      QFileDialog::getOpenFileName(this, "Open", "", tr("Lua (*.lua)"));
+
+  if (filePath.isEmpty())
+    return;
+
+  QFile file{filePath};
+  file.open(QFile::ReadOnly | QFile::Text);
+  ui->scriptEditor->setPlainText(file.readAll());
+}
+
+void Naivis::saveScript() {
+  QString filePath =
+      QFileDialog::getSaveFileName(this, "Save", "", tr("Lua (*.lua)"));
+
+  if (filePath.isEmpty())
+    return;
+
+  if (!filePath.endsWith(".lua", Qt::CaseInsensitive))
+    filePath += ".lua";
+
+  QFile file{filePath};
+  file.open(QFile::ReadWrite | QIODevice::Truncate | QIODevice::Text);
+  file.write(ui->scriptEditor->toPlainText().toUtf8().toStdString().c_str());
+}
+
 void Naivis::quit() { close(); }
 
 void Naivis::transform() {}
 
-void Naivis::undo() { myDoc->Undo(); }
+void Naivis::undo() {
+  myDoc->Undo();
+  update();
+}
 
-void Naivis::redo() { myDoc->Redo(); }
+void Naivis::redo() {
+  myDoc->Redo();
+  update();
+}
 
 void Naivis::selectAll() {}
 
 void Naivis::removeCurrentSelection() {}
 
-void Naivis::meshing() {
-  auto aSphere = naivecgl::tessellation::TetraSphere({42, -10, 66}, 100);
+void Naivis::runScript() {
+  QString script = ui->scriptEditor->toPlainText();
 
-  if (aSphere.get() == nullptr)
-    return;
-
-  auto aMesh = Mesh_Util::NaivePoly3DToMesh(*aSphere);
-  auto aMeshPrs = Mesh_Util::CreateMeshVS(aMesh);
-
-  if (aMeshPrs.IsNull())
-    return;
-
-  occtViewer()->Context()->Display(aMeshPrs, true);
-}
-
-void Naivis::convexHull2D() {
-  Naive_List<Naive_Point2d> points(512);
-
-  std::srand(std::time(0));
-
-  for (Naive_Point2d &point : points) {
-    point(0) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
-    point(1) = (Naive_Real)std::rand() / RAND_MAX * 20.0 - 10.0;
-
-    point *= (Naive_Real)std::rand() / RAND_MAX;
-
-    BRepBuilderAPI_MakeVertex vertex({point.x(), point.y(), 0.0});
-    Handle(AIS_Shape) shape = new AIS_Shape(vertex);
-
-    occtViewer()->Context()->Display(shape, false);
-  }
-
-  Naive_List<Naive_Integer> convexIndices{};
-  naivecgl::bndshape::ConvexHull2D(points, convexIndices);
-
-  for (Naive_Integer i = 0; i < convexIndices.size(); ++i) {
-    Naive_Integer j = (i + 1) % convexIndices.size();
-
-    const Naive_Point2d &a = points[convexIndices[i]];
-    const Naive_Point2d &b = points[convexIndices[j]];
-    BRepBuilderAPI_MakeEdge edge({a.x(), a.y(), 0.0}, {b.x(), b.y(), 0.0});
-    Handle(AIS_Shape) shape = new AIS_Shape(edge);
-
-    occtViewer()->Context()->Display(shape, false);
+  if (luaL_dostring(myL, script.toUtf8().toStdString().c_str()) != 0) {
+    std::cout << lua_tostring(myL, -1) << '\n';
+    lua_pop(myL, -1);
   }
 }
 
@@ -110,6 +120,8 @@ void Naivis::setupActions() {
   /// File
   CONNECT_ACTION(ui->actionImport, importFile);
   CONNECT_ACTION(ui->actionExport, exportFile);
+  CONNECT_ACTION(ui->actionOpenScript, openScript);
+  CONNECT_ACTION(ui->actionSaveScript, saveScript);
   CONNECT_ACTION(ui->actionQuit, quit);
 
   /// Edit
@@ -132,18 +144,47 @@ void Naivis::setupActions() {
     setViewProjectionType(Graphic3d_Camera::Projection::Projection_Perspective);
   });
 
-  /// Algo
-  CONNECT_ACTION(ui->actionMeshing, meshing);
-  CONNECT_ACTION(ui->actionConvexHull2D, convexHull2D);
+  /// Script
+  CONNECT_ACTION(ui->actionRunScript, runScript);
 
   /// Help
 }
 
 #undef CONNECT_ACTION
 
+#define STANDARD_ICON(icon) QApplication::style()->standardIcon(QStyle::icon)
+
+void Naivis::setupActionIcons() {
+  ui->actionImport->setIcon(STANDARD_ICON(SP_FileIcon));
+  ui->actionExport->setIcon(STANDARD_ICON(SP_DialogSaveButton));
+  ui->actionUndo->setIcon(STANDARD_ICON(SP_ArrowBack));
+  ui->actionRedo->setIcon(STANDARD_ICON(SP_ArrowRight));
+  ui->actionRunScript->setIcon(STANDARD_ICON(SP_MediaPlay));
+  ui->actionAbout->setIcon(STANDARD_ICON(SP_MessageBoxInformation));
+}
+
+#undef STANDARD_ICON
+
 void Naivis::setupOutputBuffer() {
   ui->outputBuffer->document()->setMaximumBlockCount(9001);
   myLogStream = new IO_LogStream(std::cout, ui->outputBuffer);
+}
+
+void Naivis::setupScriptEditor() {
+  ui->scriptEditor->setFont(QFont("Monospace"));
+}
+
+void Naivis::setupLuaState() {
+  myL = luaL_newstate();
+
+  luaL_openlibs(myL);
+  luaopen_luaocct(myL);
+  Ext_NaiveDoc(myL);
+
+  LuaBridge__G(myL)
+      .Begin_Namespace(Naivis)
+      .addVariable("ActiveDoc", myDoc)
+      .End_Namespace();
 }
 
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }

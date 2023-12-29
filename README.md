@@ -2,6 +2,8 @@
 
 A young and simple (sometimes naive) geometry visualization tool.
 
+![Naivis](./doc/Naivis.png)
+
 ## Build
 - Clone the repository
   ```sh

@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
   Core
@@ -48,10 +49,21 @@ find_package(NaiveCGL REQUIRED)
 message("NaiveCGL-Include-Dir: ${NaiveCGL_INCLUDE_DIR}")
 message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIR}")
 
+include(FindLuaJIT)
+find_package(LuaJIT REQUIRED)
+
+message("LuaJIT-Include-Dir: ${LUA_INCLUDE_DIR}")
+message("LuaJIT-Libs: ${LUA_LIBRARIES}")
+
+find_path(LuaBridge3_INCLUDE_DIR NAMES LuaBridge PATH_SUFFIXES luabridge3)
+message("LuaBridge3-Include-Dir: ${LuaBridge3_INCLUDE_DIR}")
+
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
   ${NaiveCGL_INCLUDE_DIR}
   ${EIGEN3_INCLUDE_DIRS}
+  ${LUA_INCLUDE_DIR}
+  ${LuaBridge3_INCLUDE_DIR}
   )
 
 link_directories(

@@ -74,8 +74,16 @@ public:
   void Undo();
 
   void Redo();
+  
+  void UpdateView();
 
-  void AddObjects(const NaiveDoc_ObjectList &theObjects);
+  void AddObject(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
+
+  void AddObject(const Handle(NaiveDoc_Object) & theObject,
+                 Standard_Boolean theToUpdate);
+
+  void AddObjects(const NaiveDoc_ObjectList &theObjects,
+                  Standard_Boolean theToUpdate);
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 

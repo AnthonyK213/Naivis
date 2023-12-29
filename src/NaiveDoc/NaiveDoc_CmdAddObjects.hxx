@@ -13,7 +13,8 @@ class NaiveDoc_Document;
 class NaiveDoc_CmdAddObjects : public QUndoCommand {
 public:
   NaiveDoc_CmdAddObjects(NaiveDoc_Document *theDoc,
-                         const NaiveDoc_ObjectList &theAddList);
+                         const NaiveDoc_ObjectList &theAddList,
+                         Standard_Boolean theToUpdate);
 
   ~NaiveDoc_CmdAddObjects();
 
@@ -26,6 +27,7 @@ private:
   Handle(AIS_InteractiveContext) myContext;
   Handle(NaiveDoc_ObjectTable) myObjects;
   NaiveDoc_ObjectList myAddList;
+  Standard_Boolean myToUpdate;
 };
 
 #endif

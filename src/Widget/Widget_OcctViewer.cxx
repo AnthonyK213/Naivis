@@ -426,7 +426,6 @@ void Widget_OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
   Aspect_VKey aKey = qtKey2VKey(theEvent->key());
   switch (aKey) {
   case Aspect_VKey_Escape: {
-    QApplication::exit();
     return;
   }
   case Aspect_VKey_F: {

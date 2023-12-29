@@ -23,6 +23,8 @@
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 #include <Widget/Widget_OcctViewer.hxx>
 
+#include <lua.hpp>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Naivis;
@@ -43,6 +45,10 @@ private slots:
   void importFile();
 
   void exportFile();
+  
+  void openScript();
+  
+  void saveScript();
 
   void quit();
 
@@ -62,18 +68,22 @@ private slots:
 
   // }}}
 
-  // Algo {{{
+  // Script {{{
 
-  void meshing();
+  void runScript();
 
-  void convexHull2D();
-
-  /// }}}
+  // }}}
 
 private:
   void setupActions();
 
+  void setupActionIcons();
+
   void setupOutputBuffer();
+
+  void setupScriptEditor();
+
+  void setupLuaState();
 
   Widget_OcctViewer *occtViewer();
 
@@ -83,6 +93,7 @@ private:
   Ui::Naivis *ui;
   IO_LogStream *myLogStream;
   Handle(NaiveDoc_Document) myDoc;
+  lua_State *myL;
 };
 
 #endif // NAIVIS_H

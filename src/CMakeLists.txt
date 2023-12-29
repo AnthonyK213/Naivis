@@ -1,7 +1,11 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(LuaOCCT)
+
 set(PROJECT_SOURCES
   main.cpp
+  Ext/Ext_NaiveDoc.cxx
+  IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
   Mesh/Mesh_MeshBuilder.cxx
@@ -13,7 +17,6 @@ set(PROJECT_SOURCES
   NaiveDoc/NaiveDoc_ObjectTable.cxx
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx
-  IO/IO_LogStream.cxx
   Widget/naivis.cpp
   Widget/naivis.ui
   Widget/Widget_OcctViewer.cxx
@@ -53,6 +56,8 @@ target_link_libraries(
   ${OpenCASCADE_LIBRARIES}
   ${OPENGL_LIBRARIES}
   ${NaiveCGL_LIBRARIES}
+  ${LUA_LIBRARIES}
+  luaocct
   )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

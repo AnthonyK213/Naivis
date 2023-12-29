@@ -4,8 +4,9 @@
 #include "V3d_Viewer.hxx"
 
 NaiveDoc_CmdAddObjects::NaiveDoc_CmdAddObjects(
-    NaiveDoc_Document *theDoc, const NaiveDoc_ObjectList &theAddList)
-    : myDoc(theDoc), myAddList(theAddList) {
+    NaiveDoc_Document *theDoc, const NaiveDoc_ObjectList &theAddList,
+    Standard_Boolean theToUpdate)
+    : myDoc(theDoc), myAddList(theAddList), myToUpdate(theToUpdate) {
   myContext = myDoc->Context();
   myObjects = myDoc->Objects();
 }
@@ -18,7 +19,8 @@ void NaiveDoc_CmdAddObjects::undo() {
     myContext->Remove(anObj->Object(), Standard_False);
   }
 
-  myContext->CurrentViewer()->Redraw();
+  if (myToUpdate)
+    myContext->CurrentViewer()->Redraw();
 }
 
 void NaiveDoc_CmdAddObjects::redo() {
@@ -27,5 +29,6 @@ void NaiveDoc_CmdAddObjects::redo() {
     myContext->Display(anObj->Object(), Standard_False);
   }
 
-  myContext->CurrentViewer()->Redraw();
+  if (myToUpdate)
+    myContext->CurrentViewer()->Redraw();
 }
