@@ -34,7 +34,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
 
   Naive_Poly soup{std::move(vertices), std::move(triangles)};
 
-  if (!soup.isValid())
+  if (!soup.IsValid())
     return;
 
   myMesh = std::make_shared<Naive_Mesh>(soup);
@@ -42,9 +42,9 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   myNodeCoords = new TColStd_HArray2OfReal(1, aNbNodes, 1, 3);
 
   Standard_Integer idxNode = 1;
-  for (const auto &item : myMesh->vertices()) {
+  for (const auto &item : myMesh->Vertices()) {
     myNodes.Add(item.first);
-    const auto &xyz = item.second.coordinates();
+    const auto &xyz = item.second.Coord();
 
     myNodeCoords->SetValue(idxNode, 1, xyz(0));
     myNodeCoords->SetValue(idxNode, 2, xyz(1));
@@ -57,7 +57,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   myElemNodes = new TColStd_HArray2OfInteger(1, aNbTris, 1, 3);
 
   Standard_Integer idxElem = 1;
-  for (const auto &item : myMesh->faces()) {
+  for (const auto &item : myMesh->Faces()) {
     myElements.Add(item.first);
 
     const auto &aFace = item.second;
@@ -65,14 +65,14 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     Naive_Vector3d V[3];
 
     Standard_Integer idxEdge = 1;
-    for (auto it = aFace.edgeIter(); it.more(); it.next(), ++idxEdge) {
+    for (auto it = aFace.EdgeIter(); it.More(); it.Next(), ++idxEdge) {
       if (idxEdge > 3)
         return;
 
-      const auto *aEdge = it.current();
-      myElemNodes->SetValue(idxElem, idxEdge, aEdge->origin()->id());
+      const auto *aEdge = it.Current();
+      myElemNodes->SetValue(idxElem, idxEdge, aEdge->Origin()->Id());
 
-      V[idxEdge - 1] = aEdge->origin()->coordinates();
+      V[idxEdge - 1] = aEdge->Origin()->Coord();
     }
 
     Naive_Vector3d aV1 = V[1] - V[0];

@@ -56,7 +56,7 @@ void Naivis::selectAll() {}
 void Naivis::removeCurrentSelection() {}
 
 void Naivis::meshing() {
-  auto aSphere = naivecgl::tessellation::tetrasphere({42, -10, 66}, 100);
+  auto aSphere = naivecgl::tessellation::TetraSphere({42, -10, 66}, 100);
 
   if (aSphere.get() == nullptr)
     return;
@@ -88,7 +88,7 @@ void Naivis::convexHull2D() {
   }
 
   Naive_List<Naive_Integer> convexIndices{};
-  naivecgl::bndshape::convexHull2D(points, convexIndices);
+  naivecgl::bndshape::ConvexHull2D(points, convexIndices);
 
   for (Naive_Integer i = 0; i < convexIndices.size(); ++i) {
     Naive_Integer j = (i + 1) % convexIndices.size();

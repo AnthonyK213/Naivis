@@ -68,8 +68,8 @@ Handle(Poly_Triangulation)
 }
 
 Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
-  const auto &vertices = thePoly.vertices();
-  const auto &triangles = thePoly.triangles();
+  const auto &vertices = thePoly.Vertices();
+  const auto &triangles = thePoly.Triangles();
 
   if (vertices.empty() || triangles.empty()) {
     return nullptr;
@@ -83,7 +83,7 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
                      {vertices[i].x(), vertices[i].y(), vertices[i].z()});
   }
 
-  for (Standard_Integer i = 0; i < thePoly.triangles().size(); ++i) {
+  for (Standard_Integer i = 0; i < thePoly.Triangles().size(); ++i) {
     aTriangles.SetValue(i + 1, {triangles[i].x() + 1, triangles[i].y() + 1,
                                 triangles[i].z() + 1});
   }
