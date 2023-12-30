@@ -11,22 +11,17 @@ A young and simple (sometimes naive) geometry visualization tool.
   ``` 
 - Install dependencies
   - Install the latest release of [vcpkg](https://github.com/microsoft/vcpkg)
-    ``` ps1
-    git clone https://github.com/microsoft/vcpkg
-    ./vcpkg/bootstrap-vcpkg.bat
-    ```
-    - Set environment variable
-      - `VCPKG_ROOT`
+    - Set environment variable `VCPKG_ROOT`
   - [Qt](https://www.qt.io/download-open-source)
-    - Set environment variable
-      - `QT_DIR`
+    - Set environment variable `QT_DIR`
+  - [LuaJIT](https://github.com/LuaJIT/LuaJIT)
+    - Set environment variable `LUA_DIR`
   - [NaiveCGL](https://github.com/AnthonyK213/NaiveCGL)
     - Build & Install
-    - Set environment variable
-      - `NAIVECGL_DIR`
-- Build with cmake
+    - Set environment variable `NAIVECGL_DIR`
+- Configure with cmake
   ``` sh
-  cd NaiveCGL
+  cd Naivis
   mkdir build
   cd build
   cmake ..

@@ -192,8 +192,8 @@ Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
 void Naivis::setViewProjectionType(
     Graphic3d_Camera::Projection projectionType) {
   occtViewer()->View()->Camera()->SetProjectionType(projectionType);
-  occtViewer()->Viewer()->Update();
-  occtViewer()->update();
+  occtViewer()->View()->FitAll();
+  occtViewer()->Viewer()->Redraw();
 }
 
 // vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:
