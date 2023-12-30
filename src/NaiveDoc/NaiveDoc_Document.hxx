@@ -74,10 +74,11 @@ public:
   void Undo();
 
   void Redo();
-  
+
   void UpdateView();
 
-  void AddObject(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
+  Handle(NaiveDoc_Object)
+      AddObject(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
 
   void AddObject(const Handle(NaiveDoc_Object) & theObject,
                  Standard_Boolean theToUpdate);

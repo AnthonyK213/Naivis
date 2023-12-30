@@ -8,7 +8,7 @@
 #include <naivecgl/BndShape/ConvexHull.h>
 #include <naivecgl/Tessellation/Sphere.h>
 
-#include <Ext/Ext_NaiveDoc.hxx>
+#include <Ext/Ext_Load.hxx>
 #include <LuaOCCT/luaocct.h>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
@@ -179,7 +179,7 @@ void Naivis::setupLuaState() {
 
   luaL_openlibs(myL);
   luaopen_luaocct(myL);
-  Ext_NaiveDoc(myL);
+  Ext_Load(myL);
 
   LuaBridge__G(myL)
       .Begin_Namespace(Naivis)

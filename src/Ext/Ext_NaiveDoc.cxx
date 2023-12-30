@@ -18,6 +18,9 @@ void Ext_NaiveDoc(lua_State *L) {
       .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
+      .Bind_Property(NaiveDoc_Object, Name, SetName)
+      .Bind_Property_Readonly(NaiveDoc_Object, Id)
+      .addFunction("SetId", luabridge::overload<>(&NaiveDoc_Object::SetId))
       .End_Class()
 
       .End_Namespace();

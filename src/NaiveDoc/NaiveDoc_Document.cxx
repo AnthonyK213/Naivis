@@ -143,14 +143,18 @@ void NaiveDoc_Document::Redo() { myUndoStack->redo(); }
 
 void NaiveDoc_Document::UpdateView() { myContext->CurrentViewer()->Redraw(); }
 
-void NaiveDoc_Document::AddObject(const TopoDS_Shape &theShape,
-                                  Standard_Boolean theToUpdate) {
+Handle(NaiveDoc_Object) NaiveDoc_Document::AddObject(
+    const TopoDS_Shape &theShape, Standard_Boolean theToUpdate) {
   Handle(AIS_Shape) anIntObj = new AIS_Shape(theShape);
   anIntObj->SetDisplayMode(AIS_Shaded);
+
   Handle(NaiveDoc_Object) anObj = new NaiveDoc_Object(anIntObj);
   anObj->SetId();
   anObj->SetName("");
+
   AddObject(anObj, theToUpdate);
+
+  return anObj;
 }
 
 void NaiveDoc_Document::AddObject(const Handle(NaiveDoc_Object) & theObject,

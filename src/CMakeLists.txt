@@ -4,7 +4,9 @@ add_subdirectory(LuaOCCT)
 
 set(PROJECT_SOURCES
   main.cpp
+  Ext/Ext_Load.cxx
   Ext/Ext_NaiveDoc.cxx
+  Ext/Ext_Qt.cxx
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
