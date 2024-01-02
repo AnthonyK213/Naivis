@@ -21,17 +21,26 @@ public:
 public:
   const QUuid &Id() const { return myId; }
 
-  const QString &Name() const { return myName; }
-
   void SetId() { myId = QUuid::createUuid(); }
 
+  const QString &Name() const { return myName; }
+
   void SetName(const QString &theName) { myName = theName; }
+
+  Standard_Boolean HasOwner() const { return !myOwner.IsNull(); }
+
+  const Handle(Standard_Transient) & GetOwner() const { return myOwner; }
+
+  void SetOwner(const Handle(Standard_Transient) & theOwner) {
+    myOwner = theOwner;
+  }
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_ObjectInfo, Standard_Transient)
 
 private:
   QUuid myId;
   QString myName;
+  Handle(Standard_Transient) myOwner;
 };
 
 #endif

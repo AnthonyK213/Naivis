@@ -1,23 +1,6 @@
 #include "lutil.h"
 
-namespace luaocct {
-namespace util {
-namespace Curve {
-
-static Standard_Real GetLength(const Handle(Geom_Curve) & theCurve,
-                               const Standard_Real t0, const Standard_Real t1) {
-  GeomAdaptor_Curve aCrv(theCurve);
-  return CPnts_AbscissaPoint::Length(aCrv, t0, t1);
-}
-
-static Standard_Real GetLength(const Handle(Geom_Curve) & theCurve) {
-  return GetLength(theCurve, theCurve->FirstParameter(),
-                   theCurve->LastParameter());
-}
-
-} // namespace Curve
-} // namespace util
-} // namespace luaocct
+#include "util_curve.h"
 
 void luaocct_init_util(lua_State *L) {
   LuaBridge__G(L)
