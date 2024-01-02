@@ -3,9 +3,17 @@
 
 #include <QUndoCommand>
 
+#include "NaiveDoc_Object.hxx"
+#include "NaiveDoc_ObjectTable.hxx"
+
+class NaiveDoc_Document;
+
 class NaiveDoc_CmdRemoveObjects : public QUndoCommand {
 public:
-  NaiveDoc_CmdRemoveObjects();
+  NaiveDoc_CmdRemoveObjects(NaiveDoc_Document *theDoc,
+                            const NaiveDoc_ObjectList &theRemoveList,
+                            Standard_Boolean theToUpdate,
+                            QUndoCommand *theParent = nullptr);
 
   ~NaiveDoc_CmdRemoveObjects();
 
@@ -14,6 +22,11 @@ public:
   void redo() override;
 
 private:
+  NaiveDoc_Document *myDoc;
+  Handle(AIS_InteractiveContext) myContext;
+  Handle(NaiveDoc_ObjectTable) myObjects;
+  NaiveDoc_ObjectList myRemoveList;
+  Standard_Boolean myToUpdate;
 };
 
 #endif

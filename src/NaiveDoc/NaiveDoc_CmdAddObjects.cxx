@@ -5,8 +5,9 @@
 
 NaiveDoc_CmdAddObjects::NaiveDoc_CmdAddObjects(
     NaiveDoc_Document *theDoc, const NaiveDoc_ObjectList &theAddList,
-    Standard_Boolean theToUpdate)
-    : myDoc(theDoc), myAddList(theAddList), myToUpdate(theToUpdate) {
+    Standard_Boolean theToUpdate, QUndoCommand *theParent)
+    : QUndoCommand(theParent), myDoc(theDoc), myAddList(theAddList),
+      myToUpdate(theToUpdate) {
   myContext = myDoc->Context();
   myObjects = myDoc->Objects();
 }
@@ -16,7 +17,7 @@ NaiveDoc_CmdAddObjects::~NaiveDoc_CmdAddObjects() {}
 void NaiveDoc_CmdAddObjects::undo() {
   for (const auto &anObj : myAddList) {
     myObjects->RemoveObject(anObj);
-    myContext->Remove(anObj->Object(), Standard_False);
+    myContext->Remove(anObj, Standard_False);
   }
 
   if (myToUpdate)
@@ -26,7 +27,7 @@ void NaiveDoc_CmdAddObjects::undo() {
 void NaiveDoc_CmdAddObjects::redo() {
   for (const auto &anObj : myAddList) {
     myObjects->AddObject(anObj);
-    myContext->Display(anObj->Object(), Standard_False);
+    myContext->Display(anObj, Standard_False);
   }
 
   if (myToUpdate)

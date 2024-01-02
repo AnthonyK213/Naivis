@@ -7,7 +7,7 @@
 #include <QHash>
 #include <QUuid>
 
-class NaiveDoc_Object;
+#include "NaiveDoc_Object.hxx"
 
 class NaiveDoc_ObjectTable;
 DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)

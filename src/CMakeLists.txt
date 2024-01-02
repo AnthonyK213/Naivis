@@ -16,6 +16,7 @@ set(PROJECT_SOURCES
   NaiveDoc/NaiveDoc_CmdRemoveObjects.cxx
   NaiveDoc/NaiveDoc_Document.cxx
   NaiveDoc/NaiveDoc_Object.cxx
+  NaiveDoc/NaiveDoc_ObjectInfo.cxx
   NaiveDoc/NaiveDoc_ObjectTable.cxx
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx

@@ -1,23 +1,53 @@
-﻿#include "NaiveDoc_Object.hxx"
+#include "NaiveDoc_Object.hxx"
 
-IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Object, Standard_Transient)
+static Handle(NaiveDoc_ObjectInfo)
+    getObjectInfo(const NaiveDoc_Object &theObject) {
+  if (!theObject.HasOwner()) {
+    return nullptr;
+  }
 
-NaiveDoc_Object::NaiveDoc_Object(const Handle(AIS_InteractiveObject) &
-                                 theObject)
-    : myObject(theObject), myUuid(), myName() {}
-
-NaiveDoc_Object::~NaiveDoc_Object() {}
-
-const Handle(AIS_InteractiveObject) & NaiveDoc_Object::Object() const {
-  return myObject;
+  return Handle(NaiveDoc_ObjectInfo)::DownCast(theObject.GetOwner());
 }
 
-const QUuid &NaiveDoc_Object::Id() const { return myUuid; }
+QUuid NaiveDoc_Object_GetId(const NaiveDoc_Object &theObject) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfo(theObject);
 
-void NaiveDoc_Object::SetId(const QUuid &theId) { myUuid = theId; }
+  if (anInfo.IsNull()) {
+    return QUuid();
+  }
 
-void NaiveDoc_Object::SetId() { myUuid = QUuid::createUuid(); }
+  return anInfo->Id();
+}
 
-const QString &NaiveDoc_Object::Name() const { return myName; }
+QString NaiveDoc_Object_GetName(const NaiveDoc_Object &theObject) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfo(theObject);
 
-void NaiveDoc_Object::SetName(const QString &theName) { myName = theName; }
+  if (anInfo.IsNull()) {
+    return QString();
+  }
+
+  return anInfo->Name();
+}
+
+void NaiveDoc_Object_SetId(NaiveDoc_Object &theObject) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfo(theObject);
+
+  if (anInfo.IsNull()) {
+    anInfo = new NaiveDoc_ObjectInfo();
+    theObject.SetOwner(anInfo);
+  }
+
+  anInfo->SetId();
+}
+
+void NaiveDoc_Object_SetName(NaiveDoc_Object &theObject,
+                             const QString &theName) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfo(theObject);
+
+  if (anInfo.IsNull()) {
+    anInfo = new NaiveDoc_ObjectInfo();
+    theObject.SetOwner(anInfo);
+  }
+
+  anInfo->SetName(theName);
+}

@@ -1,8 +1,6 @@
 ﻿#ifndef _Naivis_NaiveDoc_CmdAddObjects_HeaderFile
 #define _Naivis_NaiveDoc_CmdAddObjects_HeaderFile
 
-#include <AIS_InteractiveContext.hxx>
-
 #include <QUndoCommand>
 
 #include "NaiveDoc_Object.hxx"
@@ -14,7 +12,8 @@ class NaiveDoc_CmdAddObjects : public QUndoCommand {
 public:
   NaiveDoc_CmdAddObjects(NaiveDoc_Document *theDoc,
                          const NaiveDoc_ObjectList &theAddList,
-                         Standard_Boolean theToUpdate);
+                         Standard_Boolean theToUpdate,
+                         QUndoCommand *theParent = nullptr);
 
   ~NaiveDoc_CmdAddObjects();
 

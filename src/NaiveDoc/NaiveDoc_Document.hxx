@@ -78,17 +78,11 @@ public:
   void UpdateView();
 
   Handle(NaiveDoc_Object)
-      AddObject(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
-
-  void AddObject(const Handle(NaiveDoc_Object) & theObject,
-                 Standard_Boolean theToUpdate);
-
-  void AddObjects(const NaiveDoc_ObjectList &theObjects,
-                  Standard_Boolean theToUpdate);
+      AddShape(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
-protected:
+private:
   Standard_Boolean createXcafApp();
 
   void displayXcafDoc();
@@ -100,7 +94,13 @@ protected:
 
   Standard_Boolean importStep(Standard_CString theFilePath);
 
-protected:
+  void addObject(const Handle(NaiveDoc_Object) & theObject,
+                 Standard_Boolean theToUpdate);
+
+  void addObjects(const NaiveDoc_ObjectList &theObjects,
+                  Standard_Boolean theToUpdate);
+
+private:
   Handle(TDocStd_Application) myApp;
   Handle(TDocStd_Document) myDoc;
   Handle(NaiveDoc_ObjectTable) myObjects;

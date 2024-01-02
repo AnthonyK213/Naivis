@@ -13,8 +13,12 @@ void Ext_Qt(lua_State *L) {
       .Begin_Class(QUuid)
       .addConstructor<void()>()
       .Bind_Method_Static(QUuid, createUuid)
-      .Bind_Method(QUuid, toString)
       .Bind_Property_Readonly(QUuid, isNull)
+      .addFunction(
+          "toString", +[](const QUuid &self) { return self.toString(); },
+          luabridge::overload<QUuid::StringFormat>(&QUuid::toString))
+      .addFunction(
+          "__tostring", +[](const QUuid &self) { return self.toString(); })
       .End_Class()
 
       .End_Namespace();

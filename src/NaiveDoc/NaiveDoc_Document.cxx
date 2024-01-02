@@ -143,27 +143,24 @@ void NaiveDoc_Document::Redo() { myUndoStack->redo(); }
 
 void NaiveDoc_Document::UpdateView() { myContext->CurrentViewer()->Redraw(); }
 
-Handle(NaiveDoc_Object) NaiveDoc_Document::AddObject(
+Handle(NaiveDoc_Object) NaiveDoc_Document::AddShape(
     const TopoDS_Shape &theShape, Standard_Boolean theToUpdate) {
-  Handle(AIS_Shape) anIntObj = new AIS_Shape(theShape);
-  anIntObj->SetDisplayMode(AIS_Shaded);
+  Handle(NaiveDoc_Object) anObj = new AIS_Shape(theShape);
+  NaiveDoc_Object_SetId(*anObj);
+  anObj->SetDisplayMode(AIS_Shaded);
 
-  Handle(NaiveDoc_Object) anObj = new NaiveDoc_Object(anIntObj);
-  anObj->SetId();
-  anObj->SetName("");
-
-  AddObject(anObj, theToUpdate);
+  addObject(anObj, theToUpdate);
 
   return anObj;
 }
 
-void NaiveDoc_Document::AddObject(const Handle(NaiveDoc_Object) & theObject,
+void NaiveDoc_Document::addObject(const Handle(NaiveDoc_Object) & theObject,
                                   Standard_Boolean theToUpdate) {
   NaiveDoc_ObjectList anObjectList{theObject};
-  AddObjects(anObjectList, theToUpdate);
+  addObjects(anObjectList, theToUpdate);
 }
 
-void NaiveDoc_Document::AddObjects(const NaiveDoc_ObjectList &theObjects,
+void NaiveDoc_Document::addObjects(const NaiveDoc_ObjectList &theObjects,
                                    Standard_Boolean theToUpdate) {
   NaiveDoc_CmdAddObjects *cmd =
       new NaiveDoc_CmdAddObjects(this, theObjects, theToUpdate);
@@ -221,9 +218,9 @@ void NaiveDoc_Document::displayXcafDoc() {
       continue;
     }
 
-    Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject(aNode.RefLabel);
-    aPrs->SetLocalTransformation(aNode.Location);
-    aPrs->SetOwner(new TCollection_HAsciiString(aNode.Id));
+    Handle(XCAFPrs_AISObject) anObj = new XCAFPrs_AISObject(aNode.RefLabel);
+    anObj->SetLocalTransformation(aNode.Location);
+    anObj->SetOwner(new TCollection_HAsciiString(aNode.Id));
 
     QString aName =
         QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
@@ -231,16 +228,12 @@ void NaiveDoc_Document::displayXcafDoc() {
     if (aName.isNull() || aName.isEmpty())
       aName = "Unnamed";
 
-    aPrs->SetDisplayMode(AIS_Shaded);
-
-    Handle(NaiveDoc_Object) anObj = new NaiveDoc_Object(aPrs);
-    anObj->SetName(aName);
-    anObj->SetId();
+    anObj->SetDisplayMode(AIS_Shaded);
 
     anObjList.push_back(anObj);
   }
 
-  AddObjects(anObjList, Standard_True);
+  addObjects(anObjList, Standard_True);
 }
 
 Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {

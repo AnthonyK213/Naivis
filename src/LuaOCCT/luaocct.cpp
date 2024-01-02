@@ -1,6 +1,5 @@
 #include "luaocct.h"
 
-#include "lAIS.h"
 #include "lBRep.h"
 #include "lBRepBuilderAPI.h"
 #include "lBRepLib.h"
@@ -32,8 +31,6 @@ int32_t luaopen_luaocct(lua_State *L) {
   luaocct_init_TopExp(L);
   luaocct_init_TopoDS(L);
   luaocct_init_gp(L);
-
-  luaocct_init_AIS(L);
 
   luaocct_init_util(L);
 
