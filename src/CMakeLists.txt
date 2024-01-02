@@ -6,6 +6,7 @@ set(PROJECT_SOURCES
   main.cpp
   Ext/Ext_Load.cxx
   Ext/Ext_NaiveDoc.cxx
+  Ext/Ext_Override.cxx
   Ext/Ext_Qt.cxx
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx

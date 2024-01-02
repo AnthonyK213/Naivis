@@ -3,6 +3,7 @@
 
 #include "Ext_Qt.hxx"
 #include "Ext_NaiveDoc.hxx"
+#include "Ext_Override.hxx"
 
 void Ext_Load(lua_State *L);
 
