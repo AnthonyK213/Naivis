@@ -99,17 +99,11 @@ add_custom_command(
 if(WIN32)
   add_custom_command(
     TARGET Naivis POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$ENV{LUA_DIR}/bin/lua51.dll"
+        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$ENV{NAIVECGL_DIR}/bin"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
-    )
-  add_custom_command(
-    TARGET Naivis POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$ENV{LUA_DIR}/bin/lua51.dll"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$ENV{LUA_DIR}/bin/lua51.dll"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<TARGET_PROPERTY:luaocct,BINARY_DIR>/$<CONFIG>"
