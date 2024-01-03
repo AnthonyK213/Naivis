@@ -225,9 +225,9 @@ void NaiveDoc_Document::displayXcafDoc() {
     QString aName =
         QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
 
+    NaiveDoc_Object_SetId(*anObj);
     if (aName.isNull() || aName.isEmpty())
-      aName = "Unnamed";
-
+      NaiveDoc_Object_SetName(*anObj, aName);
     anObj->SetDisplayMode(AIS_Shaded);
 
     anObjList.push_back(anObj);
