@@ -23,8 +23,6 @@ public:
 
 private:
   NaiveDoc_Document *myDoc;
-  Handle(AIS_InteractiveContext) myContext;
-  Handle(NaiveDoc_ObjectTable) myObjects;
   NaiveDoc_ObjectList myRemoveList;
   Standard_Boolean myToUpdate;
 };

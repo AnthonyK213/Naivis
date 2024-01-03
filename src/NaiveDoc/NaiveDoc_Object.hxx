@@ -2,12 +2,12 @@
 #define _Naivis_NaiveDoc_Object_HeaderFile
 
 #include <AIS_InteractiveObject.hxx>
-#include <QList>
+#include <vector>
 
 #include "NaiveDoc_ObjectInfo.hxx"
 
 using NaiveDoc_Object = AIS_InteractiveObject;
-using NaiveDoc_ObjectList = QList<Handle(NaiveDoc_Object)>;
+using NaiveDoc_ObjectList = std::vector<Handle(NaiveDoc_Object)>;
 
 QUuid NaiveDoc_Object_GetId(const NaiveDoc_Object &theObject);
 

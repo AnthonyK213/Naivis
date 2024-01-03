@@ -8,16 +8,10 @@ IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
 NaiveDoc_Document::NaiveDoc_Document() {
   createXcafApp();
-
-  myObjects = new NaiveDoc_ObjectTable();
-
-  myContext = nullptr;
-
-  myUndoStack = new QUndoStack();
-  myUndoStack->setUndoLimit(100);
+  myObjects = new NaiveDoc_ObjectTable(this);
 }
 
-NaiveDoc_Document::~NaiveDoc_Document() { delete myUndoStack; }
+NaiveDoc_Document::~NaiveDoc_Document() {}
 
 void NaiveDoc_Document::NewDocument() {
   if (!myDoc.IsNull()) {
@@ -34,26 +28,6 @@ void NaiveDoc_Document::NewDocument() {
 
   if (!myDoc.IsNull())
     myDoc->SetUndoLimit(10);
-}
-
-Handle(TDocStd_Document) NaiveDoc_Document::Document() const { return myDoc; }
-
-Handle(NaiveDoc_ObjectTable) NaiveDoc_Document::Objects() const {
-  return myObjects;
-}
-
-Handle(AIS_InteractiveContext) NaiveDoc_Document::Context() const {
-  return myContext;
-}
-
-void NaiveDoc_Document::SetContext(const Handle(AIS_InteractiveContext) &
-                                   theContext) {
-  myContext = theContext;
-}
-
-XCAFPrs_DocumentExplorer NaiveDoc_Document::GetExplorer(
-    const XCAFPrs_DocumentExplorerFlags flags) const {
-  return {myDoc, flags};
 }
 
 Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
@@ -125,7 +99,7 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   if (myDoc.IsNull())
     return;
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = GetExplorer(); aDocExpl.More();
+  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     TCollection_AsciiString aName =
         getXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth());
@@ -135,36 +109,6 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   }
 
   std::cout << std::endl;
-}
-
-void NaiveDoc_Document::Undo() { myUndoStack->undo(); }
-
-void NaiveDoc_Document::Redo() { myUndoStack->redo(); }
-
-void NaiveDoc_Document::UpdateView() { myContext->CurrentViewer()->Redraw(); }
-
-Handle(NaiveDoc_Object) NaiveDoc_Document::AddShape(
-    const TopoDS_Shape &theShape, Standard_Boolean theToUpdate) {
-  Handle(NaiveDoc_Object) anObj = new AIS_Shape(theShape);
-  NaiveDoc_Object_SetId(*anObj);
-  anObj->SetDisplayMode(AIS_Shaded);
-
-  addObject(anObj, theToUpdate);
-
-  return anObj;
-}
-
-void NaiveDoc_Document::addObject(const Handle(NaiveDoc_Object) & theObject,
-                                  Standard_Boolean theToUpdate) {
-  NaiveDoc_ObjectList anObjectList{theObject};
-  addObjects(anObjectList, theToUpdate);
-}
-
-void NaiveDoc_Document::addObjects(const NaiveDoc_ObjectList &theObjects,
-                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdAddObjects *cmd =
-      new NaiveDoc_CmdAddObjects(this, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
 }
 
 TCollection_AsciiString
@@ -210,7 +154,7 @@ void NaiveDoc_Document::displayXcafDoc() {
 
   NaiveDoc_ObjectList anObjList{};
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = GetExplorer(); aDocExpl.More();
+  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
 
@@ -226,14 +170,14 @@ void NaiveDoc_Document::displayXcafDoc() {
         QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
 
     NaiveDoc_Object_SetId(*anObj);
-    if (aName.isNull() || aName.isEmpty())
+    if (!aName.isNull() && !aName.isEmpty())
       NaiveDoc_Object_SetName(*anObj, aName);
     anObj->SetDisplayMode(AIS_Shaded);
 
     anObjList.push_back(anObj);
   }
 
-  addObjects(anObjList, Standard_True);
+  myObjects->addObjects(anObjList, Standard_True);
 }
 
 Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {

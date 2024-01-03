@@ -9,6 +9,6 @@ local p1 = gp_Pnt()
 local p2 = gp_Pnt(3, 1, 4)
 
 local edge = BRepBuilderAPI_MakeEdge(p1, p2):Edge()
-local edgeObj = doc:AddShape(edge, true)
+local edgeObj = doc.Objects_:AddShape(edge, true)
 
 print(edgeObj:Id(), inspect(edgeObj:Name()))

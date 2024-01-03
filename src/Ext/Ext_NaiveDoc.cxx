@@ -12,11 +12,11 @@ void Ext_NaiveDoc(lua_State *L) {
       .Begin_Namespace(Naivis)
 
       .Begin_Class(NaiveDoc_Document)
+      .Bind_Property_Readonly(NaiveDoc_Document, Objects)
       .Bind_Method(NaiveDoc_Document, ImportStep)
       .Bind_Method(NaiveDoc_Document, Undo)
       .Bind_Method(NaiveDoc_Document, Redo)
       .Bind_Method(NaiveDoc_Document, UpdateView)
-      .Bind_Method(NaiveDoc_Document, AddShape)
       .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
@@ -24,6 +24,11 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Property_Readonly(NaiveDoc_Object, Signature)
       .addFunction("Id", &NaiveDoc_Object_GetId)
       .addFunction("Name", &NaiveDoc_Object_GetName)
+      .End_Class()
+
+      .Begin_Class(NaiveDoc_ObjectTable)
+      .Bind_Method(NaiveDoc_ObjectTable, AddShape)
+      .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)
       .End_Class()
 
       .Begin_Derive(AIS_Shape, NaiveDoc_Object)

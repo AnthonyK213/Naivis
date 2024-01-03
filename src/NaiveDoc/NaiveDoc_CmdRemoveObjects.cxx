@@ -1,35 +1,28 @@
 #include "NaiveDoc_CmdRemoveObjects.hxx"
 #include "NaiveDoc_Document.hxx"
-#include "V3d_View.hxx"
-#include "V3d_Viewer.hxx"
 
 NaiveDoc_CmdRemoveObjects::NaiveDoc_CmdRemoveObjects(
     NaiveDoc_Document *theDoc, const NaiveDoc_ObjectList &theRemoveList,
     Standard_Boolean theToUpdate, QUndoCommand *theParent)
     : QUndoCommand(theParent), myDoc(theDoc), myRemoveList(theRemoveList),
-      myToUpdate(theToUpdate) {
-  myContext = myDoc->Context();
-  myObjects = myDoc->Objects();
-}
+      myToUpdate(theToUpdate) {}
 
 NaiveDoc_CmdRemoveObjects::~NaiveDoc_CmdRemoveObjects() {}
 
 void NaiveDoc_CmdRemoveObjects::undo() {
   for (const auto &anObj : myRemoveList) {
-    myObjects->AddObject(anObj);
-    myContext->Display(anObj, Standard_False);
+    myDoc->Objects()->addObjectRaw(anObj);
   }
 
   if (myToUpdate)
-    myContext->CurrentViewer()->Redraw();
+    myDoc->UpdateView();
 }
 
 void NaiveDoc_CmdRemoveObjects::redo() {
   for (const auto &anObj : myRemoveList) {
-    myObjects->RemoveObject(anObj);
-    myContext->Remove(anObj, Standard_False);
+    myDoc->Objects()->removeObjectRaw(anObj);
   }
 
   if (myToUpdate)
-    myContext->CurrentViewer()->Redraw();
+    myDoc->UpdateView();
 }

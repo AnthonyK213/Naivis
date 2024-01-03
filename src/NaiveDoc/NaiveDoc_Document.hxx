@@ -1,8 +1,6 @@
 ﻿#ifndef _Naivis_NaiveDoc_Document_HeaderFile
 #define _Naivis_NaiveDoc_Document_HeaderFile
 
-#include <AIS_InteractiveContext.hxx>
-#include <AIS_InteractiveObject.hxx>
 #include <BinXCAFDrivers.hxx>
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
@@ -12,9 +10,6 @@
 #include <STEPControl_Controller.hxx>
 #include <STEPControl_Reader.hxx>
 #include <STEPControl_Writer.hxx>
-#include <Standard.hxx>
-#include <Standard_Transient.hxx>
-#include <Standard_Type.hxx>
 #include <StlAPI_Reader.hxx>
 #include <TDF_Label.hxx>
 #include <TDF_LabelSequence.hxx>
@@ -22,19 +17,16 @@
 #include <TDataStd_Name.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
-#include <TopoDS_Shape.hxx>
+#include <V3d_View.hxx>
+#include <V3d_Viewer.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_DocumentExplorer.hxx>
 #include <XCAFPrs_DocumentNode.hxx>
 
-#include <QUndoStack>
-
 #include "NaiveDoc_Object.hxx"
-
-class NaiveDoc_CmdAddObjects;
-class NaiveDoc_ObjectTable;
+#include "NaiveDoc_ObjectTable.hxx"
 
 class NaiveDoc_Document;
 DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
@@ -48,17 +40,15 @@ public:
 public:
   void NewDocument();
 
-  Handle(TDocStd_Document) Document() const;
+  Handle(NaiveDoc_ObjectTable) Objects() const { return myObjects; }
 
-  Handle(NaiveDoc_ObjectTable) Objects() const;
+  Handle(AIS_InteractiveContext) Context() const {
+    return myObjects->myContext;
+  }
 
-  Handle(AIS_InteractiveContext) Context() const;
-
-  void SetContext(const Handle(AIS_InteractiveContext) & theContext);
-
-  XCAFPrs_DocumentExplorer
-  GetExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
-                  XCAFPrs_DocumentExplorerFlags_None) const;
+  void SetContext(const Handle(AIS_InteractiveContext) & theContext) {
+    myObjects->myContext = theContext;
+  }
 
   Standard_Boolean ImportStep(Standard_CString theFilePath);
 
@@ -71,14 +61,11 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-  void Undo();
+  void Undo() { myObjects->myUndoStack->undo(); }
 
-  void Redo();
+  void Redo() { myObjects->myUndoStack->redo(); }
 
-  void UpdateView();
-
-  Handle(NaiveDoc_Object)
-      AddShape(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
+  void UpdateView() { Context()->CurrentViewer()->Redraw(); }
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
@@ -87,6 +74,12 @@ private:
 
   void displayXcafDoc();
 
+  XCAFPrs_DocumentExplorer
+  getXcafExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
+                      XCAFPrs_DocumentExplorerFlags_None) const {
+    return {myDoc, theFlags};
+  }
+
   static TCollection_AsciiString
   getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
                        Standard_Boolean theIsInstanceName,
@@ -94,18 +87,10 @@ private:
 
   Standard_Boolean importStep(Standard_CString theFilePath);
 
-  void addObject(const Handle(NaiveDoc_Object) & theObject,
-                 Standard_Boolean theToUpdate);
-
-  void addObjects(const NaiveDoc_ObjectList &theObjects,
-                  Standard_Boolean theToUpdate);
-
 private:
   Handle(TDocStd_Application) myApp;
   Handle(TDocStd_Document) myDoc;
   Handle(NaiveDoc_ObjectTable) myObjects;
-  Handle(AIS_InteractiveContext) myContext;
-  QUndoStack *myUndoStack;
 };
 
 #endif
