@@ -1,4 +1,9 @@
 local ffi = require("ffi")
+
+local gp_Pnt = LuaOCCT.gp.gp_Pnt
+local Poly_Triangle = LuaOCCT.Poly.Poly_Triangle
+local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
+
 local naivecgl = {}
 
 local dylib_ = nil
@@ -104,6 +109,43 @@ function naivecgl.Naive_BndShape_ConvexHull2D(thePoints)
   dylib_.Naive_Release_Int32Array(aConvexIndices[0])
 
   return code, result
+end
+
+function naivecgl.Naive_Tessellation_TetraSphere(theCenter, theRadius, theLevel)
+  if not dylib_ then
+    return
+  end
+
+  local aCenter = ffi.new("Naive_Point3d_T", { theCenter.X_, theCenter.Y_, theCenter.Z_ })
+  local tetrasphere = dylib_.Naive_Tessellation_TetraSphere(aCenter, theRadius, theLevel)
+
+  if tetrasphere == nil then
+    return nil;
+  end
+
+  local nbVertices = dylib_.Naive_Poly_NbVertices(tetrasphere)
+  local nbTriangles = dylib_.Naive_Poly_NbTriangles(tetrasphere)
+  local aVertices = ffi.new("Naive_Point3d_T[?]", nbVertices)
+  local aTriangles = ffi.new("Naive_Triangle_T[?]", nbTriangles)
+
+  dylib_.Naive_Poly_Vertices(tetrasphere, aVertices)
+  dylib_.Naive_Poly_Triangles(tetrasphere, aTriangles)
+
+  local vList, tList = {}, {}
+
+  for i = 1, nbVertices do
+    local aVert = aVertices[i - 1]
+    vList[i] = gp_Pnt(aVert.x, aVert.y, aVert.z)
+  end
+
+  for i = 1, nbTriangles do
+    local aTri = aTriangles[i - 1]
+    tList[i] = Poly_Triangle(aTri.n0 + 1, aTri.n1 + 1, aTri.n2 + 1)
+  end
+
+  dylib_.Naive_Poly_Release(tetrasphere)
+
+  return Poly_Triangulation(vList, tList);
 end
 
 naivecgl:init()

@@ -514,7 +514,7 @@ static inline void luaocct_init_gp_XYZ(lua_State *L) {
       .End_Class()
 
       .Begin_Class(gp_Pnt)
-      .addConstructor<void(), void(const gp_XYZ &),
+      .addConstructor<void(), void(const gp_Pnt &), void(const gp_XYZ &),
                       void(Standard_Real, Standard_Real, Standard_Real)>()
       .Bind_XYZ(gp_Pnt)
       .Bind_Property(gp_Pnt, XYZ, SetXYZ)

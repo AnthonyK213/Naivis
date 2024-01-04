@@ -1,5 +1,17 @@
 ﻿#include "Mesh_Util.hxx"
 
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <BRep_TFace.hxx>
+#include <BRep_Tool.hxx>
+#include <MeshVS_Drawer.hxx>
+#include <MeshVS_DrawerAttribute.hxx>
+#include <MeshVS_ElementalColorPrsBuilder.hxx>
+#include <MeshVS_MeshPrsBuilder.hxx>
+#include <TColStd_HPackedMapOfInteger.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
+#include <TopoDS_Face.hxx>
+
 namespace Mesh_Util {
 
 Handle(Poly_Triangulation)
@@ -101,8 +113,29 @@ Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   Handle(MeshVS_Mesh) aMeshPrs = new MeshVS_Mesh();
   aMeshPrs->SetDataSource(aDataSource);
 
-  Handle(MeshVS_MeshPrsBuilder) aBuilder = new MeshVS_MeshPrsBuilder(aMeshPrs);
-  aMeshPrs->AddBuilder(aBuilder, true);
+  Handle(MeshVS_ElementalColorPrsBuilder) aColorPrsBuilder =
+      new MeshVS_ElementalColorPrsBuilder(
+          aMeshPrs, MeshVS_DMF_Shading | MeshVS_DMF_ElementalColorDataPrs,
+          aDataSource);
+
+  for (TColStd_PackedMapOfInteger::Iterator anIter(
+           aDataSource->GetAllElements());
+       anIter.More(); anIter.Next()) {
+    aColorPrsBuilder->SetColor1(
+        anIter.Key(), Quantity_Color(0.5, 0.8, 0.88, Quantity_TOC_sRGB));
+  }
+
+  aMeshPrs->AddBuilder(aColorPrsBuilder, Standard_False);
+
+  Handle(MeshVS_MeshPrsBuilder) aPrsBuilder = new MeshVS_MeshPrsBuilder(
+      aMeshPrs, MeshVS_DMF_WireFrame, aDataSource, -1, MeshVS_BP_Default);
+  aMeshPrs->AddBuilder(aPrsBuilder, Standard_True);
+
+  aMeshPrs->GetDrawer()->SetBoolean(MeshVS_DA_ShowEdges, Standard_False);
+  aMeshPrs->GetDrawer()->SetBoolean(MeshVS_DA_Reflection, Standard_True);
+  aMeshPrs->GetDrawer()->SetBoolean(MeshVS_DA_SmoothShading, Standard_True);
+  aMeshPrs->GetDrawer()->SetBoolean(MeshVS_DA_DisplayNodes, Standard_False);
+  aMeshPrs->GetDrawer()->SetBoolean(MeshVS_DA_ColorReflection, Standard_True);
 
   Handle(TColStd_HPackedMapOfInteger) aMeshNodes =
       new TColStd_HPackedMapOfInteger();
@@ -115,6 +148,8 @@ Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   aMeshPrs->SetHiddenNodes(aMeshNodes);
   aMeshPrs->SetSelectableNodes(aMeshNodes);
   aMeshPrs->SetDisplayMode(MeshVS_DMF_Shading);
+  aMeshPrs->SetMeshSelMethod(MeshVS_MSM_PRECISE);
+  aMeshPrs->HilightAttributes()->SetColor(Quantity_NOC_YELLOW1);
 
   return aMeshPrs;
 }

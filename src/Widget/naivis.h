@@ -3,21 +3,8 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QHash>
 #include <QMainWindow>
-#include <QMap>
 #include <QString>
-#include <QStringListModel>
-#include <QUndoCommand>
-#include <QUndoStack>
-
-#include <AIS_InteractiveContext.hxx>
-#include <AIS_Shape.hxx>
-#include <Graphic3d_Camera.hxx>
-#include <MeshVS_Mesh.hxx>
-#include <Prs3d_Drawer.hxx>
-#include <TopExp_Explorer.hxx>
-#include <TopoDS_Shape.hxx>
 
 #include <IO/IO_LogStream.hxx>
 #include <NaiveDoc/NaiveDoc_Document.hxx>
@@ -45,9 +32,9 @@ private slots:
   void importFile();
 
   void exportFile();
-  
+
   void openScript();
-  
+
   void saveScript();
 
   void quit();

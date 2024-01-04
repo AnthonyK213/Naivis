@@ -1,6 +1,8 @@
 ﻿#include "NaiveDoc_ObjectTable.hxx"
 #include "NaiveDoc_CmdAddObjects.hxx"
 
+#include <Mesh/Mesh_Util.hxx>
+
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
 NaiveDoc_ObjectTable::NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc)
@@ -16,6 +18,16 @@ Handle(NaiveDoc_Object) NaiveDoc_ObjectTable::AddShape(
   Handle(NaiveDoc_Object) anObj = new AIS_Shape(theShape);
   NaiveDoc_Object_SetId(*anObj);
   anObj->SetDisplayMode(AIS_Shaded);
+  addObject(anObj, theToUpdate);
+
+  return anObj;
+}
+
+Handle(NaiveDoc_Object) NaiveDoc_ObjectTable::AddMesh(
+    const Handle(Poly_Triangulation) & theMesh, Standard_Boolean theToUpdate) {
+  Handle(NaiveDoc_Object) anObj = Mesh_Util::CreateMeshVS(theMesh);
+  NaiveDoc_Object_SetId(*anObj);
+  anObj->SetDisplayMode(MeshVS_DMF_Shading);
   addObject(anObj, theToUpdate);
 
   return anObj;

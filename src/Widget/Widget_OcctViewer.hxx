@@ -6,52 +6,24 @@
 #endif
 
 #include <AIS_InteractiveContext.hxx>
-#include <AIS_Shape.hxx>
 #include <AIS_TextLabel.hxx>
 #include <AIS_ViewController.hxx>
 #include <AIS_ViewCube.hxx>
 #include <Aspect_DisplayConnection.hxx>
 #include <Aspect_NeutralWindow.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
-#include <BRepBuilderAPI_MakeFace.hxx>
-#include <BRepMesh_IncrementalMesh.hxx>
-#include <BRepPrimAPI_MakeBox.hxx>
-#include <BRep_Tool.hxx>
-#include <IMeshTools_Parameters.hxx>
-#include <MeshVS_DataSource3D.hxx>
-#include <MeshVS_Mesh.hxx>
-#include <MeshVS_MeshPrsBuilder.hxx>
-#include <MeshVS_MeshSelectionMethod.hxx>
-#include <MeshVS_SelectionModeFlags.hxx>
-#include <Message.hxx>
-#include <OSD_Path.hxx>
 #include <OpenGl_Context.hxx>
 #include <OpenGl_FrameBuffer.hxx>
 #include <OpenGl_GraphicDriver.hxx>
-#include <Poly_Triangulation.hxx>
 #include <Standard_WarningsDisable.hxx>
 #include <Standard_WarningsRestore.hxx>
-#include <TopExp_Explorer.hxx>
-#include <TopoDS.hxx>
-#include <TopoDS_Face.hxx>
-#include <TopoDS_Shape.hxx>
 #include <V3d_View.hxx>
-#include <gp_Pnt.hxx>
-#include <gp_Trsf.hxx>
 
 #include <QApplication>
 #include <QColorSpace>
-#include <QDir>
-#include <QFileInfo>
-#include <QHash>
-#include <QList>
 #include <QMainWindow>
-#include <QMap>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QOpenGLWidget>
-#include <QStringList>
-#include <QUndoStack>
 
 class NaiveDoc_Document;
 class Sketch_Manager;

@@ -28,6 +28,7 @@ void Ext_NaiveDoc(lua_State *L) {
 
       .Begin_Class(NaiveDoc_ObjectTable)
       .Bind_Method(NaiveDoc_ObjectTable, AddShape)
+      .Bind_Method(NaiveDoc_ObjectTable, AddMesh)
       .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)
       .End_Class()
 

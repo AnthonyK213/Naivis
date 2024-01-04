@@ -3,6 +3,7 @@
 
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_Shape.hxx>
+#include <Poly_Triangulation.hxx>
 #include <Standard.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
@@ -34,6 +35,9 @@ public:
 public:
   Handle(NaiveDoc_Object)
       AddShape(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
+
+  Handle(NaiveDoc_Object) AddMesh(const Handle(Poly_Triangulation) & theMesh,
+                                  Standard_Boolean theToUpdate);
 
   NaiveDoc_ObjectList SelectedObjects() const;
 
