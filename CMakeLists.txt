@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
+if(UNIX)
+list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
+endif()
+
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
 list(APPEND CMAKE_PREFIX_PATH "$ENV{NAIVECGL_DIR}/lib/cmake/naivecgl")
 

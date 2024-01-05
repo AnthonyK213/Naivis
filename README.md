@@ -16,6 +16,8 @@ A young and simple (sometimes naive) geometry visualization tool.
     - Set environment variable `QT_DIR`
   - [LuaJIT](https://github.com/LuaJIT/LuaJIT)
     - Set environment variable `LUA_DIR`
+  - [OCCT](https://github.com/Open-Cascade-SAS/OCCT) >= 7.6.0 is needed on Linux
+    - Set environment variable `OCCT_DIR`
   - [NaiveCGL](https://github.com/AnthonyK213/NaiveCGL)
     - Build & Install
     - Set environment variable `NAIVECGL_DIR`
