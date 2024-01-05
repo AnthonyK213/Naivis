@@ -85,10 +85,6 @@ install(TARGETS Naivis
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
 
-if(QT_VERSION_MAJOR EQUAL 6)
-  qt_finalize_executable(Naivis)
-endif()
-
 add_custom_command(
   TARGET Naivis POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -111,4 +107,29 @@ if(WIN32)
     COMMAND $ENV{QT_DIR}/bin/windeployqt.exe
         $<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/Naivis.exe
     )
+elseif(UNIX AND NOT APPLE)
+  add_custom_command(
+    TARGET Naivis POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        "${CMAKE_INSTALL_PREFIX}/bin/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        "${CMAKE_INSTALL_PREFIX}/lib/"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$ENV{OCCT_DIR}/lib/*.so*"
+        "${CMAKE_INSTALL_PREFIX}/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$ENV{NAIVECGL_DIR}/lib/*.so"
+        "${CMAKE_INSTALL_PREFIX}/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_PROPERTY:luaocct,BINARY_DIR>/$<CONFIG>"
+        "${CMAKE_INSTALL_PREFIX}/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
+        "${CMAKE_INSTALL_PREFIX}/bin"
+    )
+  install(SCRIPT "${CMAKE_SOURCE_DIR}/cmake/PostInstall-Linux.cmake")
+endif()
+
+if(QT_VERSION_MAJOR EQUAL 6)
+  qt_finalize_executable(Naivis)
 endif()
