@@ -11,13 +11,12 @@
 
 #include <QHash>
 #include <QUndoStack>
-#include <QUuid>
 
 #include "NaiveDoc_Object.hxx"
 
 class NaiveDoc_Document;
 class NaiveDoc_CmdAddObjects;
-class NaiveDoc_CmdRemoveObjects;
+class NaiveDoc_CmdDeleteObjects;
 
 class NaiveDoc_ObjectTable;
 DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)
@@ -25,7 +24,7 @@ DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)
 class NaiveDoc_ObjectTable : public Standard_Transient {
   friend class NaiveDoc_Document;
   friend class NaiveDoc_CmdAddObjects;
-  friend class NaiveDoc_CmdRemoveObjects;
+  friend class NaiveDoc_CmdDeleteObjects;
 
 public:
   explicit NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc = nullptr);
@@ -33,31 +32,77 @@ public:
   ~NaiveDoc_ObjectTable();
 
 public:
-  Handle(NaiveDoc_Object)
-      AddShape(const TopoDS_Shape &theShape, Standard_Boolean theToUpdate);
+  NaiveDoc_Id AddShape(const TopoDS_Shape &theShape,
+                       Standard_Boolean theToUpdate);
 
-  Handle(NaiveDoc_Object) AddMesh(const Handle(Poly_Triangulation) & theMesh,
-                                  Standard_Boolean theToUpdate);
+  NaiveDoc_Id AddMesh(const Handle(Poly_Triangulation) & theMesh,
+                      Standard_Boolean theToUpdate);
+
+  void Clear(Standard_Boolean theToUpdate);
+
+  Handle(NaiveDoc_Object) FindObject(const NaiveDoc_Id &theId) const;
+
+  Standard_Boolean DeleteObject(const Handle(NaiveDoc_Object) & theObject,
+                                Standard_Boolean theToUpdate);
+
+  Standard_Boolean DeleteObject(const NaiveDoc_Id &theId,
+                                Standard_Boolean theToUpdate);
+
+  Standard_Integer DeleteObjects(const NaiveDoc_ObjectList &theObjects,
+                                 Standard_Boolean theToUpdate);
+
+  Standard_Integer DeleteObjects(NaiveDoc_ObjectList &&theObjects,
+                                 Standard_Boolean theToUpdate);
+
+  Standard_Boolean HideObject(const Handle(NaiveDoc_Object) & theObject,
+                              Standard_Boolean theToUpdate);
+
+  Standard_Boolean HideObject(const NaiveDoc_Id &theId,
+                              Standard_Boolean theToUpdate);
+
+  Standard_Integer HideObjects(const NaiveDoc_ObjectList &theObjects,
+                               Standard_Boolean theToUpdate);
+
+  Standard_Boolean PurgeObject(const Handle(NaiveDoc_Object) & theObject,
+                               Standard_Boolean theToUpdate);
+
+  Standard_Boolean PurgeObject(const NaiveDoc_Id &theId,
+                               Standard_Boolean theToUpdate);
+
+  Standard_Integer PurgeObjects(const NaiveDoc_ObjectList &theObjects,
+                                Standard_Boolean theToUpdate);
 
   NaiveDoc_ObjectList SelectedObjects() const;
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
 private:
-  void addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                    Standard_Boolean theToUpdate = Standard_False);
+  NaiveDoc_Id addObject(const Handle(NaiveDoc_Object) & theObject,
+                        Standard_Boolean theToUpdate);
 
-  void addObject(const Handle(NaiveDoc_Object) & theObject,
-                 Standard_Boolean theToUpdate = Standard_False);
+  NaiveDoc_IdList addObjects(const NaiveDoc_ObjectList &theObjects,
+                             Standard_Boolean theToUpdate);
 
-  void addObjects(const NaiveDoc_ObjectList &theObjects,
-                  Standard_Boolean theToUpdate = Standard_False);
-
-  void removeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                       Standard_Boolean theToUpdate = Standard_False);
+  NaiveDoc_IdList addObjects(NaiveDoc_ObjectList &&theObjects,
+                             Standard_Boolean theToUpdate);
 
 private:
-  QHash<QUuid, Handle(NaiveDoc_Object)> myObjects;
+  Standard_Boolean addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                                Standard_Boolean theToUpdate = Standard_False);
+
+  Standard_Boolean
+  deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                  Standard_Boolean theToUpdate = Standard_False);
+
+  Standard_Boolean hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                                 Standard_Boolean theToUpdate = Standard_False);
+
+  Standard_Boolean
+  purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                 Standard_Boolean theToUpdate = Standard_False);
+
+private:
+  QHash<NaiveDoc_Id, Handle(NaiveDoc_Object)> myObjects;
   Handle(AIS_InteractiveContext) myContext;
   NaiveDoc_Document *myDoc;
   QUndoStack *myUndoStack;

@@ -31,11 +31,11 @@ static Handle(NaiveDoc_ObjectInfo) getObjectInfo(NaiveDoc_Object &theObject) {
   return anInfo;
 }
 
-QUuid NaiveDoc_Object_GetId(const NaiveDoc_Object &theObject) {
+NaiveDoc_Id NaiveDoc_Object_GetId(const NaiveDoc_Object &theObject) {
   Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfoConst(theObject);
 
   if (anInfo.IsNull()) {
-    return QUuid();
+    return NaiveDoc_Id();
   }
 
   return anInfo->Id();
@@ -58,4 +58,34 @@ QString NaiveDoc_Object_GetName(const NaiveDoc_Object &theObject) {
 void NaiveDoc_Object_SetName(NaiveDoc_Object &theObject,
                              const QString &theName) {
   getObjectInfo(theObject)->SetName(theName);
+}
+
+Standard_Boolean NaiveDoc_Object_IsDeleted(const NaiveDoc_Object &theObject) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfoConst(theObject);
+
+  if (anInfo.IsNull()) {
+    return Standard_False;
+  }
+
+  return anInfo->IsDeleted();
+}
+
+void NaiveDoc_Object_SetDeleted(NaiveDoc_Object &theObject,
+                                const Standard_Boolean theDeleted) {
+  getObjectInfo(theObject)->SetDeleted(theDeleted);
+}
+
+Standard_Boolean NaiveDoc_Object_IsHidden(const NaiveDoc_Object &theObject) {
+  Handle(NaiveDoc_ObjectInfo) anInfo = getObjectInfoConst(theObject);
+
+  if (anInfo.IsNull()) {
+    return Standard_False;
+  }
+
+  return anInfo->IsHidden();
+}
+
+void NaiveDoc_Object_SetHidden(NaiveDoc_Object &theObject,
+                               const Standard_Boolean theHidden) {
+  getObjectInfo(theObject)->SetHidden(theHidden);
 }

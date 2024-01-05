@@ -6,8 +6,12 @@
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 
+#include <QList>
 #include <QString>
 #include <QUuid>
+
+using NaiveDoc_Id = QUuid;
+using NaiveDoc_IdList = QList<NaiveDoc_Id>;
 
 class NaiveDoc_ObjectInfo;
 DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectInfo, Standard_Transient)
@@ -19,9 +23,9 @@ public:
   ~NaiveDoc_ObjectInfo();
 
 public:
-  const QUuid &Id() const { return myId; }
+  const NaiveDoc_Id &Id() const { return myId; }
 
-  void SetId() { myId = QUuid::createUuid(); }
+  void SetId() { myId = NaiveDoc_Id::createUuid(); }
 
   const QString &Name() const { return myName; }
 
@@ -35,12 +39,24 @@ public:
     myOwner = theOwner;
   }
 
+  Standard_Boolean IsDeleted() const { return myIsDeleted; }
+
+  void SetDeleted(const Standard_Boolean theDeleted) {
+    myIsDeleted = theDeleted;
+  }
+
+  Standard_Boolean IsHidden() const { return myIsHidden; }
+
+  void SetHidden(const Standard_Boolean theHidden) { myIsHidden = theHidden; }
+
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_ObjectInfo, Standard_Transient)
 
 private:
-  QUuid myId;
+  NaiveDoc_Id myId;
   QString myName;
   Handle(Standard_Transient) myOwner;
+  Standard_Boolean myIsDeleted;
+  Standard_Boolean myIsHidden;
 };
 
 #endif

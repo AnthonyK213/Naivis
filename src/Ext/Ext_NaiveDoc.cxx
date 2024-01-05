@@ -29,6 +29,16 @@ void Ext_NaiveDoc(lua_State *L) {
       .Begin_Class(NaiveDoc_ObjectTable)
       .Bind_Method(NaiveDoc_ObjectTable, AddShape)
       .Bind_Method(NaiveDoc_ObjectTable, AddMesh)
+      .addFunction("DeleteObject",
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::DeleteObject),
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::DeleteObject))
+      .addFunction(
+          "DeleteObjects",
+          luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::DeleteObjects))
       .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)
       .End_Class()
 

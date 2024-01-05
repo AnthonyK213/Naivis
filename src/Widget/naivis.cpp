@@ -101,7 +101,11 @@ void Naivis::redo() {
 
 void Naivis::selectAll() {}
 
-void Naivis::removeCurrentSelection() {}
+void Naivis::deleteCurrentSelection() {
+  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
+  myDoc->Objects()->DeleteObjects(std::move(selection), true);
+  update();
+}
 
 void Naivis::runScript() {
   QString script = ui->scriptEditor->toPlainText();
@@ -129,7 +133,7 @@ void Naivis::setupActions() {
   CONNECT_ACTION(ui->actionRedo, redo);
   CONNECT_ACTION(ui->actionTransform, transform);
   CONNECT_ACTION(ui->actionSelectAll, selectAll);
-  CONNECT_ACTION(ui->actionDelete, removeCurrentSelection);
+  CONNECT_ACTION(ui->actionDelete, deleteCurrentSelection);
 
   /// View
   connect(ui->actionOrthographic, &QAction::triggered, [this] {
@@ -180,6 +184,17 @@ void Naivis::setupLuaState() {
   luaL_openlibs(myL);
   luaopen_luaocct(myL);
   Ext_Load(myL);
+
+  lua_getglobal(myL, "package");
+  lua_getfield(myL, -1, "path");
+  std::string path = lua_tostring(myL, -1);
+  path.append(";");
+  path.append(QCoreApplication::applicationDirPath().toUtf8().toStdString());
+  path.append("/?.lua");
+  lua_pop(myL, 1);
+  lua_pushstring(myL, path.c_str());
+  lua_setfield(myL, -2, "path");
+  lua_pop(myL, 1);
 
   LuaBridge__G(myL)
       .Begin_Namespace(Naivis)
