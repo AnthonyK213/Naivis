@@ -1,23 +1,23 @@
-﻿#include "NaiveDoc_CmdAddObjects.hxx"
+﻿#include "NaiveDoc_CmdShowObjects.hxx"
 #include "NaiveDoc_Document.hxx"
 
-void NaiveDoc_CmdAddObjects::undo() {
+void NaiveDoc_CmdShowObjects::undo() {
   if (myOkIndices.isEmpty())
     return;
 
   for (Standard_Integer i : myOkIndices) {
-    myDoc->Objects()->deleteObjectRaw(myDisplayList[i]);
+    myDoc->Objects()->hideObjectRaw(myDisplayList[i]);
   }
 
   if (myToUpdate)
     myDoc->UpdateView();
 }
 
-void NaiveDoc_CmdAddObjects::redo() {
+void NaiveDoc_CmdShowObjects::redo() {
   myOkIndices.clear();
 
   for (Standard_Integer i = 0; i < myDisplayList.size(); ++i) {
-    if (myDoc->Objects()->addObjectRaw(myDisplayList[i])) {
+    if (myDoc->Objects()->showObjectRaw(myDisplayList[i])) {
       myOkIndices.push_back(i);
     }
   }

@@ -15,6 +15,8 @@ set(PROJECT_SOURCES
   Mesh/Mesh_Util.cxx
   NaiveDoc/NaiveDoc_CmdAddObjects.cxx
   NaiveDoc/NaiveDoc_CmdDeleteObjects.cxx
+  NaiveDoc/NaiveDoc_CmdShowObjects.cxx
+  NaiveDoc/NaiveDoc_CmdHideObjects.cxx
   NaiveDoc/NaiveDoc_Document.cxx
   NaiveDoc/NaiveDoc_Object.cxx
   NaiveDoc/NaiveDoc_ObjectInfo.cxx

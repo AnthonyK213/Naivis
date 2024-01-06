@@ -1,14 +1,12 @@
-#include "NaiveDoc_CmdDeleteObjects.hxx"
+﻿#include "NaiveDoc_CmdDeleteObjects.hxx"
 #include "NaiveDoc_Document.hxx"
-
-NaiveDoc_CmdDeleteObjects::~NaiveDoc_CmdDeleteObjects() {}
 
 void NaiveDoc_CmdDeleteObjects::undo() {
   if (myOkIndices.isEmpty())
     return;
 
   for (Standard_Integer i : myOkIndices) {
-    myDoc->Objects()->addObjectRaw(myDeleteList[i]);
+    myDoc->Objects()->addObjectRaw(myDisplayList[i]);
   }
 
   if (myToUpdate)
@@ -18,10 +16,27 @@ void NaiveDoc_CmdDeleteObjects::undo() {
 void NaiveDoc_CmdDeleteObjects::redo() {
   myOkIndices.clear();
 
-  for (Standard_Integer i = 0; i < myDeleteList.size(); ++i) {
-    if (myDoc->Objects()->deleteObjectRaw(myDeleteList[i])) {
-      myOkIndices.push_back(i);
+  switch (myKind) {
+  case NaiveDoc_CmdDeleteObjects::Delete: {
+    for (Standard_Integer i = 0; i < myDisplayList.size(); ++i) {
+      if (myDoc->Objects()->deleteObjectRaw(myDisplayList[i])) {
+        myOkIndices.push_back(i);
+      }
     }
+    break;
+  }
+
+  case NaiveDoc_CmdDeleteObjects::Purge: {
+    for (Standard_Integer i = 0; i < myDisplayList.size(); ++i) {
+      if (myDoc->Objects()->purgeObjectRaw(myDisplayList[i])) {
+        myOkIndices.push_back(i);
+      }
+    }
+    break;
+  }
+
+  default:
+    return;
   }
 
   if (!myOkIndices.isEmpty() && myToUpdate)

@@ -1,6 +1,9 @@
 ﻿#include "NaiveDoc_ObjectTable.hxx"
 #include "NaiveDoc_CmdAddObjects.hxx"
 #include "NaiveDoc_CmdDeleteObjects.hxx"
+#include "NaiveDoc_CmdHideObjects.hxx"
+#include "NaiveDoc_CmdShowObjects.hxx"
+#include "NaiveDoc_Document.hxx"
 
 #include <Mesh/Mesh_Util.hxx>
 
@@ -39,7 +42,7 @@ void NaiveDoc_ObjectTable::Clear(Standard_Boolean theToUpdate) {
 }
 
 Handle(NaiveDoc_Object)
-    NaiveDoc_ObjectTable::FindObject(const NaiveDoc_Id &theId) const {
+    NaiveDoc_ObjectTable::FindId(const NaiveDoc_Id &theId) const {
   if (myObjects.contains(theId)) {
     return myObjects.value(theId);
   }
@@ -56,8 +59,7 @@ NaiveDoc_ObjectTable::DeleteObject(const Handle(NaiveDoc_Object) & theObject,
 Standard_Boolean
 NaiveDoc_ObjectTable::DeleteObject(const NaiveDoc_Id &theId,
                                    Standard_Boolean theToUpdate) {
-  Handle(NaiveDoc_Object) anObj = FindObject(theId);
-  return DeleteObject(anObj, theToUpdate);
+  return DeleteObject(FindId(theId), theToUpdate);
 }
 
 Standard_Integer
@@ -82,6 +84,38 @@ NaiveDoc_ObjectTable::DeleteObjects(NaiveDoc_ObjectList &&theObjects,
 }
 
 Standard_Boolean
+NaiveDoc_ObjectTable::ShowObject(const Handle(NaiveDoc_Object) & theObject,
+                                 Standard_Boolean theToUpdate) {
+  return ShowObjects({theObject}, theToUpdate) == 1;
+}
+
+Standard_Boolean
+NaiveDoc_ObjectTable::ShowObject(const NaiveDoc_Id &theId,
+                                 Standard_Boolean theToUpdate) {
+  return ShowObject(FindId(theId), theToUpdate);
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::ShowObjects(const NaiveDoc_ObjectList &theObjects,
+                                  Standard_Boolean theToUpdate) {
+  NaiveDoc_CmdShowObjects *cmd =
+      new NaiveDoc_CmdShowObjects(myDoc, theObjects, theToUpdate);
+  myUndoStack->push(cmd);
+
+  return cmd->Size();
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::ShowObjects(NaiveDoc_ObjectList &&theObjects,
+                                  Standard_Boolean theToUpdate) {
+  NaiveDoc_CmdShowObjects *cmd =
+      new NaiveDoc_CmdShowObjects(myDoc, std::move(theObjects), theToUpdate);
+  myUndoStack->push(cmd);
+
+  return cmd->Size();
+}
+
+Standard_Boolean
 NaiveDoc_ObjectTable::HideObject(const Handle(NaiveDoc_Object) & theObject,
                                  Standard_Boolean theToUpdate) {
   NaiveDoc_ObjectList anObjectList{theObject};
@@ -91,15 +125,25 @@ NaiveDoc_ObjectTable::HideObject(const Handle(NaiveDoc_Object) & theObject,
 Standard_Boolean
 NaiveDoc_ObjectTable::HideObject(const NaiveDoc_Id &theId,
                                  Standard_Boolean theToUpdate) {
-  Handle(NaiveDoc_Object) anObj = FindObject(theId);
+  Handle(NaiveDoc_Object) anObj = FindId(theId);
   return HideObject(anObj, theToUpdate);
 }
 
 Standard_Integer
 NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_ObjectList &theObjects,
                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdDeleteObjects *cmd = new NaiveDoc_CmdDeleteObjects(
-      myDoc, NaiveDoc_CmdDeleteObjects::Hide, theObjects, theToUpdate);
+  NaiveDoc_CmdHideObjects *cmd =
+      new NaiveDoc_CmdHideObjects(myDoc, theObjects, theToUpdate);
+  myUndoStack->push(cmd);
+
+  return cmd->Size();
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::HideObjects(NaiveDoc_ObjectList &&theObjects,
+                                  Standard_Boolean theToUpdate) {
+  NaiveDoc_CmdHideObjects *cmd =
+      new NaiveDoc_CmdHideObjects(myDoc, std::move(theObjects), theToUpdate);
   myUndoStack->push(cmd);
 
   return cmd->Size();
@@ -115,7 +159,7 @@ NaiveDoc_ObjectTable::PurgeObject(const Handle(NaiveDoc_Object) & theObject,
 Standard_Boolean
 NaiveDoc_ObjectTable::PurgeObject(const NaiveDoc_Id &theId,
                                   Standard_Boolean theToUpdate) {
-  Handle(NaiveDoc_Object) anObj = FindObject(theId);
+  Handle(NaiveDoc_Object) anObj = FindId(theId);
   return PurgeObject(anObj, theToUpdate);
 }
 
@@ -190,7 +234,13 @@ NaiveDoc_ObjectTable::addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
     myObjects.insert(anId, theObject);
   }
 
-  myContext->Display(theObject, theToUpdate);
+  myContext->Display(theObject, Standard_False);
+
+  if (NaiveDoc_Object_IsHidden(*theObject))
+    myContext->Erase(theObject, Standard_False);
+
+  if (theToUpdate)
+    myDoc->UpdateView();
 
   return Standard_True;
 }
@@ -216,12 +266,29 @@ NaiveDoc_ObjectTable::deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
 }
 
 Standard_Boolean
-NaiveDoc_ObjectTable::hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+NaiveDoc_ObjectTable::showObjectRaw(const Handle(NaiveDoc_Object) & theObject,
                                     Standard_Boolean theToUpdate) {
-  if (theObject.IsNull())
+  if (theObject.IsNull() || NaiveDoc_Object_IsDeleted(*theObject) ||
+      !NaiveDoc_Object_IsHidden(*theObject))
     return Standard_False;
 
-  if (NaiveDoc_Object_IsHidden(*theObject))
+  NaiveDoc_Id anId = NaiveDoc_Object_GetId(*theObject);
+
+  if (!myObjects.contains(anId)) {
+    return Standard_False;
+  }
+
+  NaiveDoc_Object_SetHidden(*theObject, Standard_False);
+  myContext->Display(theObject, theToUpdate);
+
+  return Standard_True;
+}
+
+Standard_Boolean
+NaiveDoc_ObjectTable::hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                                    Standard_Boolean theToUpdate) {
+  if (theObject.IsNull() || NaiveDoc_Object_IsDeleted(*theObject) ||
+      NaiveDoc_Object_IsHidden(*theObject))
     return Standard_False;
 
   NaiveDoc_Id anId = NaiveDoc_Object_GetId(*theObject);

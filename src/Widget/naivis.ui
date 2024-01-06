@@ -93,6 +93,9 @@
     <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="separator"/>
+    <addaction name="actionHide"/>
+    <addaction name="actionShowAll"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -276,6 +279,19 @@
   <action name="actionSaveScript">
    <property name="text">
     <string>Save Script</string>
+   </property>
+  </action>
+  <action name="actionHide">
+   <property name="text">
+    <string>Hide</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionShowAll">
+   <property name="text">
+    <string>Show All</string>
    </property>
   </action>
  </widget>

@@ -51,6 +51,10 @@ private slots:
 
   void selectAll();
 
+  void hideCurrentSelection();
+
+  void showAll();
+
   void deleteCurrentSelection();
 
   // }}}

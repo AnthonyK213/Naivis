@@ -33,6 +33,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 
 Naivis::~Naivis() {
   lua_close(myL);
+  delete myLogStream;
   delete ui;
 }
 
@@ -101,6 +102,14 @@ void Naivis::redo() {
 
 void Naivis::selectAll() {}
 
+void Naivis::hideCurrentSelection() {
+  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
+  myDoc->Objects()->HideObjects(std::move(selection), true);
+  update();
+}
+
+void Naivis::showAll() {}
+
 void Naivis::deleteCurrentSelection() {
   NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
   myDoc->Objects()->DeleteObjects(std::move(selection), true);
@@ -133,6 +142,8 @@ void Naivis::setupActions() {
   CONNECT_ACTION(ui->actionRedo, redo);
   CONNECT_ACTION(ui->actionTransform, transform);
   CONNECT_ACTION(ui->actionSelectAll, selectAll);
+  CONNECT_ACTION(ui->actionHide, hideCurrentSelection);
+  CONNECT_ACTION(ui->actionShowAll, showAll);
   CONNECT_ACTION(ui->actionDelete, deleteCurrentSelection);
 
   /// View

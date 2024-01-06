@@ -17,6 +17,8 @@
 class NaiveDoc_Document;
 class NaiveDoc_CmdAddObjects;
 class NaiveDoc_CmdDeleteObjects;
+class NaiveDoc_CmdShowObjects;
+class NaiveDoc_CmdHideObjects;
 
 class NaiveDoc_ObjectTable;
 DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)
@@ -25,6 +27,8 @@ class NaiveDoc_ObjectTable : public Standard_Transient {
   friend class NaiveDoc_Document;
   friend class NaiveDoc_CmdAddObjects;
   friend class NaiveDoc_CmdDeleteObjects;
+  friend class NaiveDoc_CmdShowObjects;
+  friend class NaiveDoc_CmdHideObjects;
 
 public:
   explicit NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc = nullptr);
@@ -40,7 +44,7 @@ public:
 
   void Clear(Standard_Boolean theToUpdate);
 
-  Handle(NaiveDoc_Object) FindObject(const NaiveDoc_Id &theId) const;
+  Handle(NaiveDoc_Object) FindId(const NaiveDoc_Id &theId) const;
 
   Standard_Boolean DeleteObject(const Handle(NaiveDoc_Object) & theObject,
                                 Standard_Boolean theToUpdate);
@@ -54,6 +58,18 @@ public:
   Standard_Integer DeleteObjects(NaiveDoc_ObjectList &&theObjects,
                                  Standard_Boolean theToUpdate);
 
+  Standard_Boolean ShowObject(const Handle(NaiveDoc_Object) & theObject,
+                              Standard_Boolean theToUpdate);
+
+  Standard_Boolean ShowObject(const NaiveDoc_Id &theId,
+                              Standard_Boolean theToUpdate);
+
+  Standard_Integer ShowObjects(const NaiveDoc_ObjectList &theObjects,
+                               Standard_Boolean theToUpdate);
+
+  Standard_Integer ShowObjects(NaiveDoc_ObjectList &&theObjects,
+                               Standard_Boolean theToUpdate);
+
   Standard_Boolean HideObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
 
@@ -61,6 +77,9 @@ public:
                               Standard_Boolean theToUpdate);
 
   Standard_Integer HideObjects(const NaiveDoc_ObjectList &theObjects,
+                               Standard_Boolean theToUpdate);
+
+  Standard_Integer HideObjects(NaiveDoc_ObjectList &&theObjects,
                                Standard_Boolean theToUpdate);
 
   Standard_Boolean PurgeObject(const Handle(NaiveDoc_Object) & theObject,
@@ -93,6 +112,9 @@ private:
   Standard_Boolean
   deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
                   Standard_Boolean theToUpdate = Standard_False);
+
+  Standard_Boolean showObjectRaw(const Handle(NaiveDoc_Object) & theObject,
+                                 Standard_Boolean theToUpdate = Standard_False);
 
   Standard_Boolean hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
                                  Standard_Boolean theToUpdate = Standard_False);
