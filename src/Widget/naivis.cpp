@@ -100,19 +100,29 @@ void Naivis::redo() {
   update();
 }
 
-void Naivis::selectAll() {}
-
-void Naivis::hideCurrentSelection() {
-  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
-  myDoc->Objects()->HideObjects(std::move(selection), true);
+void Naivis::selectAll() {
+  int count = myDoc->Objects()->SelectAll(true);
+  std::cout << "Selected " << count << " object(s).\n";
   update();
 }
 
-void Naivis::showAll() {}
+void Naivis::hideCurrentSelection() {
+  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
+  int count = myDoc->Objects()->HideObjects(std::move(selection), true);
+  std::cout << "Hid " << count << " object(s).\n";
+  update();
+}
+
+void Naivis::showAll() {
+  int count = myDoc->Objects()->ShowAll(true);
+  std::cout << "Showed " << count << " hidden object(s).\n";
+  update();
+}
 
 void Naivis::deleteCurrentSelection() {
   NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
-  myDoc->Objects()->DeleteObjects(std::move(selection), true);
+  int count = myDoc->Objects()->DeleteObjects(std::move(selection), true);
+  std::cout << "Deleted " << count << " object(s).\n";
   update();
 }
 
@@ -152,11 +162,13 @@ void Naivis::setupActions() {
     ui->actionPerspective->setChecked(false);
     setViewProjectionType(
         Graphic3d_Camera::Projection::Projection_Orthographic);
+    update();
   });
   connect(ui->actionPerspective, &QAction::triggered, [this] {
     ui->actionOrthographic->setChecked(false);
     ui->actionPerspective->setChecked(true);
     setViewProjectionType(Graphic3d_Camera::Projection::Projection_Perspective);
+    update();
   });
 
   /// Script

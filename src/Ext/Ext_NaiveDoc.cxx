@@ -51,6 +51,7 @@ void Ext_NaiveDoc(lua_State *L) {
           "ShowObjects",
           luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
               &NaiveDoc_ObjectTable::ShowObjects))
+      .Bind_Method(NaiveDoc_ObjectTable, ShowAll)
       .addFunction("HideObject",
                    luabridge::overload<const Handle(NaiveDoc_Object) &,
                                        Standard_Boolean>(
@@ -71,6 +72,19 @@ void Ext_NaiveDoc(lua_State *L) {
           "PurgeObjects",
           luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
               &NaiveDoc_ObjectTable::PurgeObjects))
+      .addFunction("SelectObject",
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObject),
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObject))
+      .addFunction("SelectObjects",
+                   luabridge::overload<const NaiveDoc_ObjectList &,
+                                       Standard_Boolean, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObjects))
+      .Bind_Method(NaiveDoc_ObjectTable, SelectAll)
+      .Bind_Method(NaiveDoc_ObjectTable, UnselectAll)
       .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)
       .End_Class()
 

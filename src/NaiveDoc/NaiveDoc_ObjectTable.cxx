@@ -115,6 +115,10 @@ NaiveDoc_ObjectTable::ShowObjects(NaiveDoc_ObjectList &&theObjects,
   return cmd->Size();
 }
 
+Standard_Integer NaiveDoc_ObjectTable::ShowAll(Standard_Boolean theToUpdate) {
+  return ShowObjects(myObjects.values(), theToUpdate);
+}
+
 Standard_Boolean
 NaiveDoc_ObjectTable::HideObject(const Handle(NaiveDoc_Object) & theObject,
                                  Standard_Boolean theToUpdate) {
@@ -171,6 +175,91 @@ NaiveDoc_ObjectTable::PurgeObjects(const NaiveDoc_ObjectList &theObjects,
   myUndoStack->push(cmd);
 
   return cmd->Size();
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::PurgeObjects(NaiveDoc_ObjectList &&theObjects,
+                                   Standard_Boolean theToUpdate) {
+  NaiveDoc_CmdDeleteObjects *cmd =
+      new NaiveDoc_CmdDeleteObjects(myDoc, NaiveDoc_CmdDeleteObjects::Purge,
+                                    std::move(theObjects), theToUpdate);
+  myUndoStack->push(cmd);
+
+  return cmd->Size();
+}
+
+Standard_Boolean
+NaiveDoc_ObjectTable::SelectObject(const Handle(NaiveDoc_Object) & theObject,
+                                   Standard_Boolean theSelect,
+                                   Standard_Boolean theToUpdate) {
+  if (theObject.IsNull() || NaiveDoc_Object_IsDeleted(*theObject) ||
+      NaiveDoc_Object_IsHidden(*theObject)) {
+    return Standard_False;
+  }
+
+  if (!myObjects.contains(NaiveDoc_Object_GetId(*theObject)))
+    return Standard_False;
+
+  if (!(myContext->IsSelected(theObject) ^ theSelect))
+    return Standard_False;
+
+  myContext->AddOrRemoveSelected(theObject, theToUpdate);
+
+  return Standard_True;
+}
+
+Standard_Boolean
+NaiveDoc_ObjectTable::SelectObject(const NaiveDoc_Id &theId,
+                                   Standard_Boolean theSelect,
+                                   Standard_Boolean theToUpdate) {
+  return SelectObject(FindId(theId), theSelect, theToUpdate);
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::SelectObjects(const NaiveDoc_ObjectList &theObjects,
+                                    Standard_Boolean theSelect,
+                                    Standard_Boolean theToUpdate) {
+  Standard_Integer aCount = 0;
+
+  for (const auto &anObj : theObjects) {
+    if (SelectObject(anObj, theSelect, Standard_False))
+      aCount++;
+  }
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+
+  return aCount;
+}
+
+Standard_Integer NaiveDoc_ObjectTable::SelectAll(Standard_Boolean theToUpdate) {
+  Standard_Integer aCount = 0;
+
+  for (const auto &anObj : myObjects) {
+    if (SelectObject(anObj, Standard_True, Standard_False))
+      aCount++;
+  }
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+
+  return aCount;
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::UnselectAll(Standard_Boolean theToUpdate) {
+  Standard_Integer nbSelected = myContext->NbSelected();
+
+  for (myContext->InitSelected(); myContext->MoreSelected();
+       myContext->NextSelected()) {
+    myContext->AddOrRemoveSelected(myContext->SelectedInteractive(),
+                                   Standard_False);
+  }
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+
+  return nbSelected;
 }
 
 NaiveDoc_ObjectList NaiveDoc_ObjectTable::SelectedObjects() const {

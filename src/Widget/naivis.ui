@@ -206,6 +206,9 @@
    <property name="text">
     <string>Orthographic</string>
    </property>
+   <property name="shortcut">
+    <string>O</string>
+   </property>
   </action>
   <action name="actionPerspective">
    <property name="checkable">
@@ -213,6 +216,9 @@
    </property>
    <property name="text">
     <string>Perspective</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -242,6 +248,9 @@
   <action name="actionTransform">
    <property name="text">
     <string>Transform</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionDelete">
@@ -292,6 +301,9 @@
   <action name="actionShowAll">
    <property name="text">
     <string>Show All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+H</string>
    </property>
   </action>
  </widget>

@@ -70,6 +70,8 @@ public:
   Standard_Integer ShowObjects(NaiveDoc_ObjectList &&theObjects,
                                Standard_Boolean theToUpdate);
 
+  Standard_Integer ShowAll(Standard_Boolean theToUpdate);
+
   Standard_Boolean HideObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
 
@@ -90,6 +92,25 @@ public:
 
   Standard_Integer PurgeObjects(const NaiveDoc_ObjectList &theObjects,
                                 Standard_Boolean theToUpdate);
+
+  Standard_Integer PurgeObjects(NaiveDoc_ObjectList &&theObjects,
+                                Standard_Boolean theToUpdate);
+
+  Standard_Boolean SelectObject(const Handle(NaiveDoc_Object) & theObject,
+                                Standard_Boolean theSelect,
+                                Standard_Boolean theToUpdate);
+
+  Standard_Boolean SelectObject(const NaiveDoc_Id &theId,
+                                Standard_Boolean theSelect,
+                                Standard_Boolean theToUpdate);
+
+  Standard_Integer SelectObjects(const NaiveDoc_ObjectList &theObjects,
+                                 Standard_Boolean theSelect,
+                                 Standard_Boolean theToUpdate);
+
+  Standard_Integer SelectAll(Standard_Boolean theToUpdate);
+
+  Standard_Integer UnselectAll(Standard_Boolean theToUpdate);
 
   NaiveDoc_ObjectList SelectedObjects() const;
 
