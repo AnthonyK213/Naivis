@@ -14,6 +14,8 @@
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
 
+  QApplication::setWindowIcon(QIcon(":icons/Naivis.ico"));
+
   setupActions();
   setupActionIcons();
   setupOutputBuffer();
@@ -50,6 +52,7 @@ void Naivis::importFile() {
     return;
 
   myDoc->ImportStep(filePath.toUtf8().toStdString().c_str());
+  occtViewer()->View()->FitAll();
 }
 
 void Naivis::exportFile() {

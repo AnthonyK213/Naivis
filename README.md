@@ -1,10 +1,15 @@
-# Naivis
+<p align="center">
+  <img alt="Naivis" src="./resources/icons/Naivis512x512.svg" height="240" />
+  <p align="center">A young and simple (sometimes naive) geometry visualization tool.</p>
+</p>
 
-A young and simple (sometimes naive) geometry visualization tool.
+---
 
-![Naivis](./doc/Naivis.png)
+<p align="center">
+  <img src="./doc/MainWindow.png" width="96%" />
+</p>
 
-## Build
+# Build
 - Clone the repository
   ```sh
   git clone https://github.com/AnthonyK213/Naivis.git

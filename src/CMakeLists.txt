@@ -32,6 +32,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(Naivis
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
+    ${CMAKE_SOURCE_DIR}/resources/res.qrc
     )
   # Define target properties for Android with Qt 6 as:
   #    set_property(TARGET Naivis APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

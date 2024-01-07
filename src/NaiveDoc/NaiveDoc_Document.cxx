@@ -13,32 +13,18 @@ NaiveDoc_Document::NaiveDoc_Document() {
 
 NaiveDoc_Document::~NaiveDoc_Document() {}
 
-void NaiveDoc_Document::NewDocument() {
-  if (!myDoc.IsNull()) {
-    if (myDoc->HasOpenCommand())
-      myDoc->AbortCommand();
-
-    myDoc->Main().Root().ForgetAllAttributes(Standard_True);
-    myApp->Close(myDoc);
-    myDoc.Nullify();
-  }
-
-  if (!myApp.IsNull())
-    myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), myDoc);
-
-  if (!myDoc.IsNull())
-    myDoc->SetUndoLimit(10);
-}
-
 Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
   createXcafApp();
-  NewDocument();
+  Handle(TDocStd_Document) anDoc = newDocument();
 
-  if (!importStep(theFilePath)) {
+  if (!importStep(anDoc, theFilePath)) {
     return Standard_False;
   }
 
+  std::swap(myDoc, anDoc);
+  closeDocument(anDoc);
   displayXcafDoc();
+
   return Standard_True;
 }
 
@@ -111,6 +97,79 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   std::cout << std::endl;
 }
 
+Standard_Boolean NaiveDoc_Document::createXcafApp() {
+  if (!myApp.IsNull())
+    return true;
+
+  try {
+    myApp = new TDocStd_Application();
+    BinXCAFDrivers::DefineFormat(myApp);
+    return true;
+  } catch (const Standard_Failure &theFailure) {
+    std::cout << "Error: " << theFailure.GetMessageString() << std::endl;
+    return false;
+  }
+}
+
+Handle(TDocStd_Document) NaiveDoc_Document::newDocument() {
+  Handle(TDocStd_Document) anDoc;
+
+  if (!myApp.IsNull())
+    myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), anDoc);
+
+  if (!myDoc.IsNull())
+    myDoc->SetUndoLimit(100);
+
+  return anDoc;
+}
+
+void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
+                                      Standard_Boolean theToUpdate) {
+  if (!theDoc.IsNull()) {
+    if (theDoc->HasOpenCommand())
+      theDoc->AbortCommand();
+
+    theDoc->Main().Root().ForgetAllAttributes(Standard_True);
+    myApp->Close(theDoc);
+    theDoc.Nullify();
+  }
+
+  myObjects->purgeAllRaw(theToUpdate);
+}
+
+void NaiveDoc_Document::displayXcafDoc() {
+  if (myDoc.IsNull()) {
+    return;
+  }
+
+  NaiveDoc_ObjectList anObjList{};
+
+  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
+       aDocExpl.Next()) {
+    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+
+    if (aNode.IsAssembly) {
+      continue;
+    }
+
+    Handle(XCAFPrs_AISObject) anObj = new XCAFPrs_AISObject(aNode.RefLabel);
+    anObj->SetLocalTransformation(aNode.Location);
+    anObj->SetOwner(new TCollection_HAsciiString(aNode.Id));
+
+    QString aName =
+        QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
+
+    NaiveDoc_Object_SetId(*anObj);
+    if (!aName.isNull() && !aName.isEmpty())
+      NaiveDoc_Object_SetName(*anObj, aName);
+    anObj->SetDisplayMode(AIS_Shaded);
+
+    anObjList.push_back(anObj);
+  }
+
+  myObjects->addObjects(anObjList, Standard_True);
+}
+
 TCollection_AsciiString
 NaiveDoc_Document::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
                                         Standard_Boolean theIsInstanceName,
@@ -147,40 +206,14 @@ NaiveDoc_Document::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
   return aPath;
 }
 
-void NaiveDoc_Document::displayXcafDoc() {
-  if (myDoc.IsNull()) {
-    return;
+Standard_Boolean NaiveDoc_Document::importStep(Handle(TDocStd_Document) &
+                                                   theDoc,
+                                               Standard_CString theFilePath) {
+  if (theDoc.IsNull()) {
+    std::cout << "Error: The document is null\n";
+    return Standard_False;
   }
 
-  NaiveDoc_ObjectList anObjList{};
-
-  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
-       aDocExpl.Next()) {
-    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
-
-    if (aNode.IsAssembly) {
-      continue;
-    }
-
-    Handle(XCAFPrs_AISObject) anObj = new XCAFPrs_AISObject(aNode.RefLabel);
-    anObj->SetLocalTransformation(aNode.Location);
-    anObj->SetOwner(new TCollection_HAsciiString(aNode.Id));
-
-    QString aName =
-        QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
-
-    NaiveDoc_Object_SetId(*anObj);
-    if (!aName.isNull() && !aName.isEmpty())
-      NaiveDoc_Object_SetName(*anObj, aName);
-    anObj->SetDisplayMode(AIS_Shaded);
-
-    anObjList.push_back(anObj);
-  }
-
-  myObjects->addObjects(anObjList, Standard_True);
-}
-
-Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {
   STEPCAFControl_Controller::Init();
   STEPControl_Controller::Init();
 
@@ -197,7 +230,7 @@ Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {
       return Standard_False;
     }
 
-    if (!aReader.Transfer(myDoc)) {
+    if (!aReader.Transfer(theDoc)) {
       std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
       return Standard_False;
     }
@@ -209,19 +242,5 @@ Standard_Boolean NaiveDoc_Document::importStep(Standard_CString theFilePath) {
     std::cout << "Exception raised during STEP import: "
               << theFailure.GetMessageString() << '\n';
     return Standard_False;
-  }
-}
-
-Standard_Boolean NaiveDoc_Document::createXcafApp() {
-  if (!myApp.IsNull())
-    return true;
-
-  try {
-    myApp = new TDocStd_Application();
-    BinXCAFDrivers::DefineFormat(myApp);
-    return true;
-  } catch (const Standard_Failure &theFailure) {
-    std::cout << "Error: " << theFailure.GetMessageString() << std::endl;
-    return false;
   }
 }

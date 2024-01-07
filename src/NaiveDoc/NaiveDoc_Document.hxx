@@ -38,8 +38,6 @@ public:
   ~NaiveDoc_Document();
 
 public:
-  void NewDocument();
-
   Handle(NaiveDoc_ObjectTable) Objects() const { return myObjects; }
 
   Handle(AIS_InteractiveContext) Context() const {
@@ -72,6 +70,11 @@ public:
 private:
   Standard_Boolean createXcafApp();
 
+  Handle(TDocStd_Document) newDocument();
+
+  void closeDocument(Handle(TDocStd_Document) & theDoc,
+                     Standard_Boolean theToUpdate = Standard_False);
+
   void displayXcafDoc();
 
   XCAFPrs_DocumentExplorer
@@ -85,7 +88,8 @@ private:
                        Standard_Boolean theIsInstanceName,
                        Standard_Integer theLowerDepth = 0);
 
-  Standard_Boolean importStep(Standard_CString theFilePath);
+  Standard_Boolean importStep(Handle(TDocStd_Document) & theDoc,
+                              Standard_CString theFilePath);
 
 private:
   Handle(TDocStd_Application) myApp;

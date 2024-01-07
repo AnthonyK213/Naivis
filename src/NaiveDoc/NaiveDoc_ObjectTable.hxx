@@ -143,6 +143,8 @@ private:
   Standard_Boolean
   purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
                  Standard_Boolean theToUpdate = Standard_False);
+  
+  void purgeAllRaw(Standard_Boolean theToUpdate = Standard_False);
 
 private:
   QHash<NaiveDoc_Id, Handle(NaiveDoc_Object)> myObjects;

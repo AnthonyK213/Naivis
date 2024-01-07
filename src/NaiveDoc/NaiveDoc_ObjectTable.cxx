@@ -407,3 +407,16 @@ NaiveDoc_ObjectTable::purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
 
   return Standard_True;
 }
+
+void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {
+  myUndoStack->clear();
+
+  for (auto &anObj : myObjects) {
+    myContext->Remove(anObj, Standard_False);
+  }
+
+  myObjects.clear();
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+}
