@@ -1,12 +1,20 @@
 #include "util_curve.h"
+#include "util_math.h"
 
+#include <Extrema_ExtPC.hxx>
+#include <GCPnts_UniformAbscissa.hxx>
+#include <GeomConvert_CompCurveToBSplineCurve.hxx>
+#include <GeomLProp_CLProps.hxx>
 #include <GeomLib.hxx>
 #include <ShapeAnalysis_Curve.hxx>
+#include <ShapeUpgrade_SplitCurve3dContinuity.hxx>
+#include <TColgp_HArray1OfPnt.hxx>
+
+#include <limits>
 
 namespace luaocct {
 namespace util {
 namespace Curve {
-
 Handle(Geom_Curve) Duplicate(const Handle(Geom_Curve) & theCurve) {
   return Handle(Geom_Curve)::DownCast(theCurve->Copy());
 }
@@ -171,6 +179,302 @@ Handle(Geom_TrimmedCurve)
   default:
     return trimByLength(theCurve, theSide, theLength);
   }
+}
+
+Standard_Boolean IsLinear(const Handle(Geom_Curve) & theCurve,
+                          const Standard_Real theTolerance) {
+  if (theCurve.IsNull()) {
+    return false;
+  }
+
+  if (IsClosed(theCurve, theTolerance)) {
+    return false;
+  }
+
+  Handle(Standard_Type) aType = theCurve->DynamicType();
+  if (aType == STANDARD_TYPE(Geom_Line)) {
+    return true;
+  }
+  if (aType == STANDARD_TYPE(Geom_Circle)) {
+    return false;
+  }
+
+  Handle(TColgp_HArray1OfPnt) poles;
+  Standard_Integer nbPoles = 0;
+
+  if (aType == STANDARD_TYPE(Geom_BSplineCurve)) {
+    Handle(Geom_BSplineCurve) bsc =
+        Handle(Geom_BSplineCurve)::DownCast(theCurve);
+
+    if (bsc->Degree() == 1) {
+      return true;
+    }
+
+    nbPoles = bsc->NbPoles();
+    poles = new TColgp_HArray1OfPnt(1, nbPoles);
+    bsc->Poles(poles->ChangeArray1());
+  }
+
+  if (aType == STANDARD_TYPE(Geom_BezierCurve)) {
+    Handle(Geom_BezierCurve) bzc = Handle(Geom_BezierCurve)::DownCast(theCurve);
+
+    if (bzc->Degree() == 1) {
+      return true;
+    }
+
+    nbPoles = bzc->NbPoles();
+    poles = new TColgp_HArray1OfPnt(1, nbPoles);
+    bzc->Poles(poles->ChangeArray1());
+  }
+
+  if (nbPoles < 2) {
+    // https://github.com/Open-Cascade-SAS/OCCT/blob/master/src/GeomConvert/GeomConvert_CurveToAnaCurve.cxx#L197
+    nbPoles = 23;
+    Standard_Real t0 = theCurve->FirstParameter();
+    Standard_Real t1 = theCurve->LastParameter();
+    poles = new TColgp_HArray1OfPnt(1, nbPoles);
+    Standard_Real dt = (t1 - t0) / (nbPoles - 1);
+    poles->SetValue(1, theCurve->Value(t0));
+    poles->SetValue(nbPoles, theCurve->Value(t1));
+
+    for (Standard_Integer i = 2; i < nbPoles; ++i) {
+      poles->SetValue(i, theCurve->Value(t0 + (i - 1) * dt));
+    }
+  }
+
+  Standard_Real tol2 = theTolerance * theTolerance;
+  gp_Vec aVec(poles->Value(1), poles->Value(nbPoles));
+  gp_Lin aLin(poles->Value(1), gp_Dir(aVec));
+
+  Standard_Real aMax = 0;
+  for (Standard_Integer i = 1; i <= nbPoles; ++i) {
+    Standard_Real dist = aLin.SquareDistance(poles->Value(i));
+    if (dist > tol2) {
+      return Standard_False;
+    }
+    if (dist > aMax) {
+      aMax = dist;
+    }
+  }
+
+  return Standard_True;
+}
+
+std::vector<Standard_Real>
+ClosestParameters(const Handle(Geom_Curve) & theCurve, const gp_Pnt &thePoint) {
+  std::vector<Standard_Real> aResult{};
+
+  Standard_Real t0 = theCurve->FirstParameter();
+  Standard_Real t1 = theCurve->LastParameter();
+  Standard_Real aSqrDist = std::numeric_limits<double>::infinity();
+
+  GeomAdaptor_Curve anAdaptor(theCurve);
+  Extrema_ExtPC anExtrema(thePoint, anAdaptor);
+
+  if (anExtrema.IsDone()) {
+    Standard_Integer nbExt = anExtrema.NbExt();
+    Standard_Real aSqrtDistTemp;
+
+    Standard_Real aParam;
+
+    for (Standard_Integer i = 1; i <= nbExt; ++i) {
+      aParam = anExtrema.Point(i).Parameter();
+
+      if (aParam == t0 || aParam == t1)
+        continue;
+
+      if (anExtrema.IsMin(i)) {
+        aSqrtDistTemp = anExtrema.SquareDistance(i);
+
+        if (aSqrtDistTemp == aSqrDist) {
+          aResult.push_back(aParam);
+        } else if (aSqrtDistTemp < aSqrDist) {
+          aSqrDist = aSqrtDistTemp;
+          aResult.clear();
+          aResult.push_back(aParam);
+        }
+      }
+    }
+  }
+
+  // Check if the ends of the curve is the closest.
+
+  Standard_Real aDist0 = thePoint.SquareDistance(theCurve->Value(t0));
+  Standard_Real aDist1 = thePoint.SquareDistance(theCurve->Value(t1));
+
+  if (aDist0 <= aSqrDist || aDist1 <= aSqrDist) {
+    if (aDist0 < aDist1) {
+      if (aDist0 < aSqrDist) {
+        return {t0};
+      } else {
+        aResult.push_back(t0);
+      }
+    } else if (aDist0 > aDist1) {
+      if (aDist1 < aSqrDist) {
+        return {t1};
+      } else {
+        aResult.push_back(t1);
+      }
+    } else {
+      if (aDist0 < aSqrDist) {
+        return {t0, t1};
+      } else {
+        aResult.push_back(t0);
+        aResult.push_back(t1);
+      }
+    }
+  }
+
+  return aResult;
+}
+
+TColStd_Array1OfReal DivideByCount(const Handle(Geom_Curve) & theCurve,
+                                   const Standard_Integer &theNbSegments,
+                                   const Standard_Boolean theIncludeEnds) {
+  TColStd_Array1OfReal aResult{};
+
+  if (theNbSegments <= 0)
+    return aResult;
+
+  Standard_Integer nbPnt = theNbSegments + 1;
+  GeomAdaptor_Curve aCurve(theCurve);
+  GCPnts_UniformAbscissa aPoints(aCurve, nbPnt);
+
+  if (!aPoints.IsDone()) {
+    return aResult;
+  }
+
+  Standard_Integer s, e;
+
+  if (theIncludeEnds) {
+    aResult.Resize(1, nbPnt, Standard_False);
+    s = 1;
+    e = nbPnt;
+  } else {
+    if (nbPnt <= 2) {
+      return aResult;
+    }
+
+    aResult.Resize(1, nbPnt - 2, Standard_False);
+    s = 2;
+    e = nbPnt - 1;
+  }
+
+  for (int i = s, j = 1; i <= e; ++i, ++j) {
+    aResult.SetValue(i, aPoints.Parameter(i));
+  }
+
+  return aResult;
+}
+
+static inline Standard_Boolean
+isG2(const gp_Pnt &thisStart, const gp_Dir &thisTangentStart,
+     double thisCurvatureStart, const gp_Pnt &prevEnd,
+     const gp_Dir &prevTangentEnd, double prevCurvatureEnd) {
+  return thisStart.Distance(prevEnd) < Precision::Confusion() &&
+         thisTangentStart.IsParallel(prevTangentEnd, Precision::Confusion()) &&
+         luaocct::util::Math::EpsilonEquals(
+             thisCurvatureStart, prevCurvatureEnd, Precision::Confusion());
+}
+
+std::vector<Handle(Geom_BoundedCurve)> Explode(const Handle(Geom_Curve) &
+                                               theCurve) {
+  std::vector<Handle(Geom_BoundedCurve)> aResult{};
+
+  ShapeUpgrade_SplitCurve3dContinuity aSplitter{};
+  aSplitter.Init(theCurve);
+  aSplitter.SetCriterion(GeomAbs_C1);
+  aSplitter.Perform(Standard_True);
+  const Handle(TColGeom_HArray1OfCurve) &theCurves = aSplitter.GetCurves();
+
+  if (theCurves.IsNull()) {
+    return aResult;
+  }
+
+  aResult.reserve(theCurves->Size());
+
+  // Connection buffer.
+  GeomConvert_CompCurveToBSplineCurve aBuffer{};
+
+  GeomLProp_CLProps aProps(2, gp::Resolution());
+  gp_Pnt prevEnd, thisStart, thisEnd = gp::Origin();
+  gp_Dir prevTangentEnd, thisTangentStart, thisTangentEnd = gp::DZ();
+  double prevCurvatureEnd, thisCurvatureStart, thisCurvatureEnd = -1.0;
+
+  for (const Handle(Geom_Curve) & aCurve : *theCurves) {
+    auto aBndCrv = Handle(Geom_BoundedCurve)::DownCast(aCurve);
+
+    if (aBndCrv.IsNull())
+      continue;
+
+    aProps.SetCurve(aBndCrv);
+
+    // Start point of the current curve.
+    aProps.SetParameter(aBndCrv->FirstParameter());
+    thisStart = aProps.Value();
+    aProps.Tangent(thisTangentStart);
+    thisCurvatureStart = aProps.Curvature();
+
+    // End point of the previous curve.
+    prevEnd = thisEnd;
+    prevTangentEnd = thisTangentEnd;
+    prevCurvatureEnd = thisCurvatureEnd;
+
+    // End point of the current curve.
+    aProps.SetParameter(aBndCrv->LastParameter());
+    thisEnd = aProps.Value();
+    aProps.Tangent(thisTangentEnd);
+    thisCurvatureEnd = aProps.Curvature();
+
+    if (aBuffer.BSplineCurve().IsNull()) {
+      // If aBuffer is empty, pushing current curve to aBuffer is the only
+      // choice. :P
+      aBuffer.Add(aBndCrv, Precision::Confusion(), Standard_True);
+      continue;
+    } else if (isG2(thisStart, thisTangentStart, thisCurvatureStart, prevEnd,
+                    prevTangentEnd, prevCurvatureEnd)) {
+      // If G2, try connect current curve to the buffer.
+      // If success, jump to the next loop directly.
+      if (aBuffer.Add(aBndCrv, Precision::Confusion(), Standard_True))
+        continue;
+    }
+
+    // If not G2, which means theCurve needs to "explode" here, so just submit
+    // aBuffer to aResult, clear aBuffer, push current curve to aBuffer, build
+    // another curve in the next loop.
+    aResult.push_back(aBuffer.BSplineCurve());
+    aBuffer.Clear();
+    aBuffer.Add(aBndCrv, Precision::Confusion(), Standard_True);
+  }
+
+  // Check if the first and the last curve are able to connect.
+  if (!aResult.empty()) {
+    Handle(Geom_BoundedCurve) firstCurve = aResult[0];
+
+    // Start point of the first curve.
+    aProps.SetCurve(firstCurve);
+    aProps.SetParameter(firstCurve->FirstParameter());
+    thisStart = aProps.Value();
+    aProps.Tangent(thisTangentStart);
+    thisCurvatureStart = aProps.Curvature();
+
+    if (isG2(thisStart, thisTangentStart, thisCurvatureStart, thisEnd,
+             thisTangentEnd, thisCurvatureEnd)) {
+      if (aBuffer.Add(firstCurve, Precision::Confusion(), Standard_True)) {
+        // If succeed to connect, replace the first curve with the connected
+        // curve.
+        aResult[0] = aBuffer.BSplineCurve();
+        return aResult;
+      }
+    }
+  }
+
+  // If the last curve cannot connect to the first curve, push it to aResult.
+  Handle(Geom_BoundedCurve) lastCurve = aBuffer.BSplineCurve();
+  if (!lastCurve.IsNull())
+    aResult.push_back(lastCurve);
+
+  return aResult;
 }
 
 } // namespace Curve
