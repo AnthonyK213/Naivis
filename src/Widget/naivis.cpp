@@ -28,6 +28,9 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
       ->HighlightStyle(Prs3d_TypeOfHighlight_Selected)
       ->SetColor(Quantity_NOC_YELLOW);
 
+  ui->occtViewer->View()->SetBackgroundColor(
+      Quantity_Color(0.62, 0.64, 0.67, Quantity_TOC_sRGB));
+
   setupLuaState();
 
   ui->actionOrthographic->trigger();
