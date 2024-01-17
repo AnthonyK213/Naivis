@@ -84,6 +84,8 @@ private:
 
   qreal screenScale() const;
 
+  void setupMouse();
+
 signals:
   void selectionChanged(QStringList theNameList);
 

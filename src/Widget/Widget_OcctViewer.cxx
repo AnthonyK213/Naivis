@@ -330,6 +330,8 @@ Widget_OcctViewer::Widget_OcctViewer(QWidget *theParent)
   // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
+
+  setupMouse();
 }
 
 Widget_OcctViewer::~Widget_OcctViewer() {
@@ -550,4 +552,28 @@ void Widget_OcctViewer::handleViewRedraw(const Handle(AIS_InteractiveContext) &
 qreal Widget_OcctViewer::screenScale() const {
   return reinterpret_cast<QMainWindow *>(parent()->parent())
       ->devicePixelRatio();
+}
+
+void Widget_OcctViewer::setupMouse() {
+  AIS_MouseGestureMap &aMouseGestures = ChangeMouseGestureMap();
+  aMouseGestures.Bind(Aspect_VKeyMouse_RightButton,
+                      AIS_MouseGesture_RotateOrbit);
+  aMouseGestures.Bind(Aspect_VKeyMouse_RightButton | Aspect_VKeyFlags_SHIFT,
+                      AIS_MouseGesture_Pan);
+  aMouseGestures.Bind(Aspect_VKeyMouse_LeftButton,
+                      AIS_MouseGesture_SelectRectangle);
+  aMouseGestures.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_ALT,
+                      AIS_MouseGesture_SelectLasso);
+  aMouseGestures.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_SHIFT,
+                      AIS_MouseGesture_SelectRectangle);
+  aMouseGestures.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_CTRL,
+                      AIS_MouseGesture_SelectRectangle);
+
+  AIS_MouseSelectionSchemeMap &aMouseSelScheme = ChangeMouseSelectionSchemes();
+  aMouseSelScheme.Bind(Aspect_VKeyMouse_LeftButton,
+                       AIS_SelectionScheme_Replace);
+  aMouseSelScheme.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_SHIFT,
+                       AIS_SelectionScheme_Add);
+  aMouseSelScheme.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_CTRL,
+                       AIS_SelectionScheme_Remove);
 }
