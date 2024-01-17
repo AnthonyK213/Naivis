@@ -121,7 +121,7 @@ elseif(UNIX AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy
         "$ENV{NAIVECGL_DIR}/lib/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    COMMAND ${CMAKE_COMMAND} -E copy
         "$ENV{LUAOCCT_DIR}/lib/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
