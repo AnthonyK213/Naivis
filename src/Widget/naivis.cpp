@@ -9,7 +9,7 @@
 #include <naivecgl/Tessellation/Sphere.h>
 
 #include <Ext/Ext_Load.hxx>
-#include <LuaOCCT/luaocct.h>
+#include <luaocct/luaocct.h>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);

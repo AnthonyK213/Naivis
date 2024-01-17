@@ -5,7 +5,7 @@
 #include <QString>
 #include <QUuid>
 
-#include <LuaOCCT/lbind.h>
+#include <luaocct/lbind.h>
 
 namespace luabridge {
 
