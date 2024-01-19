@@ -37,7 +37,7 @@ class XSDRAWSTLVRML_DataSource_1 : public MeshVS_DataSource {
 public:
   //! Constructor
   Standard_EXPORT XSDRAWSTLVRML_DataSource_1(const Handle(Poly_Triangulation) &
-                                           aMesh);
+                                             theMesh);
 
   //! Returns geometry information about node (if IsElement is False) or element
   //! (IsElement is True) by coordinates. For element this method must return

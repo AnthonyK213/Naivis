@@ -5,15 +5,15 @@
 IMPLEMENT_STANDARD_RTTIEXT(HalfEdgeMesh_DataSource, MeshVS_DataSource)
 
 HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
-    const Handle(Poly_Triangulation) & aMesh)
+    const Handle(Poly_Triangulation) & theMesh)
     : myIsValid(Standard_False) {
-  if (aMesh.IsNull())
+  if (theMesh.IsNull())
     return;
 
-  myTriangulation = aMesh;
+  myTriangulation = theMesh;
 
-  const Standard_Integer aNbNodes = aMesh->NbNodes();
-  const Standard_Integer aNbTris = aMesh->NbTriangles();
+  const Standard_Integer aNbNodes = theMesh->NbNodes();
+  const Standard_Integer aNbTris = theMesh->NbTriangles();
 
   std::vector<Naive_Vector3d> vertices{};
   std::vector<Naive_Triangle> triangles{};
@@ -22,12 +22,12 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   triangles.reserve(aNbTris);
 
   for (Standard_Integer i = 1; i <= aNbNodes; ++i) {
-    gp_Pnt aNode = aMesh->Node(i);
+    gp_Pnt aNode = theMesh->Node(i);
     vertices.push_back({aNode.X(), aNode.Y(), aNode.Z()});
   }
 
   for (Standard_Integer i = 1; i <= aNbTris; ++i) {
-    const Poly_Triangle &aTri = aMesh->Triangle(i);
+    const Poly_Triangle &aTri = theMesh->Triangle(i);
     /// TraingleSoup index starts from 0!
     triangles.push_back({aTri(1) - 1, aTri(2) - 1, aTri(3) - 1});
   }

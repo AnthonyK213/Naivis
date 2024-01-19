@@ -21,7 +21,7 @@ DEFINE_STANDARD_HANDLE(HalfEdgeMesh_DataSource, MeshVS_DataSource)
 class HalfEdgeMesh_DataSource : public MeshVS_DataSource {
 public:
   Standard_EXPORT HalfEdgeMesh_DataSource(const Handle(Poly_Triangulation) &
-                                          aMesh);
+                                          theMesh);
 
   //! Returns geometry information about node (if IsElement is False) or element
   //! (IsElement is True) by coordinates. For element this method must return

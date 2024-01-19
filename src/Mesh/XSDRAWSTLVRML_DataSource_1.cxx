@@ -27,8 +27,8 @@ IMPLEMENT_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)
 // Purpose  :
 //================================================================
 XSDRAWSTLVRML_DataSource_1::XSDRAWSTLVRML_DataSource_1(
-    const Handle(Poly_Triangulation) & aMesh) {
-  myMesh = aMesh;
+    const Handle(Poly_Triangulation) & theMesh) {
+  myMesh = theMesh;
 
   if (!myMesh.IsNull()) {
     const Standard_Integer aNbNodes = myMesh->NbNodes();
@@ -127,8 +127,8 @@ Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetGeom(
 //================================================================
 Standard_Boolean
 XSDRAWSTLVRML_DataSource_1::GetGeomType(const Standard_Integer,
-                                      const Standard_Boolean IsElement,
-                                      MeshVS_EntityType &Type) const {
+                                        const Standard_Boolean IsElement,
+                                        MeshVS_EntityType &Type) const {
   if (IsElement) {
     Type = MeshVS_ET_Face;
     return Standard_True;
@@ -144,7 +144,7 @@ XSDRAWSTLVRML_DataSource_1::GetGeomType(const Standard_Integer,
 //================================================================
 Standard_Address
 XSDRAWSTLVRML_DataSource_1::GetAddr(const Standard_Integer,
-                                  const Standard_Boolean) const {
+                                    const Standard_Boolean) const {
   return NULL;
 }
 
@@ -190,11 +190,9 @@ XSDRAWSTLVRML_DataSource_1::GetAllElements() const {
 // Function : GetNormal
 // Purpose  :
 //================================================================
-Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNormal(const Standard_Integer Id,
-                                                     const Standard_Integer Max,
-                                                     Standard_Real &nx,
-                                                     Standard_Real &ny,
-                                                     Standard_Real &nz) const {
+Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNormal(
+    const Standard_Integer Id, const Standard_Integer Max, Standard_Real &nx,
+    Standard_Real &ny, Standard_Real &nz) const {
   if (myMesh.IsNull())
     return Standard_False;
 
