@@ -4,6 +4,8 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local doc = Naivis.ActiveDoc
 
+doc.Objects_:Clear()
+
 local nbPoints = 100
 local aPoints = {}
 
@@ -18,7 +20,7 @@ end
 
 local code, convexIndices = naivecgl.Naive_BndShape_ConvexHull2D(aPoints)
 
-if code == naivecgl.Naive_Ok then
+if code == naivecgl.Naive_ConvexHull2D_Done then
   local count = #convexIndices
 
   for i = 1, count do
@@ -31,7 +33,7 @@ if code == naivecgl.Naive_Ok then
     doc.Objects_:AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), false)
   end
 else
-  print("Failed")
+  print("Failed", code)
 end
 
 doc:UpdateView()

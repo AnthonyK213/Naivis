@@ -6,6 +6,7 @@ local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
 
 local naivecgl = {}
 
+---@type ffi.namespace*
 local dylib_ = nil
 
 local function getDylibPath(theName)
@@ -24,16 +25,49 @@ function naivecgl:init()
   end
 
   ffi.cdef [[
+typedef void Naive_Mesh;
+typedef void Naive_Poly;
+typedef void *Naive_Handle;
+
 typedef enum {
   Naive_Ok,
-  Naive_Fail,
+  Naive_Err,
 } Naive_Code;
+
+typedef enum {
+  Naive_ConvexHull2D_Quickhull,
+  Naive_ConvexHull2D_Incremental,
+  Naive_ConvexHull2D_GrahamScan,
+} Naive_ConvexHull2D_Algorithm;
+
+typedef enum {
+  Naive_ConvexHull2D_Done,
+  Naive_ConvexHull2D_InitDone,
+  Naive_ConvexHull2D_Failed,
+  Naive_ConvexHull2D_InsufficientPoint,
+  Naive_ConvexHull2D_PointsAreColinear,
+  Naive_ConvexHull2D_AlgoNotImplemented,
+} Naive_ConvexHull2D_Status;
+
+typedef enum {
+  Naive_ConvexHull3D_Quickhull,
+  Naive_ConvexHull3D_Incremental,
+  Naive_ConvexHull3D_DivideAndConquer,
+} Naive_ConvexHull3D_Algorithm;
+
+typedef enum {
+  Naive_ConvexHull3D_Done,
+  Naive_ConvexHull3D_InitDone,
+  Naive_ConvexHull3D_Failed,
+  Naive_ConvexHull3D_InsufficientPoint,
+  Naive_ConvexHull3D_PointsAreColinear,
+  Naive_ConvexHull3D_PointsAreCoplanar,
+  Naive_ConvexHull3D_AlgoNotImplemented,
+} Naive_ConvexHull3D_Status;
 
 typedef struct { double x, y; } Naive_Point2d_T;
 typedef struct { double x, y, z; } Naive_Point3d_T;
 typedef struct { int32_t n0, n1, n2; } Naive_Triangle_T;
-typedef void Naive_Mesh;
-typedef void Naive_Poly;
 
 /// Naive_Poly {{{
 
@@ -51,7 +85,23 @@ void Naive_Poly_Release(Naive_Poly *theHandle);
 
 /// BndShape {{{
 
-Naive_Code Naive_BndShape_ConvexHull2D(const Naive_Point2d_T *thePoints, int32_t *theCount, int32_t **theConvexIndices);
+Naive_Handle Naive_BndShape_ConvexHull2D_New(const Naive_Point2d_T *thePoints, int32_t nbPoints, Naive_ConvexHull2D_Algorithm theAlgo);
+
+void Naive_BndShape_ConvexHull2D_SetAlgorithm(Naive_Handle theHandle, Naive_ConvexHull2D_Algorithm theAlgo);
+
+void Naive_BndShape_ConvexHull2D_Perform(Naive_Handle theHandle);
+
+void Naive_BndShape_ConvexHull2D_Add(Naive_Handle theHandle, Naive_Point2d_T thePoint, bool thePerform);
+
+Naive_ConvexHull2D_Status Naive_BndShape_ConvexHull2D_Status(const Naive_Handle theHandle);
+
+int32_t Naive_BndShape_ConvexHull2D_NbConvexPoints(const Naive_Handle theHandle);
+
+Naive_Code Naive_BndShape_ConvexHull2D_ConvexIndices(const Naive_Handle theHandle, int32_t *theConvexIndices);
+
+Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_Handle theHandle, Naive_Point2d_T *theConvexIndices);
+
+void Naive_BndShape_ConvexHull2D_Release(Naive_Handle theHandle);
 
 /// }}}
 
@@ -71,11 +121,42 @@ void Naive_Release_DoubleArray(double *theArray);
   dylib_ = ffi.load(getDylibPath("NaiveCGL"))
 
   if dylib_ then
-    self.Naive_Ok = dylib_.Naive_Ok
-    self.Naive_Fail = dylib_.Naive_Fail
+    self:initEnums()
   else
     error("Failed to initialize NaiveCGL")
   end
+end
+
+function naivecgl:initEnums()
+  if not dylib_ then
+    return
+  end
+
+  self.Naive_Ok = dylib_.Naive_Ok
+  self.Naive_Err = dylib_.Naive_Err
+
+  self.Naive_ConvexHull2D_Quickhull = dylib_.Naive_ConvexHull2D_Quickhull
+  self.Naive_ConvexHull2D_Incremental = dylib_.Naive_ConvexHull2D_Incremental
+  self.Naive_ConvexHull2D_GrahamScan = dylib_.Naive_ConvexHull2D_GrahamScan
+
+  self.Naive_ConvexHull2D_Done = dylib_.Naive_ConvexHull2D_Done
+  self.Naive_ConvexHull2D_InitDone = dylib_.Naive_ConvexHull2D_InitDone
+  self.Naive_ConvexHull2D_Failed = dylib_.Naive_ConvexHull2D_Failed
+  self.Naive_ConvexHull2D_InsufficientPoint = dylib_.Naive_ConvexHull2D_InsufficientPoint
+  self.Naive_ConvexHull2D_PointsAreColinear = dylib_.Naive_ConvexHull2D_PointsAreColinear
+  self.Naive_ConvexHull2D_AlgoNotImplemented = dylib_.Naive_ConvexHull2D_AlgoNotImplemented
+
+  self.Naive_ConvexHull3D_Quickhull = dylib_.Naive_ConvexHull3D_Quickhull
+  self.Naive_ConvexHull3D_Incremental = dylib_.Naive_ConvexHull3D_Incremental
+  self.Naive_ConvexHull3D_DivideAndConquer = dylib_.Naive_ConvexHull3D_DivideAndConquer
+
+  self.Naive_ConvexHull3D_Done = dylib_.Naive_ConvexHull3D_Done
+  self.Naive_ConvexHull3D_InitDone = dylib_.Naive_ConvexHull3D_InitDone
+  self.Naive_ConvexHull3D_Failed = dylib_.Naive_ConvexHull3D_Failed
+  self.Naive_ConvexHull3D_InsufficientPoint = dylib_.Naive_ConvexHull3D_InsufficientPoint
+  self.Naive_ConvexHull3D_PointsAreColinear = dylib_.Naive_ConvexHull3D_PointsAreColinear
+  self.Naive_ConvexHull3D_PointsAreCoplanar = dylib_.Naive_ConvexHull3D_PointsAreCoplanar
+  self.Naive_ConvexHull3D_AlgoNotImplemented = dylib_.Naive_ConvexHull3D_AlgoNotImplemented
 end
 
 function naivecgl.Naive_BndShape_ConvexHull2D(thePoints)
@@ -85,28 +166,30 @@ function naivecgl.Naive_BndShape_ConvexHull2D(thePoints)
 
   local nbPoints = #thePoints
   local aPoints = ffi.new("Naive_Point2d_T[?]", nbPoints)
-  local aCount = ffi.new("int[1]", nbPoints)
 
   for i = 1, nbPoints do
     aPoints[i - 1].x = thePoints[i][1]
     aPoints[i - 1].y = thePoints[i][2]
   end
 
-  local aConvexIndices = ffi.new("int*[1]", nil)
+  local aCH2D = dylib_.Naive_BndShape_ConvexHull2D_New(aPoints, nbPoints, naivecgl.Naive_ConvexHull2D_Quickhull)
+  dylib_.Naive_BndShape_ConvexHull2D_Perform(aCH2D)
 
-  local code = dylib_.Naive_BndShape_ConvexHull2D(aPoints, aCount, aConvexIndices)
+  local code = dylib_.Naive_BndShape_ConvexHull2D_Status(aCH2D)
 
   local result = {}
 
-  if code == dylib_.Naive_Ok then
-    local count = aCount[0]
+  if code == naivecgl.Naive_ConvexHull2D_Done then
+    local count = dylib_.Naive_BndShape_ConvexHull2D_NbConvexPoints(aCH2D)
+    local indices = ffi.new("int32_t[?]", count)
+    dylib_.Naive_BndShape_ConvexHull2D_ConvexIndices(aCH2D, indices)
 
     for i = 1, count do
-      result[i] = aConvexIndices[0][i - 1] + 1
+      result[i] = indices[i - 1] + 1
     end
   end
 
-  dylib_.Naive_Release_Int32Array(aConvexIndices[0])
+  dylib_.Naive_BndShape_ConvexHull2D_Release(aCH2D)
 
   return code, result
 end

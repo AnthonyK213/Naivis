@@ -5,8 +5,6 @@
 #include <QStyle>
 
 #include <Mesh/Mesh_Util.hxx>
-#include <naivecgl/BndShape/ConvexHull.h>
-#include <naivecgl/Tessellation/Sphere.h>
 
 #include <Ext/Ext_Load.hxx>
 #include <luaocct/luaocct.h>
