@@ -103,6 +103,32 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
   return new Poly_Triangulation(aPoints, aTriangles);
 }
 
+Naive_H_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh) {
+  if (theMesh.IsNull())
+    return nullptr;
+
+  const Standard_Integer nbNodes = theMesh->NbNodes();
+  const Standard_Integer nbTris = theMesh->NbTriangles();
+  Naive_Point3d_List vertices{};
+  Naive_List<Naive_Triangle> triangles{};
+  vertices.reserve(nbNodes);
+  triangles.reserve(nbTris);
+
+  for (Standard_Integer i = 1; i <= nbNodes; ++i) {
+    gp_Pnt aNode = theMesh->Node(i);
+    vertices.push_back({aNode.X(), aNode.Y(), aNode.Z()});
+  }
+
+  for (Standard_Integer i = 1; i <= nbTris; ++i) {
+    const Poly_Triangle &aTri = theMesh->Triangle(i);
+    /// TraingleSoup index starts from 0!
+    triangles.push_back({aTri(1) - 1, aTri(2) - 1, aTri(3) - 1});
+  }
+
+  return std::make_shared<Naive_Poly>(std::move(vertices),
+                                      std::move(triangles));
+}
+
 Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   if (theMesh.IsNull())
     return nullptr;

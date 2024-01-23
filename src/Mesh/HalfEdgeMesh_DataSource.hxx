@@ -69,16 +69,13 @@ public:
 
   Standard_EXPORT const Naive_Mesh &GetHalfEdgeMesh() const { return *myMesh; }
 
-  Standard_EXPORT const Handle(Poly_Triangulation) & GetTriangulation() const {
-    return myTriangulation;
-  }
+  Standard_EXPORT Handle(Poly_Triangulation) GetTriangulation() const;
 
   DEFINE_STANDARD_RTTIEXT(HalfEdgeMesh_DataSource, MeshVS_DataSource)
 
 protected:
 private:
   Standard_Boolean myIsValid;
-  Handle(Poly_Triangulation) myTriangulation;
   Naive_H_Mesh myMesh;
   TColStd_PackedMapOfInteger myNodes;
   TColStd_PackedMapOfInteger myElements;

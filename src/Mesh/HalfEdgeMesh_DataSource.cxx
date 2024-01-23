@@ -1,4 +1,5 @@
 ﻿#include "HalfEdgeMesh_DataSource.hxx"
+#include "Mesh_Util.hxx"
 
 #include <Precision.hxx>
 
@@ -10,41 +11,25 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   if (theMesh.IsNull())
     return;
 
-  myTriangulation = theMesh;
+  Naive_H_Poly soup = Mesh_Util::MeshToNaivePoly3D(theMesh);
 
-  const Standard_Integer aNbNodes = theMesh->NbNodes();
-  const Standard_Integer aNbTris = theMesh->NbTriangles();
-
-  std::vector<Naive_Vector3d> vertices{};
-  std::vector<Naive_Triangle> triangles{};
-
-  vertices.reserve(aNbNodes);
-  triangles.reserve(aNbTris);
-
-  for (Standard_Integer i = 1; i <= aNbNodes; ++i) {
-    gp_Pnt aNode = theMesh->Node(i);
-    vertices.push_back({aNode.X(), aNode.Y(), aNode.Z()});
-  }
-
-  for (Standard_Integer i = 1; i <= aNbTris; ++i) {
-    const Poly_Triangle &aTri = theMesh->Triangle(i);
-    /// TraingleSoup index starts from 0!
-    triangles.push_back({aTri(1) - 1, aTri(2) - 1, aTri(3) - 1});
-  }
-
-  Naive_Poly soup{std::move(vertices), std::move(triangles)};
-
-  if (!soup.IsValid())
+  if (!soup || !soup->IsValid())
     return;
 
-  myMesh = std::make_shared<Naive_Mesh>(soup);
+  myMesh = std::make_shared<Naive_Mesh>(*soup);
 
-  myNodeCoords = new TColStd_HArray2OfReal(1, aNbNodes, 1, 3);
+  if (!myMesh->IsValid())
+    return;
+
+  Standard_Integer nbNodes =
+      static_cast<Standard_Integer>(myMesh->NbVertices());
+  Naive_Integer_List aVertices = myMesh->GetAllVertices();
+  myNodeCoords = new TColStd_HArray2OfReal(1, nbNodes, 1, 3);
 
   Standard_Integer idxNode = 1;
-  for (const auto &item : myMesh->Vertices()) {
-    myNodes.Add(item.first);
-    const auto &xyz = item.second.Coord();
+  for (Standard_Integer item : aVertices) {
+    myNodes.Add(item);
+    const Naive_Point3d &xyz = myMesh->GetVertex(item)->Coord();
 
     myNodeCoords->SetValue(idxNode, 1, xyz(0));
     myNodeCoords->SetValue(idxNode, 2, xyz(1));
@@ -53,25 +38,25 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     idxNode++;
   }
 
-  myElemNormals = new TColStd_HArray2OfReal(1, aNbTris, 1, 3);
-  myElemNodes = new TColStd_HArray2OfInteger(1, aNbTris, 1, 3);
+  Standard_Integer nbTris = static_cast<Standard_Integer>(myMesh->NbFaces());
+  Naive_Integer_List aTriangles = myMesh->GetAllFaces();
+  myElemNormals = new TColStd_HArray2OfReal(1, nbTris, 1, 3);
+  myElemNodes = new TColStd_HArray2OfInteger(1, nbTris, 1, 3);
 
   Standard_Integer idxElem = 1;
-  for (const auto &item : myMesh->Faces()) {
-    myElements.Add(item.first);
-
-    const auto &aFace = item.second;
+  for (const auto &item : aTriangles) {
+    myElements.Add(item);
+    const auto *aFace = myMesh->GetFace(item);
 
     Naive_Vector3d V[3];
 
     Standard_Integer idxEdge = 1;
-    for (auto it = aFace.EdgeIter(); it.More(); it.Next(), ++idxEdge) {
+    for (auto it = aFace->EdgeIter(); it.More(); it.Next(), ++idxEdge) {
       if (idxEdge > 3)
         return;
 
       const auto *aEdge = it.Current();
       myElemNodes->SetValue(idxElem, idxEdge, aEdge->Origin()->Id());
-
       V[idxEdge - 1] = aEdge->Origin()->Coord();
     }
 
@@ -190,4 +175,11 @@ Standard_Boolean HalfEdgeMesh_DataSource::GetNormal(const Standard_Integer Id,
     return Standard_True;
   } else
     return Standard_False;
+}
+
+Handle(Poly_Triangulation) HalfEdgeMesh_DataSource::GetTriangulation() const {
+  if (!myIsValid)
+    return nullptr;
+
+  return Mesh_Util::NaivePoly3DToMesh(*myMesh->Soup());
 }
