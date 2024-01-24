@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
   NaiveDoc/NaiveDoc_ObjectTable.cxx
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx
+  Util/Util_AIS.cxx
   Widget/naivis.cpp
   Widget/naivis.ui
   Widget/Widget_OcctViewer.cxx

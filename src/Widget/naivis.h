@@ -64,6 +64,8 @@ private slots:
   void runScript();
 
   // }}}
+  
+  void updateSelectionPropertiesTable(const NaiveDoc_ObjectList &theSelections);
 
 private:
   void setupActions();
@@ -79,6 +81,8 @@ private:
   Widget_OcctViewer *occtViewer();
 
   void setViewProjectionType(Graphic3d_Camera::Projection projectionType);
+  
+  void setupSelectionPropertiesTable();
 
 private:
   Ui::Naivis *ui;

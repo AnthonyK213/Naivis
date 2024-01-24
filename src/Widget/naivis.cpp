@@ -4,9 +4,9 @@
 #include <QIcon>
 #include <QStyle>
 
-#include <Mesh/Mesh_Util.hxx>
-
 #include <Ext/Ext_Load.hxx>
+#include <Mesh/Mesh_Util.hxx>
+#include <Util/Util_AIS.hxx>
 #include <luaocct/luaocct.h>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
@@ -14,21 +14,14 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 
   QApplication::setWindowIcon(QIcon(":icons/Naivis.ico"));
 
+  myDoc = new NaiveDoc_Document();
+  myDoc->SetContext(ui->occtViewer->Context());
+
   setupActions();
   setupActionIcons();
   setupOutputBuffer();
   setupScriptEditor();
-
-  myDoc = new NaiveDoc_Document();
-  myDoc->SetContext(ui->occtViewer->Context());
-
-  ui->occtViewer->Context()
-      ->HighlightStyle(Prs3d_TypeOfHighlight_Selected)
-      ->SetColor(Quantity_NOC_YELLOW);
-
-  ui->occtViewer->View()->SetBackgroundColor(
-      Quantity_Color(0.62, 0.64, 0.67, Quantity_TOC_sRGB));
-
+  setupSelectionPropertiesTable();
   setupLuaState();
 
   ui->actionOrthographic->trigger();
@@ -179,6 +172,9 @@ void Naivis::setupActions() {
   CONNECT_ACTION(ui->actionRunScript, runScript);
 
   /// Help
+
+  connect(occtViewer(), &Widget_OcctViewer::selectionChanged, this,
+          &Naivis::updateSelectionPropertiesTable);
 }
 
 #undef CONNECT_ACTION
@@ -236,6 +232,46 @@ void Naivis::setViewProjectionType(
   occtViewer()->View()->Camera()->SetProjectionType(projectionType);
   occtViewer()->View()->FitAll();
   occtViewer()->Viewer()->Redraw();
+}
+
+void Naivis::updateSelectionPropertiesTable(
+    const NaiveDoc_ObjectList &theSelections) {
+  auto *tbl = ui->tableProperties;
+  auto nbSelections = theSelections.size();
+
+  tbl->clear();
+
+  if (theSelections.empty()) {
+    tbl->setRowCount(0);
+    tbl->setColumnCount(0);
+  } else if (nbSelections == 1) {
+    Handle(NaiveDoc_Object) anObj = theSelections[0];
+    tbl->setColumnCount(2);
+    QStringList aProps = Util_AIS::GetObjectProperties(anObj);
+    auto nbRow = aProps.size() >> 1;
+    tbl->setRowCount(nbRow);
+
+    for (int i = 0; i < nbRow; ++i) {
+      tbl->setItem(i, 0, new QTableWidgetItem(aProps[i << 1]));
+      tbl->setItem(i, 1, new QTableWidgetItem(aProps[(i << 1) + 1]));
+    }
+  } else {
+    tbl->setRowCount(1);
+    tbl->setColumnCount(1);
+    tbl->setItem(
+        0, 0, new QTableWidgetItem(QString("%1 object(s)").arg(nbSelections)));
+  }
+
+  tbl->update();
+}
+
+void Naivis::setupSelectionPropertiesTable() {
+  auto *tbl = ui->tableProperties;
+  tbl->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  tbl->setSelectionBehavior(QAbstractItemView::SelectRows);
+  tbl->horizontalHeader()->setVisible(false);
+  tbl->verticalHeader()->setVisible(false);
+  tbl->horizontalHeader()->setStretchLastSection(true);
 }
 
 // vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:

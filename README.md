@@ -32,9 +32,4 @@
     - Build & Install
     - Set environment variable `LUAOCCT_DIR`
 - Configure with cmake
-  ``` sh
-  cd Naivis
-  mkdir build
-  cd build
-  cmake ..
-  ```
+- Build

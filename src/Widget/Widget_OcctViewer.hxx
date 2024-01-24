@@ -25,7 +25,6 @@
 #include <QMouseEvent>
 #include <QOpenGLWidget>
 
-class NaiveDoc_Document;
 class Sketch_Manager;
 
 class Widget_OcctViewer : public QOpenGLWidget, public AIS_ViewController {
@@ -74,6 +73,9 @@ protected:
 
   virtual void wheelEvent(QWheelEvent *theEvent) override;
 
+  virtual void OnSelectionChanged(const Handle(AIS_InteractiveContext) & theCtx,
+                                  const Handle(V3d_View) & theView) override;
+
 private:
   void dumpGlInfo(bool theIsBasic, bool theToPrint);
 
@@ -85,9 +87,12 @@ private:
   qreal screenScale() const;
 
   void setupMouse();
+  
+  void setupStyle();
 
 signals:
-  void selectionChanged(QStringList theNameList);
+  void
+  selectionChanged(const QList<Handle(AIS_InteractiveObject)> &theSelections);
 
 private:
   Handle(V3d_Viewer) myViewer;

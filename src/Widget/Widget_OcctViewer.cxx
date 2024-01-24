@@ -1,7 +1,10 @@
 ﻿#include "Widget_OcctViewer.hxx"
 
-#include <NaiveDoc/NaiveDoc_Document.hxx>
+#include <Prs3d_LineAspect.hxx>
+#include <Prs3d_PointAspect.hxx>
+
 #include <Sketch/Sketch_Manager.hxx>
+#include <Util/Util_AIS.hxx>
 
 namespace {
 
@@ -332,6 +335,7 @@ Widget_OcctViewer::Widget_OcctViewer(QWidget *theParent)
 #endif
 
   setupMouse();
+  setupStyle();
 }
 
 Widget_OcctViewer::~Widget_OcctViewer() {
@@ -426,6 +430,7 @@ void Widget_OcctViewer::closeEvent(QCloseEvent *theEvent) {
 
 void Widget_OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
   Aspect_VKey aKey = qtKey2VKey(theEvent->key());
+
   switch (aKey) {
   case Aspect_VKey_Escape: {
     return;
@@ -436,14 +441,17 @@ void Widget_OcctViewer::keyPressEvent(QKeyEvent *theEvent) {
     return;
   }
   }
+
   QOpenGLWidget::keyPressEvent(theEvent);
 }
 
 void Widget_OcctViewer::mousePressEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mousePressEvent(theEvent);
+
   const Graphic3d_Vec2i aPnt(theEvent->pos().x() * screenScale(),
                              theEvent->pos().y() * screenScale());
   const Aspect_VKeyFlags aFlags = qtMouseModifiers2VKeys(theEvent->modifiers());
+
   if (!myView.IsNull() &&
       UpdateMouseButtons(aPnt, qtMouseButtons2VKeys(theEvent->buttons()),
                          aFlags, false)) {
@@ -453,9 +461,11 @@ void Widget_OcctViewer::mousePressEvent(QMouseEvent *theEvent) {
 
 void Widget_OcctViewer::mouseReleaseEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mouseReleaseEvent(theEvent);
+
   const Graphic3d_Vec2i aPnt(theEvent->pos().x() * screenScale(),
                              theEvent->pos().y() * screenScale());
   const Aspect_VKeyFlags aFlags = qtMouseModifiers2VKeys(theEvent->modifiers());
+
   if (!myView.IsNull() &&
       UpdateMouseButtons(aPnt, qtMouseButtons2VKeys(theEvent->buttons()),
                          aFlags, false)) {
@@ -465,8 +475,10 @@ void Widget_OcctViewer::mouseReleaseEvent(QMouseEvent *theEvent) {
 
 void Widget_OcctViewer::mouseMoveEvent(QMouseEvent *theEvent) {
   QOpenGLWidget::mouseMoveEvent(theEvent);
+
   const Graphic3d_Vec2i aNewPos(theEvent->pos().x() * screenScale(),
                                 theEvent->pos().y() * screenScale());
+
   if (!myView.IsNull() &&
       UpdateMousePosition(aNewPos, qtMouseButtons2VKeys(theEvent->buttons()),
                           qtMouseModifiers2VKeys(theEvent->modifiers()),
@@ -477,6 +489,7 @@ void Widget_OcctViewer::mouseMoveEvent(QMouseEvent *theEvent) {
 
 void Widget_OcctViewer::wheelEvent(QWheelEvent *theEvent) {
   QOpenGLWidget::wheelEvent(theEvent);
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
   const Graphic3d_Vec2i aPos(
       Graphic3d_Vec2d(theEvent->position().x() * screenScale(),
@@ -485,6 +498,7 @@ void Widget_OcctViewer::wheelEvent(QWheelEvent *theEvent) {
   const Graphic3d_Vec2i aPos(theEvent->pos().x() * screenScale(),
                              theEvent->pos().y() * screenScale());
 #endif
+
   if (!myView.IsNull() &&
       UpdateZoom(
           Aspect_ScrollDelta(aPos, double(theEvent->angleDelta().y()) / 8.0))) {
@@ -507,10 +521,12 @@ void Widget_OcctViewer::paintGL() {
       myContext->CurrentViewer()->Driver());
   const Handle(OpenGl_Context) &aGlCtx = aDriver->GetSharedContext();
   Handle(OpenGl_FrameBuffer) aDefaultFbo = aGlCtx->DefaultFrameBuffer();
+
   if (aDefaultFbo.IsNull()) {
     aDefaultFbo = new OcctQtFrameBuffer();
     aGlCtx->SetDefaultFrameBuffer(aDefaultFbo);
   }
+
   if (!aDefaultFbo->InitWrapper(aGlCtx)) {
     aDefaultFbo.Nullify();
     Message::DefaultMessenger()->Send("Default FBO wrapper creation failed",
@@ -576,4 +592,28 @@ void Widget_OcctViewer::setupMouse() {
                        AIS_SelectionScheme_Add);
   aMouseSelScheme.Bind(Aspect_VKeyMouse_LeftButton | Aspect_VKeyFlags_CTRL,
                        AIS_SelectionScheme_Remove);
+}
+
+void Widget_OcctViewer::setupStyle() {
+  myContext->HighlightStyle(Prs3d_TypeOfHighlight_Selected)
+      ->SetColor(Quantity_NOC_YELLOW);
+  myView->SetBackgroundColor(
+      Quantity_Color(0.62, 0.64, 0.67, Quantity_TOC_sRGB));
+
+  Handle(Prs3d_PointAspect) aPntAsp =
+      new Prs3d_PointAspect(Aspect_TOM_PLUS, Quantity_NOC_WHITE, 1.0);
+  myContext->DefaultDrawer()->SetPointAspect(aPntAsp);
+
+  Handle(Prs3d_LineAspect) aLineAsp =
+      new Prs3d_LineAspect(Quantity_NOC_BLACK, Aspect_TOL_SOLID, 3);
+  myContext->DefaultDrawer()->SetLineAspect(aLineAsp);
+  myContext->DefaultDrawer()->SetWireAspect(aLineAsp);
+}
+
+void Widget_OcctViewer::OnSelectionChanged(
+    const Handle(AIS_InteractiveContext) & theCtx,
+    const Handle(V3d_View) & theView) {
+  QList<Handle(AIS_InteractiveObject)> aSelections =
+      Util_AIS::GetSelections(myContext);
+  emit selectionChanged(aSelections);
 }

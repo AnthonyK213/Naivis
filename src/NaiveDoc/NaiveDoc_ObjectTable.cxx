@@ -6,6 +6,7 @@
 #include "NaiveDoc_Document.hxx"
 
 #include <Mesh/Mesh_Util.hxx>
+#include <Util/Util_AIS.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
@@ -263,15 +264,7 @@ NaiveDoc_ObjectTable::UnselectAll(Standard_Boolean theToUpdate) {
 }
 
 NaiveDoc_ObjectList NaiveDoc_ObjectTable::SelectedObjects() const {
-  NaiveDoc_ObjectList aResult{};
-  aResult.reserve(myContext->NbSelected());
-
-  for (myContext->InitSelected(); myContext->MoreSelected();
-       myContext->NextSelected()) {
-    aResult.push_back(myContext->SelectedInteractive());
-  }
-
-  return aResult;
+  return Util_AIS::GetSelections(myContext);
 }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::addObject(const Handle(NaiveDoc_Object) &
