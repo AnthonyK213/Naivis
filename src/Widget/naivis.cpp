@@ -14,9 +14,6 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 
   QApplication::setWindowIcon(QIcon(":icons/Naivis.ico"));
 
-  myDoc = new NaiveDoc_Document();
-  myDoc->SetContext(ui->occtViewer->Context());
-
   setupActions();
   setupActionIcons();
   setupOutputBuffer();
@@ -45,7 +42,7 @@ void Naivis::importFile() {
   if (filePath.isEmpty())
     return;
 
-  myDoc->ImportStep(filePath.toUtf8().toStdString().c_str());
+  document()->ImportStep(filePath.toUtf8().toStdString().c_str());
   occtViewer()->View()->FitAll();
 }
 
@@ -88,38 +85,41 @@ void Naivis::quit() { close(); }
 void Naivis::transform() {}
 
 void Naivis::undo() {
-  myDoc->Undo();
+  document()->Undo();
   update();
 }
 
 void Naivis::redo() {
-  myDoc->Redo();
+  document()->Redo();
   update();
 }
 
 void Naivis::selectAll() {
-  int count = myDoc->Objects()->SelectAll(true);
-  std::cout << "Selected " << count << " object(s).\n";
+  int count = document()->Objects()->SelectAll(true);
+  occtViewer()->OnSelectionChanged(occtViewer()->Context(),
+                                   occtViewer()->View());
   update();
 }
 
 void Naivis::hideCurrentSelection() {
-  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
-  int count = myDoc->Objects()->HideObjects(std::move(selection), true);
+  NaiveDoc_ObjectList selection = document()->Objects()->SelectedObjects();
+  int count = document()->Objects()->HideObjects(std::move(selection), true);
   std::cout << "Hid " << count << " object(s).\n";
   update();
 }
 
 void Naivis::showAll() {
-  int count = myDoc->Objects()->ShowAll(true);
+  int count = document()->Objects()->ShowAll(true);
   std::cout << "Showed " << count << " hidden object(s).\n";
   update();
 }
 
 void Naivis::deleteCurrentSelection() {
-  NaiveDoc_ObjectList selection = myDoc->Objects()->SelectedObjects();
-  int count = myDoc->Objects()->DeleteObjects(std::move(selection), true);
+  NaiveDoc_ObjectList selection = document()->Objects()->SelectedObjects();
+  int count = document()->Objects()->DeleteObjects(std::move(selection), true);
   std::cout << "Deleted " << count << " object(s).\n";
+  occtViewer()->OnSelectionChanged(occtViewer()->Context(),
+                                   occtViewer()->View());
   update();
 }
 
@@ -221,11 +221,15 @@ void Naivis::setupLuaState() {
 
   LuaBridge__G(myL)
       .Begin_Namespace(Naivis)
-      .addVariable("ActiveDoc", myDoc)
+      .addVariable("ActiveDoc", document())
       .End_Namespace();
 }
 
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
+
+const Handle(NaiveDoc_Document) & Naivis::document() const {
+  return ui->occtViewer->Document();
+}
 
 void Naivis::setViewProjectionType(
     Graphic3d_Camera::Projection projectionType) {

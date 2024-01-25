@@ -336,6 +336,7 @@ Widget_OcctViewer::Widget_OcctViewer(QWidget *theParent)
 
   setupMouse();
   setupStyle();
+  setupDocument();
 }
 
 Widget_OcctViewer::~Widget_OcctViewer() {
@@ -616,4 +617,9 @@ void Widget_OcctViewer::OnSelectionChanged(
   QList<Handle(AIS_InteractiveObject)> aSelections =
       Util_AIS::GetSelections(myContext);
   emit selectionChanged(aSelections);
+}
+
+void Widget_OcctViewer::setupDocument() {
+  myDoc = new NaiveDoc_Document();
+  myDoc->SetContext(myContext);
 }

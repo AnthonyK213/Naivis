@@ -25,6 +25,8 @@
 #include <QMouseEvent>
 #include <QOpenGLWidget>
 
+#include <NaiveDoc/NaiveDoc_Document.hxx>
+
 class Sketch_Manager;
 
 class Widget_OcctViewer : public QOpenGLWidget, public AIS_ViewController {
@@ -40,6 +42,8 @@ public:
   const Handle(V3d_View) & View() const { return myView; }
 
   const Handle(AIS_InteractiveContext) & Context() const { return myContext; }
+
+  const Handle(NaiveDoc_Document) & Document() const { return myDoc; }
 
   /// @return OpenGL informations.
   const QString &getGlInfo() const { return myGlInfo; }
@@ -73,6 +77,7 @@ protected:
 
   virtual void wheelEvent(QWheelEvent *theEvent) override;
 
+public:
   virtual void OnSelectionChanged(const Handle(AIS_InteractiveContext) & theCtx,
                                   const Handle(V3d_View) & theView) override;
 
@@ -87,8 +92,10 @@ private:
   qreal screenScale() const;
 
   void setupMouse();
-  
+
   void setupStyle();
+
+  void setupDocument();
 
 signals:
   void
@@ -102,6 +109,7 @@ private:
   QString myGlInfo;
   Standard_Boolean myIsCoreProfile;
 
+  Handle(NaiveDoc_Document) myDoc;
   Handle(Sketch_Manager) mySktMgr;
 };
 

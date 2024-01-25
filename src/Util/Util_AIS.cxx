@@ -24,11 +24,9 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
   aProps.push_back(NaiveDoc_Object_GetName(*theObj));
   aProps.push_back("Guid");
   aProps.push_back(NaiveDoc_Object_GetId(*theObj).toString());
-
-  auto aType = theObj->DynamicType();
   aProps.push_back("Type");
 
-  if (aType == STANDARD_TYPE(AIS_Shape)) {
+  if (theObj->IsKind(STANDARD_TYPE(AIS_Shape))) {
     auto anShape = Handle(AIS_Shape)::DownCast(theObj)->Shape();
     TopAbs_ShapeEnum anShapeType = anShape.ShapeType();
 
@@ -106,7 +104,7 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
       break;
     }
     }
-  } else if (aType == STANDARD_TYPE(MeshVS_Mesh)) {
+  } else if (theObj->IsKind(STANDARD_TYPE(MeshVS_Mesh))) {
     aProps.push_back("Mesh");
     auto aMesh = Handle(MeshVS_Mesh)::DownCast(theObj);
     Handle(MeshVS_DataSource) aDataSource = aMesh->GetDataSource();
@@ -116,7 +114,7 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
     aProps.push_back(QString::number(nbNodes));
     aProps.push_back("Faces");
     aProps.push_back(QString::number(nbElems));
-  } else if (aType == STANDARD_TYPE(AIS_PointCloud)) {
+  } else if (theObj->IsKind(STANDARD_TYPE(AIS_PointCloud))) {
     aProps.push_back("Point Cloud");
     auto aPoints = Handle(AIS_PointCloud)::DownCast(theObj);
     Standard_Integer nbPoints = aPoints->GetPoints()->VertexNumber();
@@ -129,8 +127,8 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
   return aProps;
 }
 
-NaiveDoc_ObjectList
-GetSelections(const Handle(AIS_InteractiveContext) & theCtx) {
+NaiveDoc_ObjectList GetSelections(const Handle(AIS_InteractiveContext) &
+                                  theCtx) {
   NaiveDoc_ObjectList aResult{};
   aResult.reserve(theCtx->NbSelected());
 
