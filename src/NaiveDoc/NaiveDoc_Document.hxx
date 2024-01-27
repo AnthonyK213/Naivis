@@ -27,6 +27,9 @@
 
 #include "NaiveDoc_Object.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
+#include <NaiveApp/NaiveApp_Application.hxx>
+
+#include <QTreeWidget>
 
 class NaiveDoc_Document;
 DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
@@ -59,6 +62,8 @@ public:
 
   void DumpXcafDocumentTree() const;
 
+  void DumpXcafDocumentTree(QTreeWidget *theTree) const;
+
   void Undo() { myObjects->myUndoStack->undo(); }
 
   void Redo() { myObjects->myUndoStack->redo(); }
@@ -83,16 +88,16 @@ private:
     return {myDoc, theFlags};
   }
 
-  static TCollection_AsciiString
-  getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                       Standard_Boolean theIsInstanceName,
-                       Standard_Integer theLowerDepth = 0);
+  // static TCollection_AsciiString
+  // getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+  //                      Standard_Boolean theIsInstanceName,
+  //                      Standard_Integer theLowerDepth = 0);
 
   Standard_Boolean importStep(Handle(TDocStd_Document) & theDoc,
                               Standard_CString theFilePath);
 
 private:
-  Handle(TDocStd_Application) myApp;
+  Handle(NaiveApp_Application) myApp;
   Handle(TDocStd_Document) myDoc;
   Handle(NaiveDoc_ObjectTable) myObjects;
 };

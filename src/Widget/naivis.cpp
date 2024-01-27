@@ -43,6 +43,7 @@ void Naivis::importFile() {
     return;
 
   document()->ImportStep(filePath.toUtf8().toStdString().c_str());
+  occtViewer()->Document()->DumpXcafDocumentTree(ui->treeAssemblies);
   occtViewer()->View()->FitAll();
 }
 

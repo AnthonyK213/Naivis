@@ -26,6 +26,6 @@ void NaiveDoc_Object_SetDeleted(NaiveDoc_Object &theObject,
 Standard_Boolean NaiveDoc_Object_IsHidden(const NaiveDoc_Object &theHidden);
 
 void NaiveDoc_Object_SetHidden(NaiveDoc_Object &theObject,
-                                const Standard_Boolean theHidden);
+                               const Standard_Boolean theHidden);
 
 #endif

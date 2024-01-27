@@ -73,9 +73,9 @@
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tabAssembly">
+           <widget class="QWidget" name="tabAssemblies">
             <attribute name="title">
-             <string>Assembly</string>
+             <string>Assemblies</string>
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <property name="spacing">
@@ -94,7 +94,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QTreeWidget" name="treeAssembly">
+              <widget class="QTreeWidget" name="treeAssemblies">
                <attribute name="headerVisible">
                 <bool>false</bool>
                </attribute>

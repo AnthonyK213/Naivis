@@ -4,6 +4,51 @@
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
 
+#include <QStack>
+
+static TCollection_AsciiString
+getXcafNodeName(const XCAFPrs_DocumentNode &theNode,
+                Standard_Boolean theIsInstanceName) {
+  Handle(TDataStd_Name) aNodeName;
+
+  if (theIsInstanceName) {
+    if (theNode.Label.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
+      return aNodeName->Get();
+    }
+  } else {
+    if (theNode.RefLabel.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
+      return aNodeName->Get();
+    }
+  }
+
+  return {};
+}
+
+static TCollection_AsciiString
+getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
+                     Standard_Boolean theIsInstanceName,
+                     Standard_Integer theLowerDepth) {
+  TCollection_AsciiString aPath;
+
+  for (Standard_Integer aDepth = theLowerDepth;
+       aDepth <= theExpl.CurrentDepth(); ++aDepth) {
+    const XCAFPrs_DocumentNode &aNode = theExpl.Current(aDepth);
+    TCollection_AsciiString aName = getXcafNodeName(aNode, theIsInstanceName);
+
+    if (aName.IsEmpty()) {
+      TDF_Tool::Entry(aNode.Label, aName);
+    }
+
+    if (aNode.IsAssembly) {
+      aName += "$";
+    }
+
+    aPath += aName;
+  }
+
+  return aPath;
+}
+
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
 NaiveDoc_Document::NaiveDoc_Document() {
@@ -97,6 +142,40 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   std::cout << std::endl;
 }
 
+void NaiveDoc_Document::DumpXcafDocumentTree(QTreeWidget *theTree) const {
+  if (myDoc.IsNull() || !theTree)
+    return;
+
+  theTree->clear();
+
+  QTreeWidgetItem *aRoot = new QTreeWidgetItem();
+  aRoot->setText(0, "Assemblies");
+  QStack<QTreeWidgetItem *> aStack{};
+  aStack.push(aRoot);
+
+  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
+       aDocExpl.Next()) {
+    Standard_Integer aDepth = aDocExpl.CurrentDepth();
+    TCollection_AsciiString aName =
+        getXcafNodeName(aDocExpl.Current(), Standard_False);
+
+    for (int i = 1; i < aStack.size() - aDepth; ++i) {
+      aStack.pop();
+    }
+
+    if (aDepth == aStack.size() - 1) {
+      QTreeWidgetItem *anItem = new QTreeWidgetItem();
+      anItem->setText(0, aName.ToCString());
+      QTreeWidgetItem *aParent = aStack.top();
+      aParent->addChild(anItem);
+      aStack.push(anItem);
+    }
+  }
+
+  theTree->addTopLevelItem(aRoot);
+  theTree->expandAll();
+}
+
 Standard_Boolean NaiveDoc_Document::createXcafApp() {
   if (!myApp.IsNull())
     return true;
@@ -154,56 +233,22 @@ void NaiveDoc_Document::displayXcafDoc() {
 
     Handle(XCAFPrs_AISObject) anObj = new XCAFPrs_AISObject(aNode.RefLabel);
     anObj->SetLocalTransformation(aNode.Location);
-    anObj->SetOwner(new TCollection_HAsciiString(aNode.Id));
 
-    QString aName =
-        QString::fromUtf8(getXcafNodePathNames(aDocExpl, false, 1).ToCString());
+    QString aName = QString::fromUtf8(
+        getXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth())
+            .ToCString());
 
     NaiveDoc_Object_SetId(*anObj);
+
     if (!aName.isNull() && !aName.isEmpty())
       NaiveDoc_Object_SetName(*anObj, aName);
+
     anObj->SetDisplayMode(AIS_Shaded);
 
     anObjList.push_back(anObj);
   }
 
   myObjects->addObjects(anObjList, Standard_True);
-}
-
-TCollection_AsciiString
-NaiveDoc_Document::getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                                        Standard_Boolean theIsInstanceName,
-                                        Standard_Integer theLowerDepth) {
-  TCollection_AsciiString aPath;
-
-  for (Standard_Integer aDepth = theLowerDepth;
-       aDepth <= theExpl.CurrentDepth(); ++aDepth) {
-    const XCAFPrs_DocumentNode &aNode = theExpl.Current(aDepth);
-    TCollection_AsciiString aName;
-    Handle(TDataStd_Name) aNodeName;
-
-    if (theIsInstanceName) {
-      if (aNode.Label.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
-        aName = aNodeName->Get();
-      }
-    } else {
-      if (aNode.RefLabel.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
-        aName = aNodeName->Get();
-      }
-    }
-
-    if (aName.IsEmpty()) {
-      TDF_Tool::Entry(aNode.Label, aName);
-    }
-
-    if (aNode.IsAssembly) {
-      aName += "$";
-    }
-
-    aPath += aName;
-  }
-
-  return aPath;
 }
 
 Standard_Boolean NaiveDoc_Document::importStep(Handle(TDocStd_Document) &
