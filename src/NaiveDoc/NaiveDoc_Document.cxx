@@ -15,14 +15,14 @@ NaiveDoc_Document::~NaiveDoc_Document() {}
 
 Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
   createXcafApp();
-  Handle(TDocStd_Document) anDoc = newDocument();
+  Handle(TDocStd_Document) aDoc = newDocument();
 
-  if (!importStep(anDoc, theFilePath)) {
+  if (!importStep(aDoc, theFilePath)) {
     return Standard_False;
   }
 
-  std::swap(myDoc, anDoc);
-  closeDocument(anDoc);
+  std::swap(myDoc, aDoc);
+  closeDocument(aDoc);
   displayXcafDoc();
 
   return Standard_True;
@@ -112,15 +112,15 @@ Standard_Boolean NaiveDoc_Document::createXcafApp() {
 }
 
 Handle(TDocStd_Document) NaiveDoc_Document::newDocument() {
-  Handle(TDocStd_Document) anDoc;
+  Handle(TDocStd_Document) aDoc;
 
   if (!myApp.IsNull())
-    myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), anDoc);
+    myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), aDoc);
 
   if (!myDoc.IsNull())
     myDoc->SetUndoLimit(100);
 
-  return anDoc;
+  return aDoc;
 }
 
 void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
