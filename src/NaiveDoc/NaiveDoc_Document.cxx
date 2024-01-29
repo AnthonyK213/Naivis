@@ -158,8 +158,9 @@ void NaiveDoc_Document::DumpXcafDocumentTree(QTreeWidget *theTree) const {
     Standard_Integer aDepth = aDocExpl.CurrentDepth();
     TCollection_AsciiString aName =
         getXcafNodeName(aDocExpl.Current(), Standard_False);
+    auto nbPopPlusOne = aStack.size() - aDepth;
 
-    for (int i = 1; i < aStack.size() - aDepth; ++i) {
+    for (int i = 1; i < nbPopPlusOne; ++i) {
       aStack.pop();
     }
 
