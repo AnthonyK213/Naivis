@@ -88,11 +88,6 @@ private:
     return {myDoc, theFlags};
   }
 
-  // static TCollection_AsciiString
-  // getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-  //                      Standard_Boolean theIsInstanceName,
-  //                      Standard_Integer theLowerDepth = 0);
-
   Standard_Boolean importStep(Handle(TDocStd_Document) & theDoc,
                               Standard_CString theFilePath);
 
