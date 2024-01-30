@@ -18,6 +18,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupActionIcons();
   setupOutputBuffer();
   setupScriptEditor();
+  setupAssemblyTree();
   setupSelectionPropertiesTable();
   setupLuaState();
 
@@ -43,7 +44,7 @@ void Naivis::importFile() {
     return;
 
   document()->ImportStep(filePath.toUtf8().toStdString().c_str());
-  occtViewer()->Document()->DumpXcafDocumentTree(ui->treeAssemblies);
+  document()->DumpXcafDocumentTree(ui->treeAssemblies);
   occtViewer()->View()->FitAll();
 }
 
@@ -277,6 +278,15 @@ void Naivis::setupSelectionPropertiesTable() {
   tbl->horizontalHeader()->setVisible(false);
   tbl->verticalHeader()->setVisible(false);
   tbl->horizontalHeader()->setStretchLastSection(true);
+}
+
+void Naivis::setupAssemblyTree() {
+  connect(document().get(), &NaiveDoc_Document::OnAddObject, this,
+          &Naivis::updateAssemblyTree);
+}
+
+void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
+  document()->DumpXcafDocumentTree(ui->treeAssemblies);
 }
 
 // vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:

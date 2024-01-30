@@ -29,12 +29,17 @@
 #include "NaiveDoc_ObjectTable.hxx"
 #include <NaiveApp/NaiveApp_Application.hxx>
 
+#include <QObject>
 #include <QTreeWidget>
 
 class NaiveDoc_Document;
 DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
 
-class NaiveDoc_Document : public Standard_Transient {
+class NaiveDoc_Document : public QObject, public Standard_Transient {
+  Q_OBJECT
+
+  friend class NaiveDoc_ObjectTable;
+
 public:
   NaiveDoc_Document();
 
@@ -43,13 +48,13 @@ public:
 public:
   Handle(NaiveDoc_ObjectTable) Objects() const { return myObjects; }
 
-  Handle(AIS_InteractiveContext) Context() const {
-    return myObjects->myContext;
-  }
+  Handle(AIS_InteractiveContext) Context() const { return myContext; }
 
   void SetContext(const Handle(AIS_InteractiveContext) & theContext) {
-    myObjects->myContext = theContext;
+    myContext = theContext;
   }
+
+  const Handle(TDocStd_Document) & Document() const { return myDoc; }
 
   Standard_Boolean ImportStep(Standard_CString theFilePath);
 
@@ -71,6 +76,13 @@ public:
   void UpdateView() { Context()->CurrentViewer()->Redraw(); }
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
+
+signals:
+  void OnAddObject(const Handle(NaiveDoc_Document) &theDoc);
+
+  void OnDeleteObject();
+
+  void OnUndeleteObject();
 
 private:
   Standard_Boolean createXcafApp();
@@ -94,6 +106,7 @@ private:
 private:
   Handle(NaiveApp_Application) myApp;
   Handle(TDocStd_Document) myDoc;
+  Handle(AIS_InteractiveContext) myContext;
   Handle(NaiveDoc_ObjectTable) myObjects;
 };
 

@@ -53,6 +53,7 @@ IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
 NaiveDoc_Document::NaiveDoc_Document() {
   createXcafApp();
+  myDoc = newDocument();
   myObjects = new NaiveDoc_ObjectTable(this);
 }
 
@@ -133,7 +134,7 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     TCollection_AsciiString aName =
-        getXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth());
+        getXcafNodePathNames(aDocExpl, Standard_False, aDocExpl.CurrentDepth());
     aName = TCollection_AsciiString(aDocExpl.CurrentDepth() * 2, ' ') + aName +
             " @" + aDocExpl.Current().Id;
     std::cout << aName << '\n';
@@ -145,6 +146,8 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
 void NaiveDoc_Document::DumpXcafDocumentTree(QTreeWidget *theTree) const {
   if (myDoc.IsNull() || !theTree)
     return;
+
+  DumpXcafDocumentTree();
 
   theTree->clear();
 
@@ -236,7 +239,7 @@ void NaiveDoc_Document::displayXcafDoc() {
     anObj->SetLocalTransformation(aNode.Location);
 
     QString aName = QString::fromUtf8(
-        getXcafNodePathNames(aDocExpl, false, aDocExpl.CurrentDepth())
+        getXcafNodePathNames(aDocExpl, Standard_False, aDocExpl.CurrentDepth())
             .ToCString());
 
     NaiveDoc_Object_SetId(*anObj);

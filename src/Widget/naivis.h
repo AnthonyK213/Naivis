@@ -67,6 +67,8 @@ private slots:
 
   void updateSelectionPropertiesTable(const NaiveDoc_ObjectList &theSelections);
 
+  void updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc);
+
 private:
   void setupActions();
 
@@ -85,6 +87,8 @@ private:
   void setViewProjectionType(Graphic3d_Camera::Projection projectionType);
 
   void setupSelectionPropertiesTable();
+
+  void setupAssemblyTree();
 
 private:
   Ui::Naivis *ui;

@@ -36,6 +36,8 @@ public:
   ~NaiveDoc_ObjectTable();
 
 public:
+  const Handle(AIS_InteractiveContext) & Context() const;
+
   NaiveDoc_Id AddShape(const TopoDS_Shape &theShape,
                        Standard_Boolean theToUpdate);
 
@@ -143,12 +145,11 @@ private:
   Standard_Boolean
   purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
                  Standard_Boolean theToUpdate = Standard_False);
-  
+
   void purgeAllRaw(Standard_Boolean theToUpdate = Standard_False);
 
 private:
   QHash<NaiveDoc_Id, Handle(NaiveDoc_Object)> myObjects;
-  Handle(AIS_InteractiveContext) myContext;
   NaiveDoc_Document *myDoc;
   QUndoStack *myUndoStack;
 };

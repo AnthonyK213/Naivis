@@ -609,6 +609,8 @@ void Widget_OcctViewer::setupStyle() {
       new Prs3d_LineAspect(Quantity_NOC_BLACK, Aspect_TOL_SOLID, 3);
   myContext->DefaultDrawer()->SetLineAspect(aLineAsp);
   myContext->DefaultDrawer()->SetWireAspect(aLineAsp);
+
+  SetShowRotateCenter(Standard_False);
 }
 
 void Widget_OcctViewer::OnSelectionChanged(

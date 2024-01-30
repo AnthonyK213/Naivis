@@ -8,10 +8,13 @@
 #include <Mesh/Mesh_Util.hxx>
 #include <Util/Util_AIS.hxx>
 
+#include <TNaming_Builder.hxx>
+#include <XCAFDoc_ShapeTool.hxx>
+
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
 NaiveDoc_ObjectTable::NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc)
-    : myDoc(theDoc), myContext(nullptr) {
+    : myDoc(theDoc) {
   myUndoStack = new QUndoStack();
   myUndoStack->setUndoLimit(100);
 }
@@ -20,11 +23,30 @@ NaiveDoc_ObjectTable::~NaiveDoc_ObjectTable() { delete myUndoStack; }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
                                            Standard_Boolean theToUpdate) {
+  Handle(TDocStd_Document) aDoc = myDoc->myDoc;
+
+  if (aDoc.IsNull())
+    return NaiveDoc_Id();
+
+  TDF_Label aMain = aDoc->Main();
+  TDF_Label aNewLabel = TDF_TagSource::NewChild(aMain);
+  Handle(XCAFDoc_ShapeTool) anAsm = XCAFDoc_DocumentTool::ShapeTool(aNewLabel);
+  anAsm->AddShape(theShape, Standard_True);
+  TDataStd_Name::Set(aNewLabel, "Shape");
+  anAsm->UpdateAssemblies();
+
   Handle(NaiveDoc_Object) anObj = new AIS_Shape(theShape);
   NaiveDoc_Object_SetId(*anObj);
   anObj->SetDisplayMode(AIS_Shaded);
+  addObjectRaw(anObj, theToUpdate);
 
-  return addObject(anObj, theToUpdate);
+  myDoc->OnAddObject(myDoc);
+
+  return NaiveDoc_Object_GetId(*anObj);
+}
+
+const Handle(AIS_InteractiveContext) & NaiveDoc_ObjectTable::Context() const {
+  return myDoc->myContext;
 }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddMesh(const Handle(Poly_Triangulation) &
@@ -201,10 +223,10 @@ NaiveDoc_ObjectTable::SelectObject(const Handle(NaiveDoc_Object) & theObject,
   if (!myObjects.contains(NaiveDoc_Object_GetId(*theObject)))
     return Standard_False;
 
-  if (!(myContext->IsSelected(theObject) ^ theSelect))
+  if (!(Context()->IsSelected(theObject) ^ theSelect))
     return Standard_False;
 
-  myContext->AddOrRemoveSelected(theObject, theToUpdate);
+  Context()->AddOrRemoveSelected(theObject, theToUpdate);
 
   return Standard_True;
 }
@@ -249,11 +271,11 @@ Standard_Integer NaiveDoc_ObjectTable::SelectAll(Standard_Boolean theToUpdate) {
 
 Standard_Integer
 NaiveDoc_ObjectTable::UnselectAll(Standard_Boolean theToUpdate) {
-  Standard_Integer nbSelected = myContext->NbSelected();
+  Standard_Integer nbSelected = Context()->NbSelected();
 
-  for (myContext->InitSelected(); myContext->MoreSelected();
-       myContext->NextSelected()) {
-    myContext->AddOrRemoveSelected(myContext->SelectedInteractive(),
+  for (Context()->InitSelected(); Context()->MoreSelected();
+       Context()->NextSelected()) {
+    Context()->AddOrRemoveSelected(Context()->SelectedInteractive(),
                                    Standard_False);
   }
 
@@ -264,7 +286,7 @@ NaiveDoc_ObjectTable::UnselectAll(Standard_Boolean theToUpdate) {
 }
 
 NaiveDoc_ObjectList NaiveDoc_ObjectTable::SelectedObjects() const {
-  return Util_AIS::GetSelections(myContext);
+  return Util_AIS::GetSelections(Context());
 }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::addObject(const Handle(NaiveDoc_Object) &
@@ -316,10 +338,10 @@ NaiveDoc_ObjectTable::addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
     myObjects.insert(anId, theObject);
   }
 
-  myContext->Display(theObject, Standard_False);
+  Context()->Display(theObject, Standard_False);
 
   if (NaiveDoc_Object_IsHidden(*theObject))
-    myContext->Erase(theObject, Standard_False);
+    Context()->Erase(theObject, Standard_False);
 
   if (theToUpdate)
     myDoc->UpdateView();
@@ -342,7 +364,7 @@ NaiveDoc_ObjectTable::deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
     return Standard_False;
 
   NaiveDoc_Object_SetDeleted(*theObject, Standard_True);
-  myContext->Remove(theObject, theToUpdate);
+  Context()->Remove(theObject, theToUpdate);
 
   return Standard_True;
 }
@@ -361,7 +383,7 @@ NaiveDoc_ObjectTable::showObjectRaw(const Handle(NaiveDoc_Object) & theObject,
   }
 
   NaiveDoc_Object_SetHidden(*theObject, Standard_False);
-  myContext->Display(theObject, theToUpdate);
+  Context()->Display(theObject, theToUpdate);
 
   return Standard_True;
 }
@@ -379,7 +401,7 @@ NaiveDoc_ObjectTable::hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
     return Standard_False;
 
   NaiveDoc_Object_SetHidden(*theObject, Standard_True);
-  myContext->Erase(theObject, theToUpdate);
+  Context()->Erase(theObject, theToUpdate);
 
   return Standard_True;
 }
@@ -396,7 +418,7 @@ NaiveDoc_ObjectTable::purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
     return Standard_False;
 
   myObjects.remove(NaiveDoc_Object_GetId(*theObject));
-  myContext->Remove(theObject, theToUpdate);
+  Context()->Remove(theObject, theToUpdate);
 
   return Standard_True;
 }
@@ -405,7 +427,7 @@ void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {
   myUndoStack->clear();
 
   for (auto &anObj : myObjects) {
-    myContext->Remove(anObj, Standard_False);
+    Context()->Remove(anObj, Standard_False);
   }
 
   myObjects.clear();
