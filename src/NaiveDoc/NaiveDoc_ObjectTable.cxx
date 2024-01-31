@@ -23,7 +23,7 @@ NaiveDoc_ObjectTable::~NaiveDoc_ObjectTable() { delete myUndoStack; }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
                                            Standard_Boolean theToUpdate) {
-  Handle(TDocStd_Document) aDoc = myDoc->myDoc;
+  Handle(TDocStd_Document) aDoc = myDoc->Document();
 
   if (aDoc.IsNull())
     return NaiveDoc_Id();
@@ -46,7 +46,7 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
 }
 
 const Handle(AIS_InteractiveContext) & NaiveDoc_ObjectTable::Context() const {
-  return myDoc->myContext;
+  return myDoc->Context();
 }
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddMesh(const Handle(Poly_Triangulation) &

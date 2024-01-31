@@ -21,7 +21,6 @@
 #include <V3d_Viewer.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
-#include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_DocumentExplorer.hxx>
 #include <XCAFPrs_DocumentNode.hxx>
 
@@ -30,12 +29,9 @@
 #include <NaiveApp/NaiveApp_Application.hxx>
 
 #include <QObject>
-#include <QTreeWidget>
 
 class NaiveDoc_Document : public QObject, public Standard_Transient {
   Q_OBJECT
-
-  friend class NaiveDoc_ObjectTable;
 
 public:
   NaiveDoc_Document();
@@ -43,9 +39,9 @@ public:
   ~NaiveDoc_Document();
 
 public:
-  Handle(NaiveDoc_ObjectTable) Objects() const { return myObjects; }
+  const Handle(NaiveDoc_ObjectTable) & Objects() const { return myObjects; }
 
-  Handle(AIS_InteractiveContext) Context() const { return myContext; }
+  const Handle(AIS_InteractiveContext) & Context() const { return myContext; }
 
   void SetContext(const Handle(AIS_InteractiveContext) & theContext) {
     myContext = theContext;
@@ -94,9 +90,6 @@ private:
                      Standard_Boolean theToUpdate = Standard_False);
 
   void displayXcafDoc();
-
-  Standard_Boolean importStep(Handle(TDocStd_Document) & theDoc,
-                              Standard_CString theFilePath);
 
 private:
   Handle(NaiveApp_Application) myApp;

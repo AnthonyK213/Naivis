@@ -1,53 +1,16 @@
-﻿#include <V3d_Viewer.hxx>
+﻿#include <TNaming_NamedShape.hxx>
+#include <TPrsStd_AISPresentation.hxx>
+#include <TPrsStd_AISViewer.hxx>
+#include <TPrsStd_DriverTable.hxx>
+#include <TPrsStd_NamedShapeDriver.hxx>
+#include <V3d_Viewer.hxx>
+#include <XCAFPrs_AISObject.hxx>
+#include <XCAFPrs_Driver.hxx>
 
 #include "NaiveDoc_CmdAddObjects.hxx"
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
-
-#include <QStack>
-
-static TCollection_AsciiString
-getXcafNodeName(const XCAFPrs_DocumentNode &theNode,
-                Standard_Boolean theIsInstanceName) {
-  Handle(TDataStd_Name) aNodeName;
-
-  if (theIsInstanceName) {
-    if (theNode.Label.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
-      return aNodeName->Get();
-    }
-  } else {
-    if (theNode.RefLabel.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
-      return aNodeName->Get();
-    }
-  }
-
-  return {};
-}
-
-static TCollection_AsciiString
-getXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
-                     Standard_Boolean theIsInstanceName,
-                     Standard_Integer theLowerDepth) {
-  TCollection_AsciiString aPath;
-
-  for (Standard_Integer aDepth = theLowerDepth;
-       aDepth <= theExpl.CurrentDepth(); ++aDepth) {
-    const XCAFPrs_DocumentNode &aNode = theExpl.Current(aDepth);
-    TCollection_AsciiString aName = getXcafNodeName(aNode, theIsInstanceName);
-
-    if (aName.IsEmpty()) {
-      TDF_Tool::Entry(aNode.Label, aName);
-    }
-
-    if (aNode.IsAssembly) {
-      aName += "$";
-    }
-
-    aPath += aName;
-  }
-
-  return aPath;
-}
+#include <Util/Util_XCAF.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
@@ -63,7 +26,7 @@ Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
   createXcafApp();
   Handle(TDocStd_Document) aDoc = newDocument();
 
-  if (!importStep(aDoc, theFilePath)) {
+  if (!Util_XCAF::ImportStep(aDoc, theFilePath)) {
     return Standard_False;
   }
 
@@ -92,24 +55,28 @@ Standard_Boolean NaiveDoc_Document::ExportStep(Standard_CString theFilePath) {
       std::cout << "Error: On writing STEP file " << theFilePath << '\n';
       return Standard_False;
     }
-
-    std::cout << "File " << theFilePath << " is exported successfully" << '\n';
-    return Standard_True;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STEP export: "
               << theFailure.GetMessageString() << '\n';
-    return Standard_True;
+
+    return Standard_False;
   }
+
+  std::cout << "File " << theFilePath << " is exported successfully" << '\n';
+
+  return Standard_True;
 }
 
 Handle(Poly_Triangulation)
     NaiveDoc_Document::ImportStl(Standard_CString theFilePath) {
   try {
     Handle(Poly_Triangulation) aStlMesh = RWStl::ReadFile(theFilePath);
+
     return aStlMesh;
   } catch (const Standard_Failure &theFailure) {
     std::cout << "Exception raised during STL import: "
               << theFailure.GetMessageString() << '\n';
+
     return nullptr;
   }
 }
@@ -133,8 +100,8 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
 
   for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
-    TCollection_AsciiString aName =
-        getXcafNodePathNames(aDocExpl, Standard_False, aDocExpl.CurrentDepth());
+    TCollection_AsciiString aName = Util_XCAF::GetXcafNodePathNames(
+        aDocExpl, Standard_False, aDocExpl.CurrentDepth());
     aName = TCollection_AsciiString(aDocExpl.CurrentDepth() * 2, ' ') + aName +
             " @" + aDocExpl.Current().Id;
     std::cout << aName << '\n';
@@ -145,15 +112,15 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
 
 Standard_Boolean NaiveDoc_Document::createXcafApp() {
   if (!myApp.IsNull())
-    return true;
+    return Standard_True;
 
   try {
     myApp = new TDocStd_Application();
     BinXCAFDrivers::DefineFormat(myApp);
-    return true;
+    return Standard_True;
   } catch (const Standard_Failure &theFailure) {
-    std::cout << "Error: " << theFailure.GetMessageString() << std::endl;
-    return false;
+    std::cout << "Error: " << theFailure.GetMessageString() << '\n';
+    return Standard_False;
   }
 }
 
@@ -184,75 +151,44 @@ void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
 }
 
 void NaiveDoc_Document::displayXcafDoc() {
-  if (myDoc.IsNull()) {
+  if (myDoc.IsNull())
     return;
+
+  Handle(TPrsStd_AISViewer) aViewer;
+
+  if (TPrsStd_AISViewer::Find(myDoc->Main(), aViewer)) {
+    aViewer->SetInteractiveContext(myContext);
+  } else {
+    aViewer = TPrsStd_AISViewer::New(myDoc->Main(), myContext);
   }
 
-  NaiveDoc_ObjectList anObjList{};
+  Handle(TPrsStd_DriverTable) aDriverTable = TPrsStd_DriverTable::Get();
+  aDriverTable->InitStandardDrivers();
+  aDriverTable->AddDriver(XCAFPrs_Driver::GetID(), new XCAFPrs_Driver);
 
   for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+    Standard_Integer aDepth = aDocExpl.CurrentDepth();
 
-    if (aNode.IsAssembly) {
+    if (aNode.IsAssembly)
       continue;
-    }
 
-    Handle(XCAFPrs_AISObject) anObj = new XCAFPrs_AISObject(aNode.RefLabel);
-    anObj->SetLocalTransformation(aNode.Location);
+    Handle(TPrsStd_AISPresentation) aPrs =
+        TPrsStd_AISPresentation::Set(aNode.Label, XCAFPrs_Driver::GetID());
+    aPrs->Display(Standard_True);
+    Handle(AIS_InteractiveObject) anObj = aPrs->GetAIS();
 
-    QString aName = QString::fromUtf8(
-        getXcafNodePathNames(aDocExpl, Standard_False, aDocExpl.CurrentDepth())
-            .ToCString());
+    if (anObj.IsNull())
+      continue;
 
-    NaiveDoc_Object_SetId(*anObj);
-
-    if (!aName.isNull() && !aName.isEmpty())
-      NaiveDoc_Object_SetName(*anObj, aName);
+    // FIXME: Location for instance?
+    // if (aDepth > 0) {
+    //   const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
+    //   anObj->SetLocalTransformation(aFather.Location);
+    // }
 
     anObj->SetDisplayMode(AIS_Shaded);
-
-    anObjList.push_back(anObj);
-  }
-
-  myObjects->addObjects(anObjList, Standard_True);
-}
-
-Standard_Boolean NaiveDoc_Document::importStep(Handle(TDocStd_Document) &
-                                                   theDoc,
-                                               Standard_CString theFilePath) {
-  if (theDoc.IsNull()) {
-    std::cout << "Error: The document is null\n";
-    return Standard_False;
-  }
-
-  STEPCAFControl_Controller::Init();
-  STEPControl_Controller::Init();
-
-  STEPCAFControl_Reader aReader;
-
-  aReader.SetColorMode(Standard_True);
-  aReader.SetNameMode(Standard_True);
-  aReader.SetLayerMode(Standard_True);
-  aReader.SetSHUOMode(Standard_True);
-
-  try {
-    if (aReader.ReadFile(theFilePath) != IFSelect_RetDone) {
-      std::cout << "Error: On reading STEP file " << theFilePath << '\n';
-      return Standard_False;
-    }
-
-    if (!aReader.Transfer(theDoc)) {
-      std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
-      return Standard_False;
-    }
-
-    std::cout << "File " << theFilePath << " is imported successfully" << '\n';
-
-    return Standard_True;
-  } catch (const Standard_Failure &theFailure) {
-    std::cout << "Exception raised during STEP import: "
-              << theFailure.GetMessageString() << '\n';
-    return Standard_False;
+    myContext->Display(anObj, Standard_False);
   }
 }

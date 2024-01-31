@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx
   Util/Util_AIS.cxx
+  Util/Util_XCAF.cxx
   Widget/naivis.cpp
   Widget/naivis.ui
   Widget/Widget_OcctViewer.cxx

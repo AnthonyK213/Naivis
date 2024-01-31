@@ -8,6 +8,8 @@
 #include <Ext/Ext_Load.hxx>
 #include <Mesh/Mesh_Util.hxx>
 #include <Util/Util_AIS.hxx>
+#include <Util/Util_XCAF.hxx>
+
 #include <luaocct/luaocct.h>
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
@@ -64,6 +66,9 @@ void Naivis::exportFile() {
     return;
 
   if (selectedFilter.startsWith("STEP")) {
+    if (!filePath.endsWith(".stp", Qt::CaseInsensitive))
+      filePath += ".stp";
+
     document()->ExportStep(filePath.toUtf8().toStdString().c_str());
   } else if (selectedFilter.startsWith("STL")) {
   } else if (selectedFilter.startsWith("PLY")) {
@@ -322,15 +327,8 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
        aDocExpl.More(); aDocExpl.Next()) {
     const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
     Standard_Integer aDepth = aDocExpl.CurrentDepth();
-    TCollection_AsciiString aName;
-    Handle(TDataStd_Name) aNodeName;
-
-    if (aNode.RefLabel.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
-      aName = aNodeName->Get();
-    } else {
-      aName = "";
-    }
-
+    TCollection_AsciiString aName =
+        Util_XCAF::GetXcafNodeName(aDocExpl.Current(), Standard_False);
     auto nbPopPlusOne = aStack.size() - aDepth;
 
     for (int i = 1; i < nbPopPlusOne; ++i) {
