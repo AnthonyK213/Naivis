@@ -2,6 +2,7 @@
 #include "./ui_naivis.h"
 
 #include <QIcon>
+#include <QStack>
 #include <QStyle>
 
 #include <Ext/Ext_Load.hxx>
@@ -35,24 +36,39 @@ Naivis::~Naivis() {
 
 void Naivis::importFile() {
   QString selectedFilter{};
-
   QString filePath = QFileDialog::getOpenFileName(
-      this, "Import", "", tr("STEP (*.stp *.step);;STL (*.stl)"),
+      this, "Import", "", tr("STEP (*.stp *.step);;STL (*.stl);;PLY (*.ply)"),
       &selectedFilter);
 
   if (filePath.isEmpty())
     return;
 
-  document()->ImportStep(filePath.toUtf8().toStdString().c_str());
-  document()->DumpXcafDocumentTree(ui->treeAssemblies);
+  if (selectedFilter.startsWith("STEP")) {
+    document()->ImportStep(filePath.toUtf8().toStdString().c_str());
+  } else if (selectedFilter.startsWith("STL")) {
+  } else if (selectedFilter.startsWith("PLY")) {
+  } else {
+  }
+
+  updateAssemblyTree(document());
   occtViewer()->View()->FitAll();
 }
 
 void Naivis::exportFile() {
-  QString dirPath = QFileDialog::getExistingDirectory(this, "Export");
+  QString selectedFilter{};
+  QString filePath = QFileDialog::getSaveFileName(
+      this, "Export", "", tr("STEP (*.stp *.step);;STL (*.stl);;PLY (*.ply)"),
+      &selectedFilter);
 
-  if (dirPath.isEmpty())
+  if (filePath.isEmpty())
     return;
+
+  if (selectedFilter.startsWith("STEP")) {
+    document()->ExportStep(filePath.toUtf8().toStdString().c_str());
+  } else if (selectedFilter.startsWith("STL")) {
+  } else if (selectedFilter.startsWith("PLY")) {
+  } else {
+  }
 }
 
 void Naivis::openScript() {
@@ -286,7 +302,52 @@ void Naivis::setupAssemblyTree() {
 }
 
 void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
-  document()->DumpXcafDocumentTree(ui->treeAssemblies);
+  QTreeWidget *aTree = ui->treeAssemblies;
+
+  if (theDoc.IsNull() || !aTree)
+    return;
+
+#ifdef QT_DEBUG
+  theDoc->DumpXcafDocumentTree();
+#endif
+
+  aTree->clear();
+
+  QTreeWidgetItem *aRoot = new QTreeWidgetItem();
+  aRoot->setText(0, "Assemblies");
+  QStack<QTreeWidgetItem *> aStack{};
+  aStack.push(aRoot);
+
+  for (XCAFPrs_DocumentExplorer aDocExpl = theDoc->GetXcafExplorer();
+       aDocExpl.More(); aDocExpl.Next()) {
+    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+    Standard_Integer aDepth = aDocExpl.CurrentDepth();
+    TCollection_AsciiString aName;
+    Handle(TDataStd_Name) aNodeName;
+
+    if (aNode.RefLabel.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
+      aName = aNodeName->Get();
+    } else {
+      aName = "";
+    }
+
+    auto nbPopPlusOne = aStack.size() - aDepth;
+
+    for (int i = 1; i < nbPopPlusOne; ++i) {
+      aStack.pop();
+    }
+
+    if (aDepth == aStack.size() - 1) {
+      QTreeWidgetItem *anItem = new QTreeWidgetItem();
+      anItem->setText(0, aName.ToCString());
+      QTreeWidgetItem *aParent = aStack.top();
+      aParent->addChild(anItem);
+      aStack.push(anItem);
+    }
+  }
+
+  aTree->addTopLevelItem(aRoot);
+  aTree->expandAll();
 }
 
 // vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:

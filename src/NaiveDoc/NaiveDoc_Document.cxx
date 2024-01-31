@@ -131,7 +131,7 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   if (myDoc.IsNull())
     return;
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
+  for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     TCollection_AsciiString aName =
         getXcafNodePathNames(aDocExpl, Standard_False, aDocExpl.CurrentDepth());
@@ -141,43 +141,6 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
   }
 
   std::cout << std::endl;
-}
-
-void NaiveDoc_Document::DumpXcafDocumentTree(QTreeWidget *theTree) const {
-  if (myDoc.IsNull() || !theTree)
-    return;
-
-  DumpXcafDocumentTree();
-
-  theTree->clear();
-
-  QTreeWidgetItem *aRoot = new QTreeWidgetItem();
-  aRoot->setText(0, "Assemblies");
-  QStack<QTreeWidgetItem *> aStack{};
-  aStack.push(aRoot);
-
-  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
-       aDocExpl.Next()) {
-    Standard_Integer aDepth = aDocExpl.CurrentDepth();
-    TCollection_AsciiString aName =
-        getXcafNodeName(aDocExpl.Current(), Standard_False);
-    auto nbPopPlusOne = aStack.size() - aDepth;
-
-    for (int i = 1; i < nbPopPlusOne; ++i) {
-      aStack.pop();
-    }
-
-    if (aDepth == aStack.size() - 1) {
-      QTreeWidgetItem *anItem = new QTreeWidgetItem();
-      anItem->setText(0, aName.ToCString());
-      QTreeWidgetItem *aParent = aStack.top();
-      aParent->addChild(anItem);
-      aStack.push(anItem);
-    }
-  }
-
-  theTree->addTopLevelItem(aRoot);
-  theTree->expandAll();
 }
 
 Standard_Boolean NaiveDoc_Document::createXcafApp() {
@@ -227,7 +190,7 @@ void NaiveDoc_Document::displayXcafDoc() {
 
   NaiveDoc_ObjectList anObjList{};
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = getXcafExplorer(); aDocExpl.More();
+  for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
     const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
 

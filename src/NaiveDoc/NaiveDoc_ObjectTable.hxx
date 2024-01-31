@@ -20,9 +20,6 @@ class NaiveDoc_CmdDeleteObjects;
 class NaiveDoc_CmdShowObjects;
 class NaiveDoc_CmdHideObjects;
 
-class NaiveDoc_ObjectTable;
-DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)
-
 class NaiveDoc_ObjectTable : public Standard_Transient {
   friend class NaiveDoc_Document;
   friend class NaiveDoc_CmdAddObjects;
@@ -153,5 +150,7 @@ private:
   NaiveDoc_Document *myDoc;
   QUndoStack *myUndoStack;
 };
+
+DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)
 
 #endif

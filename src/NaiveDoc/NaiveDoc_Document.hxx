@@ -32,9 +32,6 @@
 #include <QObject>
 #include <QTreeWidget>
 
-class NaiveDoc_Document;
-DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
-
 class NaiveDoc_Document : public QObject, public Standard_Transient {
   Q_OBJECT
 
@@ -67,18 +64,22 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-  void DumpXcafDocumentTree(QTreeWidget *theTree) const;
-
   void Undo() { myObjects->myUndoStack->undo(); }
 
   void Redo() { myObjects->myUndoStack->redo(); }
 
   void UpdateView() { Context()->CurrentViewer()->Redraw(); }
 
+  XCAFPrs_DocumentExplorer
+  GetXcafExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
+                      XCAFPrs_DocumentExplorerFlags_None) const {
+    return {myDoc, theFlags};
+  }
+
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
 signals:
-  void OnAddObject(const Handle(NaiveDoc_Document) &theDoc);
+  void OnAddObject(const Handle(NaiveDoc_Document) & theDoc);
 
   void OnDeleteObject();
 
@@ -94,12 +95,6 @@ private:
 
   void displayXcafDoc();
 
-  XCAFPrs_DocumentExplorer
-  getXcafExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
-                      XCAFPrs_DocumentExplorerFlags_None) const {
-    return {myDoc, theFlags};
-  }
-
   Standard_Boolean importStep(Handle(TDocStd_Document) & theDoc,
                               Standard_CString theFilePath);
 
@@ -109,5 +104,7 @@ private:
   Handle(AIS_InteractiveContext) myContext;
   Handle(NaiveDoc_ObjectTable) myObjects;
 };
+
+DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
 
 #endif
