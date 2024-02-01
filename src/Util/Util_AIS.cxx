@@ -20,10 +20,6 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
   if (theObj.IsNull())
     return aProps;
 
-  aProps.push_back("Name");
-  aProps.push_back(NaiveDoc_Object_GetName(*theObj));
-  aProps.push_back("Guid");
-  aProps.push_back(NaiveDoc_Object_GetId(*theObj).toString());
   aProps.push_back("Type");
 
   if (theObj->IsKind(STANDARD_TYPE(AIS_Shape))) {

@@ -1,17 +1,15 @@
 ﻿#include "naivis.h"
 #include "./ui_naivis.h"
 
-#include <TPrsStd_DriverTable.hxx>
-#include <XCAFPrs_Driver.hxx>
-
 #include <QIcon>
 #include <QStack>
 #include <QStyle>
 
 #include <Ext/Ext_Load.hxx>
 #include <Mesh/Mesh_Util.hxx>
+#include <NaiveApp/NaiveApp_Application.hxx>
 #include <Util/Util_AIS.hxx>
-#include <Util/Util_XCAF.hxx>
+#include <Util/Util_OCAF.hxx>
 
 #include <luaocct/luaocct.h>
 
@@ -28,9 +26,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupSelectionPropertiesTable();
   setupLuaState();
 
-  Handle(TPrsStd_DriverTable) aDriverTable = TPrsStd_DriverTable::Get();
-  aDriverTable->InitStandardDrivers();
-  aDriverTable->AddDriver(XCAFPrs_Driver::GetID(), new XCAFPrs_Driver);
+  NaiveApp_InitPrsDrivers();
 
   ui->actionOrthographic->trigger();
 }
@@ -335,7 +331,7 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
     const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
     Standard_Integer aDepth = aDocExpl.CurrentDepth();
     TCollection_AsciiString aName =
-        Util_XCAF::GetXcafNodeName(aDocExpl.Current(), Standard_False);
+        Util_OCAF::GetXcafNodeName(aDocExpl.Current(), Standard_False);
     auto nbPopPlusOne = aStack.size() - aDepth;
 
     for (int i = 1; i < nbPopPlusOne; ++i) {

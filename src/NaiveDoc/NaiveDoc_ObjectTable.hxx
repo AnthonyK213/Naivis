@@ -9,8 +9,6 @@
 #include <Standard_Type.hxx>
 #include <TopoDS_Shape.hxx>
 
-#include <QHash>
-
 #include "NaiveDoc_Object.hxx"
 
 class NaiveDoc_Document;
@@ -39,25 +37,13 @@ public:
   Standard_Boolean DeleteObject(const Handle(NaiveDoc_Object) & theObject,
                                 Standard_Boolean theToUpdate);
 
-  Standard_Boolean DeleteObject(const NaiveDoc_Id &theId,
-                                Standard_Boolean theToUpdate);
-
   Standard_Integer DeleteObjects(const NaiveDoc_ObjectList &theObjects,
-                                 Standard_Boolean theToUpdate);
-
-  Standard_Integer DeleteObjects(NaiveDoc_ObjectList &&theObjects,
                                  Standard_Boolean theToUpdate);
 
   Standard_Boolean ShowObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
 
-  Standard_Boolean ShowObject(const NaiveDoc_Id &theId,
-                              Standard_Boolean theToUpdate);
-
   Standard_Integer ShowObjects(const NaiveDoc_ObjectList &theObjects,
-                               Standard_Boolean theToUpdate);
-
-  Standard_Integer ShowObjects(NaiveDoc_ObjectList &&theObjects,
                                Standard_Boolean theToUpdate);
 
   Standard_Integer ShowAll(Standard_Boolean theToUpdate);
@@ -65,32 +51,16 @@ public:
   Standard_Boolean HideObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
 
-  Standard_Boolean HideObject(const NaiveDoc_Id &theId,
-                              Standard_Boolean theToUpdate);
-
   Standard_Integer HideObjects(const NaiveDoc_ObjectList &theObjects,
-                               Standard_Boolean theToUpdate);
-
-  Standard_Integer HideObjects(NaiveDoc_ObjectList &&theObjects,
                                Standard_Boolean theToUpdate);
 
   Standard_Boolean PurgeObject(const Handle(NaiveDoc_Object) & theObject,
                                Standard_Boolean theToUpdate);
 
-  Standard_Boolean PurgeObject(const NaiveDoc_Id &theId,
-                               Standard_Boolean theToUpdate);
-
   Standard_Integer PurgeObjects(const NaiveDoc_ObjectList &theObjects,
                                 Standard_Boolean theToUpdate);
 
-  Standard_Integer PurgeObjects(NaiveDoc_ObjectList &&theObjects,
-                                Standard_Boolean theToUpdate);
-
   Standard_Boolean SelectObject(const Handle(NaiveDoc_Object) & theObject,
-                                Standard_Boolean theSelect,
-                                Standard_Boolean theToUpdate);
-
-  Standard_Boolean SelectObject(const NaiveDoc_Id &theId,
                                 Standard_Boolean theSelect,
                                 Standard_Boolean theToUpdate);
 
@@ -105,16 +75,6 @@ public:
   NaiveDoc_ObjectList SelectedObjects() const;
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
-
-private:
-  NaiveDoc_Id addObject(const Handle(NaiveDoc_Object) & theObject,
-                        Standard_Boolean theToUpdate);
-
-  NaiveDoc_IdList addObjects(const NaiveDoc_ObjectList &theObjects,
-                             Standard_Boolean theToUpdate);
-
-  NaiveDoc_IdList addObjects(NaiveDoc_ObjectList &&theObjects,
-                             Standard_Boolean theToUpdate);
 
 private:
   Standard_Boolean addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
@@ -137,7 +97,6 @@ private:
   void purgeAllRaw(Standard_Boolean theToUpdate = Standard_False);
 
 private:
-  QHash<NaiveDoc_Id, Handle(NaiveDoc_Object)> myObjects;
   NaiveDoc_Document *myDoc;
 };
 

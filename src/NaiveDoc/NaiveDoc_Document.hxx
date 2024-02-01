@@ -43,9 +43,7 @@ public:
 
   const Handle(AIS_InteractiveContext) & Context() const { return myContext; }
 
-  void SetContext(const Handle(AIS_InteractiveContext) & theContext) {
-    myContext = theContext;
-  }
+  void SetContext(const Handle(AIS_InteractiveContext) & theContext);
 
   const Handle(TDocStd_Document) & Document() const { return myDoc; }
 
@@ -60,11 +58,17 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-  void Undo() { myDoc->Undo(); }
+  void Undo() {
+    if (myDoc->Undo())
+      UpdateView();
+  }
 
-  void Redo() { myDoc->Redo(); }
+  void Redo() {
+    if (myDoc->Redo())
+      UpdateView();
+  }
 
-  void UpdateView() { Context()->CurrentViewer()->Redraw(); }
+  void UpdateView() { Context()->UpdateCurrentViewer(); }
 
   XCAFPrs_DocumentExplorer
   GetXcafExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
@@ -84,7 +88,8 @@ signals:
 private:
   Standard_Boolean createXcafApp();
 
-  Handle(TDocStd_Document) newDocument();
+  Handle(TDocStd_Document)
+      newDocument(Standard_Boolean theEmpty = Standard_False);
 
   void closeDocument(Handle(TDocStd_Document) & theDoc,
                      Standard_Boolean theToUpdate = Standard_False);

@@ -1,4 +1,5 @@
 ﻿#include <TDF_LabelMap.hxx>
+#include <TDataStd_Name.hxx>
 #include <TNaming_NamedShape.hxx>
 #include <TPrsStd_AISPresentation.hxx>
 #include <TPrsStd_AISViewer.hxx>
@@ -10,7 +11,7 @@
 
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
-#include <Util/Util_XCAF.hxx>
+#include <Util/Util_OCAF.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 
@@ -22,11 +23,17 @@ NaiveDoc_Document::NaiveDoc_Document() {
 
 NaiveDoc_Document::~NaiveDoc_Document() {}
 
+void NaiveDoc_Document::SetContext(const Handle(AIS_InteractiveContext) &
+                                   theContext) {
+  myContext = theContext;
+  Util_OCAF::InitAISViewer(myDoc, myContext);
+}
+
 Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
   createXcafApp();
-  Handle(TDocStd_Document) aDoc = newDocument();
+  Handle(TDocStd_Document) aDoc = newDocument(Standard_True);
 
-  if (!Util_XCAF::ImportStep(aDoc, theFilePath)) {
+  if (!Util_OCAF::ImportStep(aDoc, theFilePath)) {
     return Standard_False;
   }
 
@@ -46,7 +53,7 @@ Standard_Boolean NaiveDoc_Document::ExportStep(Standard_CString theFilePath) {
   aWriter.SetSHUOMode(Standard_True);
 
   try {
-    if (aWriter.Transfer(myDoc) != IFSelect_RetDone) {
+    if (!aWriter.Transfer(myDoc)) {
       std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
       return Standard_False;
     }
@@ -100,7 +107,7 @@ void NaiveDoc_Document::DumpXcafDocumentTree() const {
 
   for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
-    TCollection_AsciiString aName = Util_XCAF::GetXcafNodePathNames(
+    TCollection_AsciiString aName = Util_OCAF::GetXcafNodePathNames(
         aDocExpl, Standard_False, aDocExpl.CurrentDepth());
     aName = TCollection_AsciiString(aDocExpl.CurrentDepth() * 2, ' ') + aName +
             " @" + aDocExpl.Current().Id;
@@ -124,7 +131,8 @@ Standard_Boolean NaiveDoc_Document::createXcafApp() {
   }
 }
 
-Handle(TDocStd_Document) NaiveDoc_Document::newDocument() {
+Handle(TDocStd_Document)
+    NaiveDoc_Document::newDocument(Standard_Boolean theEmpty) {
   Handle(TDocStd_Document) aDoc;
 
   if (!myApp.IsNull())
@@ -132,6 +140,15 @@ Handle(TDocStd_Document) NaiveDoc_Document::newDocument() {
 
   if (!aDoc.IsNull()) {
     aDoc->SetUndoLimit(100);
+
+    if (!theEmpty) {
+      Handle(XCAFDoc_ShapeTool) anAsm =
+          XCAFDoc_DocumentTool::ShapeTool(aDoc->Main());
+      TDF_Label aLabel = anAsm->NewShape();
+      TDataStd_Name::Set(aLabel, "0");
+    }
+
+    Util_OCAF::InitAISViewer(aDoc, myContext);
   }
 
   return aDoc;
@@ -152,15 +169,11 @@ void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
 }
 
 void NaiveDoc_Document::displayXcafDoc() {
-  if (myDoc.IsNull())
-    return;
+  Handle(TPrsStd_AISViewer) aViewer =
+      Util_OCAF::InitAISViewer(myDoc, myContext);
 
-  Handle(TPrsStd_AISViewer) aViewer;
-  if (TPrsStd_AISViewer::Find(myDoc->Main(), aViewer)) {
-    aViewer->SetInteractiveContext(myContext);
-  } else {
-    aViewer = TPrsStd_AISViewer::New(myDoc->Main(), myContext);
-  }
+  if (aViewer.IsNull())
+    return;
 
   TDF_LabelMap anAsmMap{};
   Standard_Boolean skip = Standard_False;
@@ -204,6 +217,7 @@ void NaiveDoc_Document::displayXcafDoc() {
       aPrs = TPrsStd_AISPresentation::Set(aNode.Label, XCAFPrs_Driver::GetID());
     }
 
+    aPrs->SetMode(AIS_Shaded);
     aPrs->Display(Standard_True);
     Handle(AIS_InteractiveObject) anObj = aPrs->GetAIS();
 
@@ -214,8 +228,5 @@ void NaiveDoc_Document::displayXcafDoc() {
       const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
       anObj->SetLocalTransformation(aFather.Location);
     }
-
-    anObj->SetDisplayMode(AIS_Shaded);
-    myContext->Display(anObj, Standard_False);
   }
 }

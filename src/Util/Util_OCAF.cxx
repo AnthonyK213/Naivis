@@ -1,9 +1,9 @@
-#include "Util_XCAF.hxx"
+#include "Util_OCAF.hxx"
 
 #include <STEPCAFControl_Controller.hxx>
 #include <STEPCAFControl_Reader.hxx>
 
-namespace Util_XCAF {
+namespace Util_OCAF {
 
 TCollection_AsciiString GetXcafNodeName(const XCAFPrs_DocumentNode &theNode,
                                         Standard_Boolean theIsInstanceName) {
@@ -86,4 +86,21 @@ Standard_Boolean ImportStep(Handle(TDocStd_Document) & theDoc,
   return Standard_True;
 }
 
-} // namespace Util_XCAF
+Handle(TPrsStd_AISViewer)
+    InitAISViewer(const Handle(TDocStd_Document) & theDoc,
+                  const Handle(AIS_InteractiveContext) & theCtx) {
+  if (theDoc.IsNull() || theCtx.IsNull())
+    return nullptr;
+
+  Handle(TPrsStd_AISViewer) aViewer;
+
+  if (TPrsStd_AISViewer::Find(theDoc->Main(), aViewer)) {
+    aViewer->SetInteractiveContext(theCtx);
+  } else {
+    aViewer = TPrsStd_AISViewer::New(theDoc->Main(), theCtx);
+  }
+
+  return aViewer;
+}
+
+} // namespace Util_OCAF

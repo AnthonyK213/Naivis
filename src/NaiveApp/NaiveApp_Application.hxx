@@ -5,4 +5,6 @@
 
 using NaiveApp_Application = TDocStd_Application;
 
+void NaiveApp_InitPrsDrivers();
+
 #endif

@@ -98,8 +98,7 @@ private:
   void setupDocument();
 
 signals:
-  void
-  selectionChanged(const QList<Handle(AIS_InteractiveObject)> &theSelections);
+  void selectionChanged(const NaiveDoc_ObjectList &theSelections);
 
 private:
   Handle(V3d_Viewer) myViewer;

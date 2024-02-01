@@ -616,8 +616,7 @@ void Widget_OcctViewer::setupStyle() {
 void Widget_OcctViewer::OnSelectionChanged(
     const Handle(AIS_InteractiveContext) & theCtx,
     const Handle(V3d_View) & theView) {
-  QList<Handle(AIS_InteractiveObject)> aSelections =
-      Util_AIS::GetSelections(myContext);
+  NaiveDoc_ObjectList aSelections = Util_AIS::GetSelections(myContext);
   emit selectionChanged(aSelections);
 }
 

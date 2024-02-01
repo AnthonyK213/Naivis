@@ -11,14 +11,14 @@ set(PROJECT_SOURCES
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
   Mesh/Mesh_MeshBuilder.cxx
   Mesh/Mesh_Util.cxx
+  NaiveApp/NaiveApp_Application.cxx
   NaiveDoc/NaiveDoc_Document.cxx
   NaiveDoc/NaiveDoc_Object.cxx
-  NaiveDoc/NaiveDoc_ObjectInfo.cxx
   NaiveDoc/NaiveDoc_ObjectTable.cxx
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx
   Util/Util_AIS.cxx
-  Util/Util_XCAF.cxx
+  Util/Util_OCAF.cxx
   Widget/naivis.cpp
   Widget/naivis.ui
   Widget/Widget_OcctViewer.cxx
