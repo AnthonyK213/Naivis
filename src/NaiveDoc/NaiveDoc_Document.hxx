@@ -60,9 +60,9 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-  void Undo() { myObjects->myUndoStack->undo(); }
+  void Undo() { myDoc->Undo(); }
 
-  void Redo() { myObjects->myUndoStack->redo(); }
+  void Redo() { myDoc->Redo(); }
 
   void UpdateView() { Context()->CurrentViewer()->Redraw(); }
 

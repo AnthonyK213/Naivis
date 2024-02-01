@@ -1,4 +1,5 @@
-﻿#include <TNaming_NamedShape.hxx>
+﻿#include <TDF_LabelMap.hxx>
+#include <TNaming_NamedShape.hxx>
 #include <TPrsStd_AISPresentation.hxx>
 #include <TPrsStd_AISViewer.hxx>
 #include <TPrsStd_DriverTable.hxx>
@@ -7,7 +8,6 @@
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_Driver.hxx>
 
-#include "NaiveDoc_CmdAddObjects.hxx"
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
 #include <Util/Util_XCAF.hxx>
@@ -130,8 +130,9 @@ Handle(TDocStd_Document) NaiveDoc_Document::newDocument() {
   if (!myApp.IsNull())
     myApp->NewDocument(TCollection_ExtendedString("BinXCAF"), aDoc);
 
-  if (!myDoc.IsNull())
-    myDoc->SetUndoLimit(100);
+  if (!aDoc.IsNull()) {
+    aDoc->SetUndoLimit(100);
+  }
 
   return aDoc;
 }
@@ -155,38 +156,64 @@ void NaiveDoc_Document::displayXcafDoc() {
     return;
 
   Handle(TPrsStd_AISViewer) aViewer;
-
   if (TPrsStd_AISViewer::Find(myDoc->Main(), aViewer)) {
     aViewer->SetInteractiveContext(myContext);
   } else {
     aViewer = TPrsStd_AISViewer::New(myDoc->Main(), myContext);
   }
 
-  Handle(TPrsStd_DriverTable) aDriverTable = TPrsStd_DriverTable::Get();
-  aDriverTable->InitStandardDrivers();
-  aDriverTable->AddDriver(XCAFPrs_Driver::GetID(), new XCAFPrs_Driver);
+  TDF_LabelMap anAsmMap{};
+  Standard_Boolean skip = Standard_False;
+  Standard_Integer skipDepth = 0;
 
   for (XCAFPrs_DocumentExplorer aDocExpl = GetXcafExplorer(); aDocExpl.More();
        aDocExpl.Next()) {
-    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
     Standard_Integer aDepth = aDocExpl.CurrentDepth();
 
-    if (aNode.IsAssembly)
-      continue;
+    /// To skip assembly instances which have already been visited.
+    /// It seems that FreeCAD makes new copies for the assembly instances, but
+    /// this breaks down the connections between the identical instances.
+    /// The solution below is, at the first time visit one instance, visit its
+    /// children normally; for the rest visits, just display the assembly
+    /// instance and visit its siblings.
+    /// Maybe there is a better solution? Never visit the instance's children
+    /// unless the user enters "assembly editing mode"? This might make more
+    /// sense.
 
-    Handle(TPrsStd_AISPresentation) aPrs =
-        TPrsStd_AISPresentation::Set(aNode.Label, XCAFPrs_Driver::GetID());
+    if (skip) {
+      if (aDepth > skipDepth)
+        continue;
+      else
+        skip = Standard_False;
+    }
+
+    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+
+    if (aNode.IsAssembly) {
+      if (anAsmMap.Contains(aNode.RefLabel)) {
+        skip = Standard_True;
+        skipDepth = aDepth;
+      } else {
+        anAsmMap.Add(aNode.RefLabel);
+        continue;
+      }
+    }
+
+    Handle(TPrsStd_AISPresentation) aPrs;
+    if (!aNode.Label.FindAttribute(TPrsStd_AISPresentation::GetID(), aPrs)) {
+      aPrs = TPrsStd_AISPresentation::Set(aNode.Label, XCAFPrs_Driver::GetID());
+    }
+
     aPrs->Display(Standard_True);
     Handle(AIS_InteractiveObject) anObj = aPrs->GetAIS();
 
     if (anObj.IsNull())
       continue;
 
-    // FIXME: Location for instance?
-    // if (aDepth > 0) {
-    //   const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
-    //   anObj->SetLocalTransformation(aFather.Location);
-    // }
+    if (aDepth > 0) {
+      const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
+      anObj->SetLocalTransformation(aFather.Location);
+    }
 
     anObj->SetDisplayMode(AIS_Shaded);
     myContext->Display(anObj, Standard_False);

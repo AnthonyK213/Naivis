@@ -1,6 +1,9 @@
 ﻿#include "naivis.h"
 #include "./ui_naivis.h"
 
+#include <TPrsStd_DriverTable.hxx>
+#include <XCAFPrs_Driver.hxx>
+
 #include <QIcon>
 #include <QStack>
 #include <QStyle>
@@ -24,6 +27,10 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupAssemblyTree();
   setupSelectionPropertiesTable();
   setupLuaState();
+
+  Handle(TPrsStd_DriverTable) aDriverTable = TPrsStd_DriverTable::Get();
+  aDriverTable->InitStandardDrivers();
+  aDriverTable->AddDriver(XCAFPrs_Driver::GetID(), new XCAFPrs_Driver);
 
   ui->actionOrthographic->trigger();
 }

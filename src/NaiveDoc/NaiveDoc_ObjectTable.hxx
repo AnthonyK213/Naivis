@@ -10,22 +10,13 @@
 #include <TopoDS_Shape.hxx>
 
 #include <QHash>
-#include <QUndoStack>
 
 #include "NaiveDoc_Object.hxx"
 
 class NaiveDoc_Document;
-class NaiveDoc_CmdAddObjects;
-class NaiveDoc_CmdDeleteObjects;
-class NaiveDoc_CmdShowObjects;
-class NaiveDoc_CmdHideObjects;
 
 class NaiveDoc_ObjectTable : public Standard_Transient {
   friend class NaiveDoc_Document;
-  friend class NaiveDoc_CmdAddObjects;
-  friend class NaiveDoc_CmdDeleteObjects;
-  friend class NaiveDoc_CmdShowObjects;
-  friend class NaiveDoc_CmdHideObjects;
 
 public:
   explicit NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc = nullptr);
@@ -148,7 +139,6 @@ private:
 private:
   QHash<NaiveDoc_Id, Handle(NaiveDoc_Object)> myObjects;
   NaiveDoc_Document *myDoc;
-  QUndoStack *myUndoStack;
 };
 
 DEFINE_STANDARD_HANDLE(NaiveDoc_ObjectTable, Standard_Transient)

@@ -1,25 +1,23 @@
 ﻿#include "NaiveDoc_ObjectTable.hxx"
-#include "NaiveDoc_CmdAddObjects.hxx"
-#include "NaiveDoc_CmdDeleteObjects.hxx"
-#include "NaiveDoc_CmdHideObjects.hxx"
-#include "NaiveDoc_CmdShowObjects.hxx"
 #include "NaiveDoc_Document.hxx"
 
 #include <Mesh/Mesh_Util.hxx>
 #include <Util/Util_AIS.hxx>
+#include <Util/Util_XCAF.hxx>
 
 #include <TNaming_Builder.hxx>
+#include <TNaming_NamedShape.hxx>
+#include <TPrsStd_AISPresentation.hxx>
+#include <TPrsStd_AISViewer.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
+#include <XCAFPrs_AISObject.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
 NaiveDoc_ObjectTable::NaiveDoc_ObjectTable(NaiveDoc_Document *theDoc)
-    : myDoc(theDoc) {
-  myUndoStack = new QUndoStack();
-  myUndoStack->setUndoLimit(100);
-}
+    : myDoc(theDoc) {}
 
-NaiveDoc_ObjectTable::~NaiveDoc_ObjectTable() { delete myUndoStack; }
+NaiveDoc_ObjectTable::~NaiveDoc_ObjectTable() {}
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
                                            Standard_Boolean theToUpdate) {
@@ -28,19 +26,27 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
   if (aDoc.IsNull())
     return NaiveDoc_Id();
 
+  aDoc->OpenCommand();
+
   TDF_Label aMain = aDoc->Main();
   TDF_Label aNewLabel = TDF_TagSource::NewChild(aMain);
   Handle(XCAFDoc_ShapeTool) anAsm = XCAFDoc_DocumentTool::ShapeTool(aNewLabel);
-  anAsm->AddShape(theShape, Standard_True);
+  TDF_Label aLabel = anAsm->AddShape(theShape, Standard_True);
   TDataStd_Name::Set(aNewLabel, "Shape");
   anAsm->UpdateAssemblies();
-
-  Handle(NaiveDoc_Object) anObj = new AIS_Shape(theShape);
+  Handle(TPrsStd_AISPresentation) aPrs =
+      TPrsStd_AISPresentation::Set(aLabel, TNaming_NamedShape::GetID());
+  aPrs->Display(Standard_True);
+  Handle(NaiveDoc_Object) anObj = aPrs->GetAIS();
   NaiveDoc_Object_SetId(*anObj);
   anObj->SetDisplayMode(AIS_Shaded);
-  addObjectRaw(anObj, theToUpdate);
+  Context()->Display(anObj, theToUpdate);
 
   myDoc->OnAddObject(myDoc);
+
+  if (!aDoc->CommitCommand()) {
+    std::cout << "Failed to commit command\n";
+  }
 
   return NaiveDoc_Object_GetId(*anObj);
 }
@@ -88,22 +94,13 @@ NaiveDoc_ObjectTable::DeleteObject(const NaiveDoc_Id &theId,
 Standard_Integer
 NaiveDoc_ObjectTable::DeleteObjects(const NaiveDoc_ObjectList &theObjects,
                                     Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdDeleteObjects *cmd = new NaiveDoc_CmdDeleteObjects(
-      myDoc, NaiveDoc_CmdDeleteObjects::Delete, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Integer
 NaiveDoc_ObjectTable::DeleteObjects(NaiveDoc_ObjectList &&theObjects,
                                     Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdDeleteObjects *cmd =
-      new NaiveDoc_CmdDeleteObjects(myDoc, NaiveDoc_CmdDeleteObjects::Delete,
-                                    std::move(theObjects), theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Boolean
@@ -121,21 +118,13 @@ NaiveDoc_ObjectTable::ShowObject(const NaiveDoc_Id &theId,
 Standard_Integer
 NaiveDoc_ObjectTable::ShowObjects(const NaiveDoc_ObjectList &theObjects,
                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdShowObjects *cmd =
-      new NaiveDoc_CmdShowObjects(myDoc, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Integer
 NaiveDoc_ObjectTable::ShowObjects(NaiveDoc_ObjectList &&theObjects,
                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdShowObjects *cmd =
-      new NaiveDoc_CmdShowObjects(myDoc, std::move(theObjects), theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Integer NaiveDoc_ObjectTable::ShowAll(Standard_Boolean theToUpdate) {
@@ -159,21 +148,48 @@ NaiveDoc_ObjectTable::HideObject(const NaiveDoc_Id &theId,
 Standard_Integer
 NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_ObjectList &theObjects,
                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdHideObjects *cmd =
-      new NaiveDoc_CmdHideObjects(myDoc, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
+  Standard_Integer nbHide = 0;
+  myDoc->Document()->NewCommand();
 
-  return cmd->Size();
+  for (const auto &anObj : theObjects) {
+    if (anObj.IsNull())
+      continue;
+
+    if (anObj->IsKind(STANDARD_TYPE(XCAFPrs_AISObject))) {
+      auto anXcafObj = Handle(XCAFPrs_AISObject)::DownCast(anObj);
+      const TDF_Label aLabel = anXcafObj->GetLabel();
+      Handle(TPrsStd_AISPresentation) aPrs;
+
+      if (!aLabel.FindAttribute(TPrsStd_AISPresentation::GetID(), aPrs)) {
+        continue;
+      }
+
+      aPrs->Erase(Standard_True);
+    } else {
+      continue;
+    }
+
+    nbHide++;
+  }
+
+  Handle(TPrsStd_AISViewer) aViewer;
+  TPrsStd_AISViewer::Find(myDoc->Document()->Main(), aViewer);
+  aViewer->Update();
+
+  if (!myDoc->Document()->CommitCommand()) {
+    std::cout << "Failed to commit command\n";
+  }
+
+  if (theToUpdate)
+    Context()->UpdateCurrentViewer();
+
+  return nbHide;
 }
 
 Standard_Integer
 NaiveDoc_ObjectTable::HideObjects(NaiveDoc_ObjectList &&theObjects,
                                   Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdHideObjects *cmd =
-      new NaiveDoc_CmdHideObjects(myDoc, std::move(theObjects), theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return HideObjects(theObjects, theToUpdate);
 }
 
 Standard_Boolean
@@ -193,22 +209,13 @@ NaiveDoc_ObjectTable::PurgeObject(const NaiveDoc_Id &theId,
 Standard_Integer
 NaiveDoc_ObjectTable::PurgeObjects(const NaiveDoc_ObjectList &theObjects,
                                    Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdDeleteObjects *cmd = new NaiveDoc_CmdDeleteObjects(
-      myDoc, NaiveDoc_CmdDeleteObjects::Purge, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Integer
 NaiveDoc_ObjectTable::PurgeObjects(NaiveDoc_ObjectList &&theObjects,
                                    Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdDeleteObjects *cmd =
-      new NaiveDoc_CmdDeleteObjects(myDoc, NaiveDoc_CmdDeleteObjects::Purge,
-                                    std::move(theObjects), theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Size();
+  return 0;
 }
 
 Standard_Boolean
@@ -303,21 +310,13 @@ NaiveDoc_Id NaiveDoc_ObjectTable::addObject(const Handle(NaiveDoc_Object) &
 NaiveDoc_IdList
 NaiveDoc_ObjectTable::addObjects(const NaiveDoc_ObjectList &theObjects,
                                  Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdAddObjects *cmd =
-      new NaiveDoc_CmdAddObjects(myDoc, theObjects, theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Id();
+  return {};
 }
 
 NaiveDoc_IdList
 NaiveDoc_ObjectTable::addObjects(NaiveDoc_ObjectList &&theObjects,
                                  Standard_Boolean theToUpdate) {
-  NaiveDoc_CmdAddObjects *cmd =
-      new NaiveDoc_CmdAddObjects(myDoc, std::move(theObjects), theToUpdate);
-  myUndoStack->push(cmd);
-
-  return cmd->Id();
+  return {};
 }
 
 Standard_Boolean
@@ -424,8 +423,6 @@ NaiveDoc_ObjectTable::purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
 }
 
 void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {
-  myUndoStack->clear();
-
   for (auto &anObj : myObjects) {
     Context()->Remove(anObj, Standard_False);
   }
