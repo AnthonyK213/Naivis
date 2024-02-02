@@ -38,7 +38,6 @@ Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
     return Standard_False;
   }
 
-  myObjects->purgeAllRaw(Standard_False);
   std::swap(myDoc, aDoc);
   closeDocument(aDoc);
   displayXcafDoc();
@@ -162,6 +161,10 @@ void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
     if (theDoc->HasOpenCommand())
       theDoc->AbortCommand();
 
+    /// To keep the TPrsStd_AISViewer alive while removing the
+    /// AIS_InteractiveObjects, do ForgetAllAttributes on children before
+    /// the root.
+    theDoc->Main().ForgetAllAttributes(Standard_True);
     theDoc->Main().Root().ForgetAllAttributes(Standard_True);
     myApp->Close(theDoc);
     theDoc.Nullify();

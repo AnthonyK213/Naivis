@@ -83,26 +83,6 @@ public:
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
 private:
-  Standard_Boolean addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                Standard_Boolean theToUpdate = Standard_False);
-
-  Standard_Boolean
-  deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                  Standard_Boolean theToUpdate = Standard_False);
-
-  Standard_Boolean showObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                 Standard_Boolean theToUpdate = Standard_False);
-
-  Standard_Boolean hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                 Standard_Boolean theToUpdate = Standard_False);
-
-  Standard_Boolean
-  purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                 Standard_Boolean theToUpdate = Standard_False);
-
-  void purgeAllRaw(Standard_Boolean theToUpdate = Standard_False);
-
-private:
   NaiveDoc_Document *myDoc;
 };
 

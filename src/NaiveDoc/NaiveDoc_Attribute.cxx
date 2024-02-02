@@ -1,28 +1,13 @@
-#include "NaiveDoc_Attribute.hxx"
+﻿#include "NaiveDoc_Attribute.hxx"
 
 #include <XCAFPrs_AISObject.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_Attribute, Standard_Transient)
-
-NaiveDoc_Attribute::NaiveDoc_Attribute() {}
-
-NaiveDoc_Attribute::~NaiveDoc_Attribute() {
-#ifndef NDEBUG
-  std::cout << "NaiveDoc_Attribute dtor: " << '\n';
-#endif
-}
-
 NaiveDoc_Id NaiveDoc_Attribute::GetId(const Handle(NaiveDoc_Object) & theObj) {
-  Handle(NaiveDoc_Attribute) anAttr = findAttr(theObj);
-  if (!anAttr.IsNull())
-    return anAttr->getId();
+  Handle(TPrsStd_AISPresentation) aPrs = GetPrs(theObj);
+  if (aPrs.IsNull())
+    return {};
 
-  if (theObj->IsKind(STANDARD_TYPE(XCAFPrs_AISObject))) {
-    auto anObj = Handle(XCAFPrs_AISObject)::DownCast(theObj);
-    return anObj->GetLabel();
-  }
-
-  return {};
+  return aPrs->Label();
 }
 
 Handle(TPrsStd_AISPresentation)

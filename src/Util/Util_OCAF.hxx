@@ -1,4 +1,4 @@
-#ifndef _Naivis_Util_OCAF_HeaderFile
+﻿#ifndef _Naivis_Util_OCAF_HeaderFile
 #define _Naivis_Util_OCAF_HeaderFile
 
 #include <TDF_Tool.hxx>

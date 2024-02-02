@@ -1,4 +1,4 @@
-#include "Util_OCAF.hxx"
+﻿#include "Util_OCAF.hxx"
 
 #include <STEPCAFControl_Controller.hxx>
 #include <STEPCAFControl_Reader.hxx>
@@ -93,7 +93,6 @@ Handle(TPrsStd_AISViewer)
     return nullptr;
 
   Handle(TPrsStd_AISViewer) aViewer;
-
   if (TPrsStd_AISViewer::Find(theDoc->Main(), aViewer)) {
     aViewer->SetInteractiveContext(theCtx);
   } else {

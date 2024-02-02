@@ -20,7 +20,7 @@
 #define Naive_COMMIT_COMMAND()                                                 \
   myDoc->Document()->CommitCommand();                                          \
   if (theToUpdate)                                                             \
-    Context()->UpdateCurrentViewer();
+    myDoc->UpdateView();
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
@@ -94,7 +94,25 @@ NaiveDoc_ObjectTable::ShowObjects(const NaiveDoc_ObjectList &theObjects,
 }
 
 Standard_Integer NaiveDoc_ObjectTable::ShowAll(Standard_Boolean theToUpdate) {
-  return 0;
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbShow = 0;
+
+  for (auto anIter = myDoc->GetXcafExplorer(); anIter.More(); anIter.Next()) {
+    auto aPrs = NaiveDoc_Attribute::GetPrs(anIter.Current().Label);
+    if (aPrs.IsNull())
+      continue;
+
+    if (aPrs->IsDisplayed())
+      continue;
+
+    aPrs->Display();
+    ++nbShow;
+  }
+
+  Naive_COMMIT_COMMAND();
+
+  return nbShow;
 }
 
 Standard_Boolean
@@ -173,6 +191,12 @@ Standard_Boolean
 NaiveDoc_ObjectTable::SelectObject(const Handle(NaiveDoc_Object) & theObject,
                                    Standard_Boolean theSelect,
                                    Standard_Boolean theToUpdate) {
+  if (theObject.IsNull() || !Context()->IsDisplayed(theObject))
+    return Standard_False;
+
+  if (Context()->IsSelected(theObject) != theSelect)
+    Context()->AddOrRemoveSelected(theObject, theToUpdate);
+
   return Standard_True;
 }
 
@@ -194,7 +218,24 @@ NaiveDoc_ObjectTable::SelectObjects(const NaiveDoc_ObjectList &theObjects,
 }
 
 Standard_Integer NaiveDoc_ObjectTable::SelectAll(Standard_Boolean theToUpdate) {
-  return 0;
+  Context()->ClearSelected(Standard_False);
+  Standard_Integer nbSelect = 0;
+
+  for (auto anIter = myDoc->GetXcafExplorer(); anIter.More(); anIter.Next()) {
+    auto aPrs = NaiveDoc_Attribute::GetPrs(anIter.Current().Label);
+    if (aPrs.IsNull())
+      continue;
+    Handle(NaiveDoc_Object) anObj = aPrs->GetAIS();
+    if (anObj.IsNull())
+      continue;
+    Context()->AddOrRemoveSelected(anObj, Standard_False);
+    ++nbSelect;
+  }
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+
+  return nbSelect;
 }
 
 Standard_Integer
@@ -215,49 +256,4 @@ NaiveDoc_ObjectTable::UnselectAll(Standard_Boolean theToUpdate) {
 
 NaiveDoc_ObjectList NaiveDoc_ObjectTable::SelectedObjects() const {
   return Util_AIS::GetSelections(Context());
-}
-
-Standard_Boolean
-NaiveDoc_ObjectTable::addObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                   Standard_Boolean theToUpdate) {
-  return Standard_True;
-}
-
-Standard_Boolean
-NaiveDoc_ObjectTable::deleteObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                      Standard_Boolean theToUpdate) {
-  return Standard_True;
-}
-
-Standard_Boolean
-NaiveDoc_ObjectTable::showObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                    Standard_Boolean theToUpdate) {
-  return Standard_True;
-}
-
-Standard_Boolean
-NaiveDoc_ObjectTable::hideObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                    Standard_Boolean theToUpdate) {
-  return Standard_True;
-}
-
-Standard_Boolean
-NaiveDoc_ObjectTable::purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
-                                     Standard_Boolean theToUpdate) {
-  return Standard_True;
-}
-
-void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {
-  for (auto anIter = myDoc->GetXcafExplorer(); anIter.More(); anIter.Next()) {
-    const NaiveDoc_Id &anId = anIter.Current().Label;
-    Handle(NaiveDoc_Object) anObj = Find(anId);
-
-    if (anId.IsNull())
-      continue;
-
-    Context()->Remove(anObj, Standard_False);
-  }
-
-  if (theToUpdate)
-    Context()->UpdateCurrentViewer();
 }
