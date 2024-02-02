@@ -224,8 +224,6 @@ void NaiveDoc_Document::displayXcafDoc() {
     if (anObj.IsNull())
       continue;
 
-    NaiveDoc_Attribute::SetId(anObj, aNode.Label);
-
     if (aDepth > 0) {
       const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
       anObj->SetLocalTransformation(aFather.Location);

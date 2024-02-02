@@ -44,7 +44,6 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
   aPrs->SetMode(AIS_Shaded);
   aPrs->Display();
   Handle(NaiveDoc_Object) anObj = aPrs->GetAIS();
-  NaiveDoc_Attribute::SetId(anObj, aPrs->Label());
 
   Naive_COMMIT_COMMAND();
 
@@ -145,6 +144,9 @@ NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_ObjectList &theObjects,
     if (aPrs.IsNull())
       continue;
 
+    /// https://tracker.dev.opencascade.org/view.php?id=30142
+    /// The AISObject is recreated during UNDO even if this is an ERASE
+    /// operation?
     aPrs->Erase();
     ++nbHide;
   }
