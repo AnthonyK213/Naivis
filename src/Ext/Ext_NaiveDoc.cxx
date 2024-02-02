@@ -45,7 +45,7 @@ void Ext_NaiveDoc(lua_State *L) {
 
       .Begin_Class(NaiveDoc_ObjectTable)
       .Bind_Method(NaiveDoc_ObjectTable, Clear)
-      .Bind_Method(NaiveDoc_ObjectTable, FindId)
+      .Bind_Method(NaiveDoc_ObjectTable, Find)
       .Bind_Method(NaiveDoc_ObjectTable, AddShape)
       .Bind_Method(NaiveDoc_ObjectTable, AddMesh)
       // .addFunction("DeleteObject",

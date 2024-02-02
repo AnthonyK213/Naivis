@@ -32,7 +32,7 @@ public:
 
   void Clear(Standard_Boolean theToUpdate);
 
-  Handle(NaiveDoc_Object) FindId(const NaiveDoc_Id &theId) const;
+  Handle(NaiveDoc_Object) Find(const NaiveDoc_Id &theId) const;
 
   Standard_Boolean DeleteObject(const Handle(NaiveDoc_Object) & theObject,
                                 Standard_Boolean theToUpdate);
@@ -48,8 +48,14 @@ public:
 
   Standard_Integer ShowAll(Standard_Boolean theToUpdate);
 
+  Standard_Boolean HideObject(const NaiveDoc_Id &theId,
+                              Standard_Boolean theToUpdate);
+
   Standard_Boolean HideObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
+
+  Standard_Integer HideObjects(const NaiveDoc_IdList &theIds,
+                               Standard_Boolean theToUpdate);
 
   Standard_Integer HideObjects(const NaiveDoc_ObjectList &theObjects,
                                Standard_Boolean theToUpdate);

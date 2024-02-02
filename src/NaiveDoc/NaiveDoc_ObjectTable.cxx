@@ -1,16 +1,26 @@
-﻿#include "NaiveDoc_ObjectTable.hxx"
-#include "NaiveDoc_Document.hxx"
-
-#include <Mesh/Mesh_Util.hxx>
-#include <Util/Util_AIS.hxx>
-#include <Util/Util_OCAF.hxx>
-
-#include <TNaming_Builder.hxx>
+﻿#include <TNaming_Builder.hxx>
 #include <TNaming_NamedShape.hxx>
 #include <TPrsStd_AISPresentation.hxx>
 #include <TPrsStd_AISViewer.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 #include <XCAFPrs_AISObject.hxx>
+
+#include "NaiveDoc_Attribute.hxx"
+#include "NaiveDoc_Document.hxx"
+#include "NaiveDoc_ObjectTable.hxx"
+#include <Mesh/Mesh_Util.hxx>
+#include <Util/Util_AIS.hxx>
+#include <Util/Util_OCAF.hxx>
+
+#define Naive_OPEN_COMMAND(R)                                                  \
+  if (myDoc->Document()->HasOpenCommand())                                     \
+    return R;                                                                  \
+  myDoc->Document()->OpenCommand();
+
+#define Naive_COMMIT_COMMAND()                                                 \
+  myDoc->Document()->CommitCommand();                                          \
+  if (theToUpdate)                                                             \
+    Context()->UpdateCurrentViewer();
 
 IMPLEMENT_STANDARD_RTTIEXT(NaiveDoc_ObjectTable, Standard_Transient)
 
@@ -25,31 +35,20 @@ const Handle(AIS_InteractiveContext) & NaiveDoc_ObjectTable::Context() const {
 
 NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
                                            Standard_Boolean theToUpdate) {
-  Handle(TDocStd_Document) aDoc = myDoc->Document();
+  Naive_OPEN_COMMAND({});
 
-  if (aDoc.IsNull())
-    return NaiveDoc_Id();
-
-  if (aDoc->HasOpenCommand())
-    return NaiveDoc_Id();
-
-  aDoc->OpenCommand();
-
-  Handle(XCAFDoc_ShapeTool) anAsm =
-      XCAFDoc_DocumentTool::ShapeTool(aDoc->Main());
+  auto anAsm = XCAFDoc_DocumentTool::ShapeTool(myDoc->Document()->Main());
   TDF_Label aLabel = anAsm->AddShape(theShape, Standard_True);
   anAsm->UpdateAssemblies();
-  Handle(TPrsStd_AISPresentation) aPrs =
-      TPrsStd_AISPresentation::Set(aLabel, TNaming_NamedShape::GetID());
+  auto aPrs = TPrsStd_AISPresentation::Set(aLabel, TNaming_NamedShape::GetID());
   aPrs->SetMode(AIS_Shaded);
-  aPrs->Display(Standard_True);
+  aPrs->Display();
+  Handle(NaiveDoc_Object) anObj = aPrs->GetAIS();
+  NaiveDoc_Attribute::SetId(anObj, aPrs->Label());
 
-  aDoc->CommitCommand();
+  Naive_COMMIT_COMMAND();
 
   myDoc->OnAddObject(myDoc);
-
-  if (theToUpdate)
-    myDoc->UpdateView();
 
   return aLabel;
 }
@@ -63,8 +62,12 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddMesh(const Handle(Poly_Triangulation) &
 void NaiveDoc_ObjectTable::Clear(Standard_Boolean theToUpdate) {}
 
 Handle(NaiveDoc_Object)
-    NaiveDoc_ObjectTable::FindId(const NaiveDoc_Id &theId) const {
-  return nullptr;
+    NaiveDoc_ObjectTable::Find(const NaiveDoc_Id &theId) const {
+  Handle(TPrsStd_AISPresentation) aPrs = NaiveDoc_Attribute::GetPrs(theId);
+  if (aPrs.IsNull())
+    return nullptr;
+
+  return aPrs->GetAIS();
 }
 
 Standard_Boolean
@@ -96,6 +99,13 @@ Standard_Integer NaiveDoc_ObjectTable::ShowAll(Standard_Boolean theToUpdate) {
 }
 
 Standard_Boolean
+NaiveDoc_ObjectTable::HideObject(const NaiveDoc_Id &theId,
+                                 Standard_Boolean theToUpdate) {
+  NaiveDoc_IdList anIdList{theId};
+  return HideObjects(anIdList, theToUpdate) == 1;
+}
+
+Standard_Boolean
 NaiveDoc_ObjectTable::HideObject(const Handle(NaiveDoc_Object) & theObject,
                                  Standard_Boolean theToUpdate) {
   NaiveDoc_ObjectList anObjectList{theObject};
@@ -103,44 +113,43 @@ NaiveDoc_ObjectTable::HideObject(const Handle(NaiveDoc_Object) & theObject,
 }
 
 Standard_Integer
-NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_ObjectList &theObjects,
+NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_IdList &theIds,
                                   Standard_Boolean theToUpdate) {
+  Naive_OPEN_COMMAND(0);
+
   Standard_Integer nbHide = 0;
 
-  if (myDoc->Document()->HasOpenCommand())
-    return nbHide;
-
-  myDoc->Document()->OpenCommand();
-
-  for (const auto &anObj : theObjects) {
-    if (anObj.IsNull())
+  for (const NaiveDoc_Id &anId : theIds) {
+    Handle(TPrsStd_AISPresentation) aPrs = NaiveDoc_Attribute::GetPrs(anId);
+    if (aPrs.IsNull())
       continue;
 
-    if (anObj->IsKind(STANDARD_TYPE(XCAFPrs_AISObject))) {
-      auto anXcafObj = Handle(XCAFPrs_AISObject)::DownCast(anObj);
-      const TDF_Label aLabel = anXcafObj->GetLabel();
-      Handle(TPrsStd_AISPresentation) aPrs;
-
-      if (!aLabel.FindAttribute(TPrsStd_AISPresentation::GetID(), aPrs)) {
-        continue;
-      }
-
-      aPrs->Erase(Standard_True);
-    } else {
-      continue;
-    }
-
-    nbHide++;
+    aPrs->Erase();
+    ++nbHide;
   }
 
-  Handle(TPrsStd_AISViewer) aViewer;
-  TPrsStd_AISViewer::Find(myDoc->Document()->Main(), aViewer);
-  aViewer->Update();
+  Naive_COMMIT_COMMAND();
 
-  myDoc->Document()->CommitCommand();
+  return nbHide;
+}
 
-  if (theToUpdate)
-    Context()->UpdateCurrentViewer();
+Standard_Integer
+NaiveDoc_ObjectTable::HideObjects(const NaiveDoc_ObjectList &theObjects,
+                                  Standard_Boolean theToUpdate) {
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbHide = 0;
+
+  for (const auto &anObj : theObjects) {
+    Handle(TPrsStd_AISPresentation) aPrs = NaiveDoc_Attribute::GetPrs(anObj);
+    if (aPrs.IsNull())
+      continue;
+
+    aPrs->Erase();
+    ++nbHide;
+  }
+
+  Naive_COMMIT_COMMAND();
 
   return nbHide;
 }
@@ -236,4 +245,17 @@ NaiveDoc_ObjectTable::purgeObjectRaw(const Handle(NaiveDoc_Object) & theObject,
   return Standard_True;
 }
 
-void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {}
+void NaiveDoc_ObjectTable::purgeAllRaw(Standard_Boolean theToUpdate) {
+  for (auto anIter = myDoc->GetXcafExplorer(); anIter.More(); anIter.Next()) {
+    const NaiveDoc_Id &anId = anIter.Current().Label;
+    Handle(NaiveDoc_Object) anObj = Find(anId);
+
+    if (anId.IsNull())
+      continue;
+
+    Context()->Remove(anObj, Standard_False);
+  }
+
+  if (theToUpdate)
+    Context()->UpdateCurrentViewer();
+}

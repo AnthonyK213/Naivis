@@ -7,5 +7,6 @@
 using NaiveDoc_Object = AIS_InteractiveObject;
 using NaiveDoc_ObjectList = std::vector<Handle(NaiveDoc_Object)>;
 using NaiveDoc_Id = TDF_Label;
+using NaiveDoc_IdList = std::vector<TDF_Label>;
 
 #endif

@@ -12,6 +12,7 @@ set(PROJECT_SOURCES
   Mesh/Mesh_MeshBuilder.cxx
   Mesh/Mesh_Util.cxx
   NaiveApp/NaiveApp_Application.cxx
+  NaiveDoc/NaiveDoc_Attribute.cxx
   NaiveDoc/NaiveDoc_Document.cxx
   NaiveDoc/NaiveDoc_Object.cxx
   NaiveDoc/NaiveDoc_ObjectTable.cxx

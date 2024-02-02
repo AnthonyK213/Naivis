@@ -9,6 +9,7 @@
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_Driver.hxx>
 
+#include "NaiveDoc_Attribute.hxx"
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
 #include <Util/Util_OCAF.hxx>
@@ -37,6 +38,7 @@ Standard_Boolean NaiveDoc_Document::ImportStep(Standard_CString theFilePath) {
     return Standard_False;
   }
 
+  myObjects->purgeAllRaw(Standard_False);
   std::swap(myDoc, aDoc);
   closeDocument(aDoc);
   displayXcafDoc();
@@ -164,8 +166,6 @@ void NaiveDoc_Document::closeDocument(Handle(TDocStd_Document) & theDoc,
     myApp->Close(theDoc);
     theDoc.Nullify();
   }
-
-  myObjects->purgeAllRaw(theToUpdate);
 }
 
 void NaiveDoc_Document::displayXcafDoc() {
@@ -218,11 +218,13 @@ void NaiveDoc_Document::displayXcafDoc() {
     }
 
     aPrs->SetMode(AIS_Shaded);
-    aPrs->Display(Standard_True);
+    aPrs->Display();
     Handle(AIS_InteractiveObject) anObj = aPrs->GetAIS();
 
     if (anObj.IsNull())
       continue;
+
+    NaiveDoc_Attribute::SetId(anObj, aNode.Label);
 
     if (aDepth > 0) {
       const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
