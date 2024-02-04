@@ -1,6 +1,6 @@
 <p align="center">
   <img alt="Naivis" src="./resources/icons/Naivis512x512.svg" height="240" />
-  <p align="center">A young and simple (sometimes naive) geometry visualization tool.</p>
+  <p align="center">A geometry visualization tool.</p>
 </p>
 
 ---

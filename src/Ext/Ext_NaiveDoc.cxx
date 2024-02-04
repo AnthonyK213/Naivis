@@ -23,11 +23,11 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_Document, Redo)
       .Bind_Method(NaiveDoc_Document, UpdateView)
       /// FIXME: Crash at the last iteration? WTF?
-      // .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
+      .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
       /// WORKAROUND: Returns a list of nodes instead of an
       /// XCAFPrs_DocumentExplorer.
       .addFunction(
-          "GetXcafExplorer",
+          "GetDocumentNodes",
           +[](const NaiveDoc_Document &theSelf,
               Standard_Integer theFlag) -> std::vector<XCAFPrs_DocumentNode> {
             std::vector<XCAFPrs_DocumentNode> aRes{};
@@ -82,15 +82,15 @@ void Ext_NaiveDoc(lua_State *L) {
           })
       .End_Class()
 
-      // .Begin_Class(XCAFPrs_DocumentExplorer)
-      // .Bind_Method(XCAFPrs_DocumentExplorer, More)
-      // .Bind_Method(XCAFPrs_DocumentExplorer, Next)
-      // .addFunction("Current",
-      //              luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
-      //              luabridge::overload<Standard_Integer>(
-      //                  &XCAFPrs_DocumentExplorer::Current))
-      // .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
-      // .End_Class()
+      .Begin_Class(XCAFPrs_DocumentExplorer)
+      .Bind_Method(XCAFPrs_DocumentExplorer, More)
+      .Bind_Method(XCAFPrs_DocumentExplorer, Next)
+      .addFunction("Current",
+                   luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
+                   luabridge::overload<Standard_Integer>(
+                       &XCAFPrs_DocumentExplorer::Current))
+      .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
+      .End_Class()
 
       .Begin_Class(NaiveDoc_Attribute)
       .addStaticFunction("GetId", &NaiveDoc_Attribute::GetId)
