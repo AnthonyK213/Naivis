@@ -1,22 +1,44 @@
-﻿#include "Ext_NaiveDoc.hxx"
-#include <NaiveDoc/NaiveDoc_Document.hxx>
-
-#include <AIS_ColoredShape.hxx>
+﻿#include <AIS_ColoredShape.hxx>
 #include <AIS_Shape.hxx>
 #include <AIS_TexturedShape.hxx>
 #include <MeshVS_Mesh.hxx>
 #include <XCAFPrs_AISObject.hxx>
+#include <XCAFPrs_DocumentExplorer.hxx>
+#include <XCAFPrs_DocumentNode.hxx>
+
+#include "Ext_NaiveDoc.hxx"
+#include <NaiveDoc/NaiveDoc_Attribute.hxx>
+#include <NaiveDoc/NaiveDoc_Document.hxx>
 
 void Ext_NaiveDoc(lua_State *L) {
   LuaBridge__G(L)
       .Begin_Namespace(Naivis)
 
       .Begin_Class(NaiveDoc_Document)
+      .addConstructorFrom<Handle(NaiveDoc_Document), void()>()
       .Bind_Property_Readonly(NaiveDoc_Document, Objects)
       .Bind_Method(NaiveDoc_Document, ImportStep)
+      .Bind_Method(NaiveDoc_Document, ExportStep)
       .Bind_Method(NaiveDoc_Document, Undo)
       .Bind_Method(NaiveDoc_Document, Redo)
       .Bind_Method(NaiveDoc_Document, UpdateView)
+      /// FIXME: Crash at the last iteration? WTF?
+      // .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
+      /// WORKAROUND: Returns a list of nodes instead of an
+      /// XCAFPrs_DocumentExplorer.
+      .addFunction(
+          "GetXcafExplorer",
+          +[](const NaiveDoc_Document &theSelf,
+              Standard_Integer theFlag) -> std::vector<XCAFPrs_DocumentNode> {
+            std::vector<XCAFPrs_DocumentNode> aRes{};
+            for (XCAFPrs_DocumentExplorer anExpl =
+                     theSelf.GetXcafExplorer(theFlag);
+                 anExpl.More(); anExpl.Next()) {
+              aRes.push_back(anExpl.Current());
+            }
+            return aRes;
+          })
+      .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)
       .End_Class()
 
       .Begin_Class(TDF_Label)
@@ -36,6 +58,43 @@ void Ext_NaiveDoc(lua_State *L) {
             oss << theSelf;
             return oss.str();
           })
+      .End_Class()
+
+      .Begin_Class(XCAFPrs_DocumentNode)
+      .addProperty("Id", &XCAFPrs_DocumentNode::Id)
+      .addProperty("Label", &XCAFPrs_DocumentNode::Label)
+      .addProperty("RefLabel", &XCAFPrs_DocumentNode::RefLabel)
+      // .addProperty("Style", &XCAFPrs_DocumentNode::Style)
+      .addProperty("Location", &XCAFPrs_DocumentNode::Location)
+      .addProperty("LocalTrsf", &XCAFPrs_DocumentNode::LocalTrsf)
+      // .addProperty("ChildIter", &XCAFPrs_DocumentNode::ChildIter)
+      .addProperty("IsAssembly", &XCAFPrs_DocumentNode::IsAssembly)
+      .addFunction(
+          "__eq",
+          +[](const XCAFPrs_DocumentNode &theSelf,
+              const XCAFPrs_DocumentNode &theOther) {
+            return XCAFPrs_DocumentNode::IsEqual(theSelf, theOther);
+          })
+      .addFunction(
+          "__tostring",
+          +[](const XCAFPrs_DocumentNode &theSelf) -> std::string {
+            return theSelf.Id.ToCString();
+          })
+      .End_Class()
+
+      // .Begin_Class(XCAFPrs_DocumentExplorer)
+      // .Bind_Method(XCAFPrs_DocumentExplorer, More)
+      // .Bind_Method(XCAFPrs_DocumentExplorer, Next)
+      // .addFunction("Current",
+      //              luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
+      //              luabridge::overload<Standard_Integer>(
+      //                  &XCAFPrs_DocumentExplorer::Current))
+      // .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
+      // .End_Class()
+
+      .Begin_Class(NaiveDoc_Attribute)
+      .addStaticFunction("GetId", &NaiveDoc_Attribute::GetId)
+      .addStaticFunction("GetName", &NaiveDoc_Attribute::GetName)
       .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
@@ -70,7 +129,7 @@ void Ext_NaiveDoc(lua_State *L) {
       //     "ShowObjects",
       //     luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
       //         &NaiveDoc_ObjectTable::ShowObjects))
-      // .Bind_Method(NaiveDoc_ObjectTable, ShowAll)
+      .Bind_Method(NaiveDoc_ObjectTable, ShowAll)
       // .addFunction("HideObject",
       //              luabridge::overload<const Handle(NaiveDoc_Object) &,
       //                                  Standard_Boolean>(
@@ -78,10 +137,12 @@ void Ext_NaiveDoc(lua_State *L) {
       //              luabridge::overload<const NaiveDoc_Id &,
       //              Standard_Boolean>(
       //                  &NaiveDoc_ObjectTable::HideObject))
-      // .addFunction(
-      //     "HideObjects",
-      //     luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
-      //         &NaiveDoc_ObjectTable::HideObjects))
+      .addFunction(
+          "HideObjects",
+          luabridge::overload<const NaiveDoc_IdList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::HideObjects),
+          luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::HideObjects))
       // .addFunction("PurgeObject",
       //              luabridge::overload<const Handle(NaiveDoc_Object) &,
       //                                  Standard_Boolean>(
@@ -93,17 +154,20 @@ void Ext_NaiveDoc(lua_State *L) {
       //     "PurgeObjects",
       //     luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
       //         &NaiveDoc_ObjectTable::PurgeObjects))
-      // .addFunction("SelectObject",
-      //              luabridge::overload<const Handle(NaiveDoc_Object) &,
-      //                                  Standard_Boolean, Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::SelectObject),
-      //              luabridge::overload<const NaiveDoc_Id &, Standard_Boolean,
-      //                                  Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::SelectObject))
-      // .addFunction("SelectObjects",
-      //              luabridge::overload<const NaiveDoc_ObjectList &,
-      //                                  Standard_Boolean, Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::SelectObjects))
+      .addFunction("SelectObject",
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObject),
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObject))
+      .addFunction("SelectObjects",
+                   luabridge::overload<const NaiveDoc_IdList &,
+                                       Standard_Boolean, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObjects),
+                   luabridge::overload<const NaiveDoc_ObjectList &,
+                                       Standard_Boolean, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::SelectObjects))
       .Bind_Method(NaiveDoc_ObjectTable, SelectAll)
       .Bind_Method(NaiveDoc_ObjectTable, UnselectAll)
       .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)

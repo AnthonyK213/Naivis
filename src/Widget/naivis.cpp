@@ -87,8 +87,23 @@ void Naivis::openScript() {
     return;
 
   QFile file{filePath};
-  file.open(QFile::ReadOnly | QFile::Text);
-  ui->scriptEditor->setPlainText(file.readAll());
+  if (file.open(QFile::ReadOnly | QFile::Text)) {
+    myLuaFile = filePath;
+    ui->scriptEditor->setPlainText(file.readAll());
+
+    /// WORKAROUND: Add the file directory to the runtime path.
+    QFileInfo info(filePath);
+    lua_getglobal(myL, "package");
+    lua_getfield(myL, -1, "path");
+    std::string path = lua_tostring(myL, -1);
+    path.append(";");
+    path.append(info.dir().absolutePath().toUtf8().toStdString().c_str());
+    path.append("/?.lua");
+    lua_pop(myL, 1);
+    lua_pushstring(myL, path.c_str());
+    lua_setfield(myL, -2, "path");
+    lua_pop(myL, 1);
+  }
 }
 
 void Naivis::saveScript() {
@@ -152,7 +167,12 @@ void Naivis::deleteCurrentSelection() {
 void Naivis::runScript() {
   QString script = ui->scriptEditor->toPlainText();
 
-  if (luaL_dostring(myL, script.toUtf8().toStdString().c_str()) != 0) {
+  // if (luaL_dostring(myL, script.toUtf8().toStdString().c_str()) != 0) {
+  //   std::cout << lua_tostring(myL, -1) << '\n';
+  //   lua_pop(myL, -1);
+  // }
+
+  if (luaL_dofile(myL, myLuaFile.toUtf8().toStdString().c_str()) != 0) {
     std::cout << lua_tostring(myL, -1) << '\n';
     lua_pop(myL, -1);
   }

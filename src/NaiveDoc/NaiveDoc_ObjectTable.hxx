@@ -66,9 +66,17 @@ public:
   Standard_Integer PurgeObjects(const NaiveDoc_ObjectList &theObjects,
                                 Standard_Boolean theToUpdate);
 
+  Standard_Boolean SelectObject(const NaiveDoc_Id &theId,
+                                Standard_Boolean theSelect,
+                                Standard_Boolean theToUpdate);
+
   Standard_Boolean SelectObject(const Handle(NaiveDoc_Object) & theObject,
                                 Standard_Boolean theSelect,
                                 Standard_Boolean theToUpdate);
+
+  Standard_Integer SelectObjects(const NaiveDoc_IdList &theIds,
+                                 Standard_Boolean theSelect,
+                                 Standard_Boolean theToUpdate);
 
   Standard_Integer SelectObjects(const NaiveDoc_ObjectList &theObjects,
                                  Standard_Boolean theSelect,

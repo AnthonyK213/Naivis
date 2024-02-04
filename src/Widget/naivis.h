@@ -94,6 +94,7 @@ private:
   Ui::Naivis *ui;
   IO_LogStream *myLogStream;
   lua_State *myL;
+  QString myLuaFile;
 };
 
 #endif // NAIVIS_H

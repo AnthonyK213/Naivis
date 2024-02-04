@@ -233,3 +233,20 @@ void NaiveDoc_Document::displayXcafDoc() {
     }
   }
 }
+
+void NaiveDoc_Document::Undo() {
+  if (myDoc->Undo())
+    UpdateView();
+}
+
+void NaiveDoc_Document::Redo() {
+  if (myDoc->Redo())
+    UpdateView();
+}
+
+void NaiveDoc_Document::UpdateView() { Context()->UpdateCurrentViewer(); }
+
+XCAFPrs_DocumentExplorer NaiveDoc_Document::GetXcafExplorer(
+    const XCAFPrs_DocumentExplorerFlags theFlags) const {
+  return XCAFPrs_DocumentExplorer{myDoc, theFlags};
+}

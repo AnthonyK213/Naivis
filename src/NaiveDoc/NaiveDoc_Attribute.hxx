@@ -9,6 +9,10 @@ class NaiveDoc_Attribute {
 public:
   static NaiveDoc_Id GetId(const Handle(NaiveDoc_Object) & theObj);
 
+  static TCollection_AsciiString
+  GetName(const Handle(NaiveDoc_Object) & theObj,
+          Standard_Boolean theIsInstanceName = Standard_False);
+
   static Handle(TPrsStd_AISPresentation) GetPrs(const NaiveDoc_Id &theId);
 
   static Handle(TPrsStd_AISPresentation)

@@ -58,23 +58,15 @@ public:
 
   void DumpXcafDocumentTree() const;
 
-  void Undo() {
-    if (myDoc->Undo())
-      UpdateView();
-  }
+  void Undo();
 
-  void Redo() {
-    if (myDoc->Redo())
-      UpdateView();
-  }
+  void Redo();
 
-  void UpdateView() { Context()->UpdateCurrentViewer(); }
+  void UpdateView();
 
   XCAFPrs_DocumentExplorer
   GetXcafExplorer(const XCAFPrs_DocumentExplorerFlags theFlags =
-                      XCAFPrs_DocumentExplorerFlags_None) const {
-    return {myDoc, theFlags};
-  }
+                      XCAFPrs_DocumentExplorerFlags_None) const;
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, Standard_Transient)
 

@@ -188,6 +188,13 @@ NaiveDoc_ObjectTable::PurgeObjects(const NaiveDoc_ObjectList &theObjects,
 }
 
 Standard_Boolean
+NaiveDoc_ObjectTable::SelectObject(const NaiveDoc_Id &theId,
+                                   Standard_Boolean theSelect,
+                                   Standard_Boolean theToUpdate) {
+  return SelectObject(Find(theId), theSelect, theToUpdate);
+}
+
+Standard_Boolean
 NaiveDoc_ObjectTable::SelectObject(const Handle(NaiveDoc_Object) & theObject,
                                    Standard_Boolean theSelect,
                                    Standard_Boolean theToUpdate) {
@@ -198,6 +205,23 @@ NaiveDoc_ObjectTable::SelectObject(const Handle(NaiveDoc_Object) & theObject,
     Context()->AddOrRemoveSelected(theObject, theToUpdate);
 
   return Standard_True;
+}
+
+Standard_Integer
+NaiveDoc_ObjectTable::SelectObjects(const NaiveDoc_IdList &theIds,
+                                    Standard_Boolean theSelect,
+                                    Standard_Boolean theToUpdate) {
+  Standard_Integer aCount = 0;
+
+  for (const NaiveDoc_Id &anId : theIds) {
+    if (SelectObject(anId, theSelect, Standard_False))
+      aCount++;
+  }
+
+  if (theToUpdate)
+    myDoc->UpdateView();
+
+  return aCount;
 }
 
 Standard_Integer

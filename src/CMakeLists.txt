@@ -6,6 +6,7 @@ set(PROJECT_SOURCES
   Ext/Ext_NaiveDoc.cxx
   Ext/Ext_Override.cxx
   Ext/Ext_Qt.cxx
+  Ext/Ext_Util.cxx
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
