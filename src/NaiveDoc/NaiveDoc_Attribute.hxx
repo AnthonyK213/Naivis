@@ -2,6 +2,7 @@
 #define _Naivis_NaiveDoc_Attribute_HeaderFile
 
 #include <TPrsStd_AISPresentation.hxx>
+#include <TopLoc_Location.hxx>
 
 #include "NaiveDoc_Object.hxx"
 
@@ -17,6 +18,9 @@ public:
 
   static Handle(TPrsStd_AISPresentation)
       GetPrs(const Handle(NaiveDoc_Object) & theObj);
+
+  static TopoDS_Shape GetShape(const Handle(NaiveDoc_Object) & theObj,
+                               TopLoc_Location &theLoc);
 };
 
 #endif

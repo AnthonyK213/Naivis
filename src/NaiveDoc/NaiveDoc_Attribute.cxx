@@ -50,3 +50,14 @@ Handle(TPrsStd_AISPresentation)
 
   return Handle(TPrsStd_AISPresentation)::DownCast(theObj->GetOwner());
 }
+
+TopoDS_Shape NaiveDoc_Attribute::GetShape(const Handle(NaiveDoc_Object) &
+                                              theObj,
+                                          TopLoc_Location &theLoc) {
+  Handle(AIS_Shape) anObj = Handle(AIS_Shape)::DownCast(theObj);
+  if (anObj.IsNull())
+    return TopoDS_Shape();
+
+  theLoc = anObj->Transformation();
+  return anObj->Shape();
+}

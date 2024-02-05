@@ -95,6 +95,7 @@ void Ext_NaiveDoc(lua_State *L) {
       .Begin_Class(NaiveDoc_Attribute)
       .addStaticFunction("GetId", &NaiveDoc_Attribute::GetId)
       .addStaticFunction("GetName", &NaiveDoc_Attribute::GetName)
+      .addStaticFunction("GetShape", &NaiveDoc_Attribute::GetShape)
       .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
