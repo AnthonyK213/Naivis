@@ -21,6 +21,22 @@ public:
 
   static TopoDS_Shape GetShape(const Handle(NaiveDoc_Object) & theObj,
                                TopLoc_Location &theLoc);
+
+  static Standard_Boolean GetInteger(const NaiveDoc_Id & theObj,
+                                     const Standard_GUID &theGuid,
+                                     Standard_Integer &theValue);
+
+  static Standard_Boolean GetInteger(const Handle(NaiveDoc_Object) & theObj,
+                                     const Standard_GUID &theGuid,
+                                     Standard_Integer &theValue);
+
+  static Standard_Boolean SetInteger(const NaiveDoc_Id & theId,
+                                     const Standard_GUID &theGuid,
+                                     Standard_Integer theValue);
+
+  static Standard_Boolean SetInteger(const Handle(NaiveDoc_Object) & theObj,
+                                     const Standard_GUID &theGuid,
+                                     Standard_Integer theValue);
 };
 
 #endif

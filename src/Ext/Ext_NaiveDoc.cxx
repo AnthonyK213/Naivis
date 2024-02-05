@@ -41,19 +41,19 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)
       .End_Class()
 
-      .Begin_Class(TDF_Label)
+      .Begin_Class(NaiveDoc_Id)
       .addConstructor<void()>()
-      .Bind_Method(TDF_Label, IsNull)
-      .Bind_Method(TDF_Label, IsEqual)
-      .Bind_Property_Readonly(TDF_Label, Depth)
+      .Bind_Method(NaiveDoc_Id, IsNull)
+      .Bind_Method(NaiveDoc_Id, IsEqual)
+      .Bind_Property_Readonly(NaiveDoc_Id, Depth)
       .addFunction(
           "__eq",
-          +[](const TDF_Label &theSelf, const TDF_Label &theOther) {
+          +[](const NaiveDoc_Id &theSelf, const NaiveDoc_Id &theOther) {
             return theSelf == theOther;
           })
       .addFunction(
           "__tostring",
-          +[](const TDF_Label &theSelf) {
+          +[](const NaiveDoc_Id &theSelf) {
             std::ostringstream oss{};
             oss << theSelf;
             return oss.str();
@@ -96,6 +96,31 @@ void Ext_NaiveDoc(lua_State *L) {
       .addStaticFunction("GetId", &NaiveDoc_Attribute::GetId)
       .addStaticFunction("GetName", &NaiveDoc_Attribute::GetName)
       .addStaticFunction("GetShape", &NaiveDoc_Attribute::GetShape)
+      .addStaticFunction(
+          "GetInteger",
+          +[](const NaiveDoc_Id &theId, const Standard_GUID &theGuid)
+              -> std::tuple<Standard_Boolean, Standard_Integer> {
+            Standard_Integer aValue = 0;
+            Standard_Integer aRes =
+                NaiveDoc_Attribute::GetInteger(theId, theGuid, aValue);
+            return {aRes, aValue};
+          },
+          +[](const Handle(NaiveDoc_Object) & theObj,
+              const Standard_GUID &theGuid)
+              -> std::tuple<Standard_Boolean, Standard_Integer> {
+            Standard_Integer aValue = 0;
+            Standard_Integer aRes =
+                NaiveDoc_Attribute::GetInteger(theObj, theGuid, aValue);
+            return {aRes, aValue};
+          })
+      .addStaticFunction(
+          "SetInteger",
+          luabridge::overload<const NaiveDoc_Id &, const Standard_GUID &,
+                              Standard_Integer>(
+              &NaiveDoc_Attribute::SetInteger),
+          luabridge::overload<const Handle(NaiveDoc_Object) &,
+                              const Standard_GUID &, Standard_Integer>(
+              &NaiveDoc_Attribute::SetInteger))
       .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
@@ -187,7 +212,8 @@ void Ext_NaiveDoc(lua_State *L) {
       .End_Derive()
 
       .Begin_Derive(XCAFPrs_AISObject, AIS_ColoredShape)
-      .addConstructorFrom<Handle(XCAFPrs_AISObject), void(const TDF_Label &)>()
+      .addConstructorFrom<Handle(XCAFPrs_AISObject),
+                          void(const NaiveDoc_Id &)>()
       .Bind_DownCast1(XCAFPrs_AISObject, NaiveDoc_Object)
       .End_Derive()
 

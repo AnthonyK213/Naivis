@@ -8,8 +8,11 @@
 #include <Geom_Line.hxx>
 #include <MeshVS_DataSource.hxx>
 #include <MeshVS_Mesh.hxx>
+#include <TDF_AttributeIterator.hxx>
+#include <TDataStd_Integer.hxx>
 #include <TopoDS.hxx>
 
+#include <NaiveDoc/NaiveDoc_Attribute.hxx>
 #include <NaiveDoc/NaiveDoc_Object.hxx>
 
 namespace Util_AIS {
@@ -19,6 +22,10 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
 
   if (theObj.IsNull())
     return aProps;
+
+  aProps.push_back("Name");
+  TCollection_AsciiString aName = NaiveDoc_Attribute::GetName(theObj);
+  aProps.push_back(aName.ToCString());
 
   aProps.push_back("Type");
 
@@ -118,6 +125,22 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
     aProps.push_back(QString::number(nbPoints));
   } else {
     aProps.push_back("UNKNOWN");
+  }
+
+  // TEMP: Display all integer attributes.
+  NaiveDoc_Id anId = NaiveDoc_Attribute::GetId(theObj);
+  if (!anId.IsNull() && anId.HasAttribute()) {
+    for (TDF_AttributeIterator anIter(anId); anIter.More(); anIter.Next()) {
+      Handle(TDF_Attribute) anAttr = anIter.Value();
+      if (anAttr->IsKind(STANDARD_TYPE(TDataStd_Integer))) {
+        auto anIntAttr = Handle(TDataStd_Integer)::DownCast(anAttr);
+        const Standard_GUID &aGuid = anIntAttr->ID();
+        char anAttrId[37];
+        aGuid.ToCString(anAttrId);
+        aProps.push_back(anAttrId);
+        aProps.push_back(QString::number(anIntAttr->Get()));
+      }
+    }
   }
 
   return aProps;

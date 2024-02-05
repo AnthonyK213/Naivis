@@ -249,7 +249,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Tool Bar</string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -269,9 +269,9 @@
    <addaction name="actionRunScript"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QToolBar" name="toolBar_2">
+  <widget class="QToolBar" name="sideBar">
    <property name="windowTitle">
-    <string>toolBar_2</string>
+    <string>Side Bar</string>
    </property>
    <property name="movable">
     <bool>false</bool>

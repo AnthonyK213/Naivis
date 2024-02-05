@@ -300,6 +300,10 @@ void Naivis::updateSelectionPropertiesTable(
     QStringList aProps = Util_AIS::GetObjectProperties(anObj);
     auto nbRow = aProps.size() >> 1;
     tbl->setRowCount(nbRow);
+    QStringList header;
+    header << "Property"
+           << "Value";
+    tbl->setHorizontalHeaderLabels(header);
 
     for (int i = 0; i < nbRow; ++i) {
       tbl->setItem(i, 0, new QTableWidgetItem(aProps[i << 1]));
@@ -308,6 +312,9 @@ void Naivis::updateSelectionPropertiesTable(
   } else {
     tbl->setRowCount(1);
     tbl->setColumnCount(1);
+    QStringList header;
+    header << "Selection";
+    tbl->setHorizontalHeaderLabels(header);
     tbl->setItem(
         0, 0, new QTableWidgetItem(QString("%1 object(s)").arg(nbSelections)));
   }
@@ -319,7 +326,7 @@ void Naivis::setupSelectionPropertiesTable() {
   auto *tbl = ui->tableProperties;
   tbl->setEditTriggers(QAbstractItemView::NoEditTriggers);
   tbl->setSelectionBehavior(QAbstractItemView::SelectRows);
-  tbl->horizontalHeader()->setVisible(false);
+  tbl->horizontalHeader()->setVisible(true);
   tbl->verticalHeader()->setVisible(false);
   tbl->horizontalHeader()->setStretchLastSection(true);
 }
@@ -334,10 +341,6 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
 
   if (theDoc.IsNull() || !aTree)
     return;
-
-#ifdef QT_DEBUG
-  theDoc->DumpXcafDocumentTree();
-#endif
 
   aTree->clear();
 
