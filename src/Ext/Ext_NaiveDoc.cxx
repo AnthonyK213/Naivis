@@ -94,8 +94,18 @@ void Ext_NaiveDoc(lua_State *L) {
 
       .Begin_Class(NaiveDoc_Attribute)
       .addStaticFunction("GetId", &NaiveDoc_Attribute::GetId)
-      .addStaticFunction("GetName", &NaiveDoc_Attribute::GetName)
-      .addStaticFunction("GetShape", &NaiveDoc_Attribute::GetShape)
+      .addStaticFunction(
+          "GetName",
+          luabridge::overload<const NaiveDoc_Id &, Standard_Boolean>(
+              &NaiveDoc_Attribute::GetName),
+          luabridge::overload<const Handle(NaiveDoc_Object) &,
+                              Standard_Boolean>(&NaiveDoc_Attribute::GetName))
+      .addStaticFunction(
+          "GetShape",
+          luabridge::overload<const NaiveDoc_Id &>(
+              &NaiveDoc_Attribute::GetShape),
+          luabridge::overload<const Handle(NaiveDoc_Object) &,
+                              TopLoc_Location &>(&NaiveDoc_Attribute::GetShape))
       .addStaticFunction(
           "GetInteger",
           +[](const NaiveDoc_Id &theId, const Standard_GUID &theGuid)

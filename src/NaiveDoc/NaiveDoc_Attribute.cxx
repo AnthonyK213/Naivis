@@ -14,24 +14,29 @@ NaiveDoc_Id NaiveDoc_Attribute::GetId(const Handle(NaiveDoc_Object) & theObj) {
   return aPrs->Label();
 }
 
-TCollection_AsciiString
-NaiveDoc_Attribute::GetName(const Handle(NaiveDoc_Object) & theObj,
+TCollection_ExtendedString
+NaiveDoc_Attribute::GetName(const NaiveDoc_Id &theId,
                             Standard_Boolean theIsInstanceName) {
-  NaiveDoc_Id anId = GetId(theObj);
-  if (anId.IsNull())
+  if (theId.IsNull())
     return {};
 
   Handle(TDataStd_Name) aNodeName;
-  TDF_Label aRef = anId;
+  TDF_Label aRef = theId;
 
   if (!theIsInstanceName)
-    XCAFDoc_ShapeTool::GetReferredShape(anId, aRef);
+    XCAFDoc_ShapeTool::GetReferredShape(theId, aRef);
 
   if (aRef.FindAttribute(TDataStd_Name::GetID(), aNodeName)) {
     return aNodeName->Get();
   }
 
   return {};
+}
+
+TCollection_ExtendedString
+NaiveDoc_Attribute::GetName(const Handle(NaiveDoc_Object) & theObj,
+                            Standard_Boolean theIsInstanceName) {
+  return GetName(GetId(theObj), theIsInstanceName);
 }
 
 Handle(TPrsStd_AISPresentation)
@@ -50,6 +55,10 @@ Handle(TPrsStd_AISPresentation)
     return nullptr;
 
   return Handle(TPrsStd_AISPresentation)::DownCast(theObj->GetOwner());
+}
+
+TopoDS_Shape NaiveDoc_Attribute::GetShape(const NaiveDoc_Id &theId) {
+  return XCAFDoc_ShapeTool::GetShape(theId);
 }
 
 TopoDS_Shape NaiveDoc_Attribute::GetShape(const Handle(NaiveDoc_Object) &
