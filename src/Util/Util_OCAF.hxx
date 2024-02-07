@@ -23,8 +23,6 @@ GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
 Standard_Boolean ImportStep(Handle(TDocStd_Document) & theDoc,
                             Standard_CString theFilePath);
 
-// Handle(TPrsStd_AISPresentation) GetXcafPrs(const TDF_Label &theLabel);
-
 Handle(TPrsStd_AISViewer) InitAISViewer(const Handle(TDocStd_Document) & theDoc,
                    const Handle(AIS_InteractiveContext) & theCtx);
 
