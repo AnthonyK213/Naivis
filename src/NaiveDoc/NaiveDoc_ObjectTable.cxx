@@ -8,8 +8,8 @@
 #include "NaiveDoc_Attribute.hxx"
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
-#include <Mesh/Mesh_Util.hxx>
 #include <Util/Util_AIS.hxx>
+#include <Util/Util_Mesh.hxx>
 #include <Util/Util_OCAF.hxx>
 
 #define Naive_OPEN_COMMAND(R)                                                  \

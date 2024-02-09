@@ -1,16 +1,15 @@
-﻿#ifndef _Naivis_Mesh_Util_HeaderFile
-#define _Naivis_Mesh_Util_HeaderFile
+#ifndef _Naivis_Util_Mesh_HeaderFile
+#define _Naivis_Util_Mesh_HeaderFile
 
 #include <IMeshTools_Parameters.hxx>
 #include <MeshVS_Mesh.hxx>
 #include <TopoDS_Shape.hxx>
 
-#include "Mesh_MeshBuilder.hxx"
-#include "XSDRAWSTLVRML_DataSource_1.hxx"
+#include <Mesh/XSDRAWSTLVRML_DataSource_1.hxx>
 
 #include <naivecgl/Common/geometry.h>
 
-namespace Mesh_Util {
+namespace Util_Mesh {
 
 /// @brief
 Handle(Poly_Triangulation)
@@ -26,13 +25,13 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly);
 /// @brief
 /// @param thePoly3D
 /// @return
-Naive_H_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) &theMesh);
+Naive_H_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh);
 
 /// @brief
 /// @param
 /// @return
 Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh);
 
-} // namespace Mesh_Util
+} // namespace Util_Mesh
 
 #endif

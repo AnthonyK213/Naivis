@@ -10,8 +10,6 @@ set(PROJECT_SOURCES
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
-  Mesh/Mesh_MeshBuilder.cxx
-  Mesh/Mesh_Util.cxx
   NaiveApp/NaiveApp_Application.cxx
   NaiveDoc/NaiveDoc_Attribute.cxx
   NaiveDoc/NaiveDoc_Document.cxx
@@ -20,6 +18,7 @@ set(PROJECT_SOURCES
   Sketch/Sketch_Command.cxx
   Sketch/Sketch_Manager.cxx
   Util/Util_AIS.cxx
+  Util/Util_Mesh.cxx
   Util/Util_OCAF.cxx
   Widget/naivis.cpp
   Widget/naivis.ui

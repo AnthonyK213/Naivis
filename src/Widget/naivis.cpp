@@ -6,9 +6,9 @@
 #include <QStyle>
 
 #include <Ext/Ext_Load.hxx>
-#include <Mesh/Mesh_Util.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
 #include <Util/Util_AIS.hxx>
+#include <Util/Util_Mesh.hxx>
 #include <Util/Util_OCAF.hxx>
 
 #include <luaocct/luaocct.h>

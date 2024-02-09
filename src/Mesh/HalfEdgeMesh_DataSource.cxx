@@ -1,5 +1,6 @@
 ﻿#include "HalfEdgeMesh_DataSource.hxx"
-#include "Mesh_Util.hxx"
+
+#include <Util/Util_Mesh.hxx>
 
 #include <Precision.hxx>
 
@@ -11,7 +12,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   if (theMesh.IsNull())
     return;
 
-  Naive_H_Poly soup = Mesh_Util::MeshToNaivePoly3D(theMesh);
+  Naive_H_Poly soup = Util_Mesh::MeshToNaivePoly3D(theMesh);
 
   if (!soup || !soup->IsValid())
     return;
@@ -181,5 +182,5 @@ Handle(Poly_Triangulation) HalfEdgeMesh_DataSource::GetTriangulation() const {
   if (!myIsValid)
     return nullptr;
 
-  return Mesh_Util::NaivePoly3DToMesh(*myMesh->Soup());
+  return Util_Mesh::NaivePoly3DToMesh(*myMesh->Soup());
 }
