@@ -10,6 +10,12 @@
 #include <NaiveDoc/NaiveDoc_Attribute.hxx>
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 
+class Ext_DocumentExplorer : public Standard_Transient,
+                             public XCAFPrs_DocumentExplorer {
+public:
+  using XCAFPrs_DocumentExplorer::XCAFPrs_DocumentExplorer;
+};
+
 void Ext_NaiveDoc(lua_State *L) {
   LuaBridge__G(L)
       .Begin_Namespace(Naivis)
@@ -23,21 +29,31 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_Document, Redo)
       .Bind_Method(NaiveDoc_Document, UpdateView)
       /// FIXME: Crash at the last iteration? WTF?
-      .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
-      /// WORKAROUND: Returns a list of nodes instead of an
-      /// XCAFPrs_DocumentExplorer.
+      // .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
+      /// WORKAROUND A: Encapsule |XCAFPrs_DocumentExplorer| with
+      /// |Standard_Transient| to take advantange of |handle|'s ability which
+      /// shares life time with lua properly. But why?
       .addFunction(
-          "GetDocumentNodes",
+          "GetXcafExplorer",
           +[](const NaiveDoc_Document &theSelf,
-              Standard_Integer theFlag) -> std::vector<XCAFPrs_DocumentNode> {
-            std::vector<XCAFPrs_DocumentNode> aRes{};
-            for (XCAFPrs_DocumentExplorer anExpl =
-                     theSelf.GetXcafExplorer(theFlag);
-                 anExpl.More(); anExpl.Next()) {
-              aRes.push_back(anExpl.Current());
-            }
-            return aRes;
+              Standard_Integer theFlag) -> Handle(Ext_DocumentExplorer) {
+            return new Ext_DocumentExplorer(theSelf.Document(), 0);
           })
+      /// WORKAROUND B: Returns a list of nodes instead of an
+      /// |XCAFPrs_DocumentExplorer|.
+      // .addFunction(
+      //     "GetDocumentNodes",
+      //     +[](const NaiveDoc_Document &theSelf,
+      //         Standard_Integer theFlag) -> std::vector<XCAFPrs_DocumentNode>
+      //         {
+      //       std::vector<XCAFPrs_DocumentNode> aRes{};
+      //       for (XCAFPrs_DocumentExplorer anExpl =
+      //                theSelf.GetXcafExplorer(theFlag);
+      //            anExpl.More(); anExpl.Next()) {
+      //         aRes.push_back(anExpl.Current());
+      //       }
+      //       return aRes;
+      //     })
       .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)
       .End_Class()
 
@@ -82,14 +98,24 @@ void Ext_NaiveDoc(lua_State *L) {
           })
       .End_Class()
 
-      .Begin_Class(XCAFPrs_DocumentExplorer)
-      .Bind_Method(XCAFPrs_DocumentExplorer, More)
-      .Bind_Method(XCAFPrs_DocumentExplorer, Next)
-      .addFunction("Current",
-                   luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
-                   luabridge::overload<Standard_Integer>(
-                       &XCAFPrs_DocumentExplorer::Current))
-      .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
+      // .Begin_Class(XCAFPrs_DocumentExplorer)
+      // .Bind_Method(XCAFPrs_DocumentExplorer, More)
+      // .Bind_Method(XCAFPrs_DocumentExplorer, Next)
+      // .addFunction("Current",
+      //              luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
+      //              luabridge::overload<Standard_Integer>(
+      //                  &XCAFPrs_DocumentExplorer::Current))
+      // .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
+      // .End_Class()
+
+      .Begin_Derive(Ext_DocumentExplorer, Standard_Transient)
+      .addConstructorFrom<Handle(Ext_DocumentExplorer), void()>()
+      .Bind_Method(Ext_DocumentExplorer, More)
+      .Bind_Method(Ext_DocumentExplorer, Next)
+      .addFunction(
+          "Current", luabridge::overload<>(&Ext_DocumentExplorer::Current),
+          luabridge::overload<Standard_Integer>(&Ext_DocumentExplorer::Current))
+      .Bind_Method(Ext_DocumentExplorer, CurrentDepth)
       .End_Class()
 
       .Begin_Class(NaiveDoc_Attribute)
