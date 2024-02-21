@@ -34,14 +34,26 @@ public:
 
   Handle(NaiveDoc_Object) Find(const NaiveDoc_Id &theId) const;
 
+  Standard_Boolean DeleteObject(const NaiveDoc_Id &theId,
+                                Standard_Boolean theToUpdate);
+
   Standard_Boolean DeleteObject(const Handle(NaiveDoc_Object) & theObject,
                                 Standard_Boolean theToUpdate);
+
+  Standard_Integer DeleteObjects(const NaiveDoc_IdList &theIds,
+                                 Standard_Boolean theToUpdate);
 
   Standard_Integer DeleteObjects(const NaiveDoc_ObjectList &theObjects,
                                  Standard_Boolean theToUpdate);
 
+  Standard_Boolean ShowObject(const NaiveDoc_Id &theId,
+                              Standard_Boolean theToUpdate);
+
   Standard_Boolean ShowObject(const Handle(NaiveDoc_Object) & theObject,
                               Standard_Boolean theToUpdate);
+
+  Standard_Integer ShowObjects(const NaiveDoc_IdList &theIds,
+                               Standard_Boolean theToUpdate);
 
   Standard_Integer ShowObjects(const NaiveDoc_ObjectList &theObjects,
                                Standard_Boolean theToUpdate);

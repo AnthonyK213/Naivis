@@ -70,15 +70,75 @@ Handle(NaiveDoc_Object)
 }
 
 Standard_Boolean
+NaiveDoc_ObjectTable::DeleteObject(const NaiveDoc_Id &theId,
+                                   Standard_Boolean theToUpdate) {
+  return DeleteObjects({theId}, theToUpdate) == 1;
+}
+
+Standard_Boolean
 NaiveDoc_ObjectTable::DeleteObject(const Handle(NaiveDoc_Object) & theObject,
                                    Standard_Boolean theToUpdate) {
   return DeleteObjects({theObject}, theToUpdate) == 1;
 }
 
 Standard_Integer
+NaiveDoc_ObjectTable::DeleteObjects(const NaiveDoc_IdList &theIds,
+                                    Standard_Boolean theToUpdate) {
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbDelete = 0;
+  auto anAsm = XCAFDoc_DocumentTool::ShapeTool(myDoc->Document()->Main());
+
+  for (const NaiveDoc_Id &theId : theIds) {
+    auto aPrs = NaiveDoc_Attribute::GetPrs(theId);
+    if (aPrs.IsNull())
+      continue;
+
+    aPrs->Erase(Standard_True);
+    anAsm->RemoveComponent(theId);
+    ++nbDelete;
+  }
+
+  anAsm->UpdateAssemblies();
+
+  Naive_COMMIT_COMMAND();
+
+  return nbDelete;
+}
+
+Standard_Integer
 NaiveDoc_ObjectTable::DeleteObjects(const NaiveDoc_ObjectList &theObjects,
                                     Standard_Boolean theToUpdate) {
-  return 0;
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbDelete = 0;
+  auto anAsm = XCAFDoc_DocumentTool::ShapeTool(myDoc->Document()->Main());
+
+  for (const auto &theObject : theObjects) {
+    NaiveDoc_Id anId = NaiveDoc_Attribute::GetId(theObject);
+    if (anId.IsNull())
+      continue;
+
+    auto aPrs = NaiveDoc_Attribute::GetPrs(anId);
+    if (aPrs.IsNull())
+      continue;
+
+    aPrs->Erase(Standard_True);
+    anAsm->RemoveComponent(anId);
+    ++nbDelete;
+  }
+
+  anAsm->UpdateAssemblies();
+
+  Naive_COMMIT_COMMAND();
+
+  return nbDelete;
+}
+
+Standard_Boolean
+NaiveDoc_ObjectTable::ShowObject(const NaiveDoc_Id &theId,
+                                 Standard_Boolean theToUpdate) {
+  return ShowObjects({theId}, theToUpdate) == 1;
 }
 
 Standard_Boolean
@@ -88,9 +148,51 @@ NaiveDoc_ObjectTable::ShowObject(const Handle(NaiveDoc_Object) & theObject,
 }
 
 Standard_Integer
+NaiveDoc_ObjectTable::ShowObjects(const NaiveDoc_IdList &theIds,
+                                  Standard_Boolean theToUpdate) {
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbShow = 0;
+
+  for (const NaiveDoc_Id &theId : theIds) {
+    auto aPrs = NaiveDoc_Attribute::GetPrs(theId);
+    if (aPrs.IsNull())
+      continue;
+
+    if (aPrs->IsDisplayed())
+      continue;
+
+    aPrs->Display();
+    ++nbShow;
+  }
+
+  Naive_COMMIT_COMMAND();
+
+  return nbShow;
+}
+
+Standard_Integer
 NaiveDoc_ObjectTable::ShowObjects(const NaiveDoc_ObjectList &theObjects,
                                   Standard_Boolean theToUpdate) {
-  return 0;
+  Naive_OPEN_COMMAND(0);
+
+  Standard_Integer nbShow = 0;
+
+  for (const auto &theObject : theObjects) {
+    auto aPrs = NaiveDoc_Attribute::GetPrs(theObject);
+    if (aPrs.IsNull())
+      continue;
+
+    if (aPrs->IsDisplayed())
+      continue;
+
+    aPrs->Display();
+    ++nbShow;
+  }
+
+  Naive_COMMIT_COMMAND();
+
+  return nbShow;
 }
 
 Standard_Integer NaiveDoc_ObjectTable::ShowAll(Standard_Boolean theToUpdate) {

@@ -127,11 +127,14 @@ void Naivis::transform() {}
 
 void Naivis::undo() {
   document()->Undo();
+  /// FIXME: How to excute this when needed?
+  updateAssemblyTree(document());
   update();
 }
 
 void Naivis::redo() {
   document()->Redo();
+  updateAssemblyTree(document());
   update();
 }
 
@@ -157,10 +160,11 @@ void Naivis::showAll() {
 
 void Naivis::deleteCurrentSelection() {
   NaiveDoc_ObjectList selection = document()->Objects()->SelectedObjects();
-  int count = document()->Objects()->DeleteObjects(std::move(selection), true);
+  int count = document()->Objects()->DeleteObjects(selection, true);
   std::cout << "Deleted " << count << " object(s).\n";
   occtViewer()->OnSelectionChanged(occtViewer()->Context(),
                                    occtViewer()->View());
+  updateAssemblyTree(document());
   update();
 }
 

@@ -169,36 +169,37 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_ObjectTable, Find)
       .Bind_Method(NaiveDoc_ObjectTable, AddShape)
       .Bind_Method(NaiveDoc_ObjectTable, AddMesh)
-      // .addFunction("DeleteObject",
-      //              luabridge::overload<const Handle(NaiveDoc_Object) &,
-      //                                  Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::DeleteObject),
-      //              luabridge::overload<const NaiveDoc_Id &,
-      //              Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::DeleteObject))
-      // .addFunction(
-      //     "DeleteObjects",
-      //     luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
-      //         &NaiveDoc_ObjectTable::DeleteObjects))
-      // .addFunction("ShowObject",
-      //              luabridge::overload<const Handle(NaiveDoc_Object) &,
-      //                                  Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::ShowObject),
-      //              luabridge::overload<const NaiveDoc_Id &,
-      //              Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::ShowObject))
-      // .addFunction(
-      //     "ShowObjects",
-      //     luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
-      //         &NaiveDoc_ObjectTable::ShowObjects))
+      .addFunction("DeleteObject",
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::DeleteObject),
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::DeleteObject))
+      .addFunction(
+          "DeleteObjects",
+          luabridge::overload<const NaiveDoc_IdList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::DeleteObjects),
+          luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::DeleteObjects))
+      .addFunction("ShowObject",
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::ShowObject),
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::ShowObject))
+      .addFunction(
+          "ShowObjects",
+          luabridge::overload<const NaiveDoc_IdList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::ShowObjects),
+          luabridge::overload<const NaiveDoc_ObjectList &, Standard_Boolean>(
+              &NaiveDoc_ObjectTable::ShowObjects))
       .Bind_Method(NaiveDoc_ObjectTable, ShowAll)
-      // .addFunction("HideObject",
-      //              luabridge::overload<const Handle(NaiveDoc_Object) &,
-      //                                  Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::HideObject),
-      //              luabridge::overload<const NaiveDoc_Id &,
-      //              Standard_Boolean>(
-      //                  &NaiveDoc_ObjectTable::HideObject))
+      .addFunction("HideObject",
+                   luabridge::overload<const NaiveDoc_Id &, Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::HideObject),
+                   luabridge::overload<const Handle(NaiveDoc_Object) &,
+                                       Standard_Boolean>(
+                       &NaiveDoc_ObjectTable::HideObject))
       .addFunction(
           "HideObjects",
           luabridge::overload<const NaiveDoc_IdList &, Standard_Boolean>(
