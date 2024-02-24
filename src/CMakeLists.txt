@@ -9,6 +9,7 @@ set(PROJECT_SOURCES
   Ext/Ext_Util.cxx
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
+  Mesh/Mesh_MeshVSDriver.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
   NaiveApp/NaiveApp_Application.cxx
   NaiveDoc/NaiveDoc_Attribute.cxx

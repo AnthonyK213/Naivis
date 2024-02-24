@@ -1,4 +1,6 @@
-﻿#include <TNaming_Builder.hxx>
+﻿#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <TDataXtd_Triangulation.hxx>
+#include <TNaming_Builder.hxx>
 #include <TNaming_NamedShape.hxx>
 #include <TPrsStd_AISPresentation.hxx>
 #include <TPrsStd_AISViewer.hxx>
@@ -8,6 +10,8 @@
 #include "NaiveDoc_Attribute.hxx"
 #include "NaiveDoc_Document.hxx"
 #include "NaiveDoc_ObjectTable.hxx"
+
+#include <Mesh/Mesh_MeshVSDriver.hxx>
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
 #include <Util/Util_OCAF.hxx>
@@ -40,10 +44,9 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
   auto anAsm = XCAFDoc_DocumentTool::ShapeTool(myDoc->Document()->Main());
   TDF_Label aLabel = anAsm->AddShape(theShape, Standard_True);
   anAsm->UpdateAssemblies();
-  auto aPrs = TPrsStd_AISPresentation::Set(aLabel, TNaming_NamedShape::GetID());
+  auto aPrs = TPrsStd_AISPresentation::Set(aLabel, XCAFPrs_Driver::GetID());
   aPrs->SetMode(AIS_Shaded);
   aPrs->Display();
-  Handle(NaiveDoc_Object) anObj = aPrs->GetAIS();
 
   Naive_COMMIT_COMMAND();
 
@@ -55,6 +58,23 @@ NaiveDoc_Id NaiveDoc_ObjectTable::AddShape(const TopoDS_Shape &theShape,
 NaiveDoc_Id NaiveDoc_ObjectTable::AddMesh(const Handle(Poly_Triangulation) &
                                               theMesh,
                                           Standard_Boolean theToUpdate) {
+  Naive_OPEN_COMMAND({});
+
+  auto anAsm = XCAFDoc_DocumentTool::ShapeTool(myDoc->Document()->Main());
+  // TODO: Shape?
+  TDF_Label aLabel =
+      anAsm->AddShape(BRepBuilderAPI_MakeVertex({}), Standard_True);
+  TDataXtd_Triangulation::Set(aLabel, theMesh);
+  anAsm->UpdateAssemblies();
+  auto aPrs =
+      TPrsStd_AISPresentation::Set(aLabel, Mesh_MeshVSDriver::GetID());
+  aPrs->SetMode(MeshVS_DMF_Shading);
+  aPrs->Display();
+
+  Naive_COMMIT_COMMAND();
+
+  myDoc->OnAddObject(myDoc);
+
   return {};
 }
 
