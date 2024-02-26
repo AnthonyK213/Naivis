@@ -96,14 +96,13 @@ private:
   void setupAssemblyTree();
 
 private:
+  class LuaManager;
+
+private:
   Ui::Naivis *ui;
-
   IO_LogStream *myLogStream;
-
-  lua_State *myL;
-  QString myLuaFile;
-
   NaiveApp_Settings *mySettings;
+  LuaManager *myLuaMgr;
 };
 
 #endif // NAIVIS_H

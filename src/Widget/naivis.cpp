@@ -13,6 +13,67 @@
 
 #include <luaocct/luaocct.h>
 
+class Naivis::LuaManager {
+public:
+  LuaManager() : myL(luaL_newstate()) {
+    luaL_openlibs(myL);
+    luaopen_luaocct(myL);
+    Ext_Load(myL);
+
+    auto rtp = QCoreApplication::applicationDirPath().toUtf8().toStdString();
+    rtp.append("/?.lua");
+    pathAppend(rtp);
+  }
+
+  ~LuaManager() { lua_close(myL); }
+
+  lua_State *L() const { return myL; }
+
+  const QString &file() const { return myFile; }
+
+  bool setFile(const QString &theFile) {
+    myFile = theFile;
+
+    /// WORKAROUND: Add the file directory to the runtime path.
+    QFileInfo info(myFile);
+    auto rtp = info.dir().absolutePath().toUtf8().toStdString();
+    rtp.append("/?.lua");
+    pathAppend(rtp);
+
+    return true;
+  }
+
+  bool doFile() const {
+    if (luaL_dofile(myL, myFile.toUtf8().toStdString().c_str()) != 0) {
+      std::cout << lua_tostring(myL, -1) << '\n';
+      lua_pop(myL, -1);
+      return false;
+    }
+
+    return true;
+  }
+
+private:
+  bool pathAppend(const std::string &thePath) const {
+    lua_getglobal(myL, "package");
+    lua_getfield(myL, -1, "path");
+    std::string path = lua_tostring(myL, -1);
+    if (!path.empty())
+      path.append(";");
+    path.append(thePath);
+    lua_pop(myL, 1);
+    lua_pushstring(myL, path.c_str());
+    lua_setfield(myL, -2, "path");
+    lua_pop(myL, 1);
+
+    return true;
+  }
+
+private:
+  lua_State *myL;
+  QString myFile;
+};
+
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
 
@@ -33,7 +94,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 }
 
 Naivis::~Naivis() {
-  lua_close(myL);
+  delete myLuaMgr;
   delete mySettings;
   delete myLogStream;
   delete ui;
@@ -90,21 +151,8 @@ void Naivis::openScript() {
 
   QFile file{filePath};
   if (file.open(QFile::ReadOnly | QFile::Text)) {
-    myLuaFile = filePath;
+    myLuaMgr->setFile(filePath);
     ui->scriptEditor->setPlainText(file.readAll());
-
-    /// WORKAROUND: Add the file directory to the runtime path.
-    QFileInfo info(filePath);
-    lua_getglobal(myL, "package");
-    lua_getfield(myL, -1, "path");
-    std::string path = lua_tostring(myL, -1);
-    path.append(";");
-    path.append(info.dir().absolutePath().toUtf8().toStdString().c_str());
-    path.append("/?.lua");
-    lua_pop(myL, 1);
-    lua_pushstring(myL, path.c_str());
-    lua_setfield(myL, -2, "path");
-    lua_pop(myL, 1);
   }
 }
 
@@ -170,19 +218,7 @@ void Naivis::deleteCurrentSelection() {
   update();
 }
 
-void Naivis::runScript() {
-  QString script = ui->scriptEditor->toPlainText();
-
-  // if (luaL_dostring(myL, script.toUtf8().toStdString().c_str()) != 0) {
-  //   std::cout << lua_tostring(myL, -1) << '\n';
-  //   lua_pop(myL, -1);
-  // }
-
-  if (luaL_dofile(myL, myLuaFile.toUtf8().toStdString().c_str()) != 0) {
-    std::cout << lua_tostring(myL, -1) << '\n';
-    lua_pop(myL, -1);
-  }
-}
+void Naivis::runScript() { myLuaMgr->doFile(); }
 
 // }}}
 
@@ -256,28 +292,17 @@ void Naivis::setupOutputBuffer() {
 }
 
 void Naivis::setupScriptEditor() {
-  ui->scriptEditor->setFont(QFont("Monospace"));
+  QVariant font = mySettings->Value("script_editor", "font");
+  QString fontName =
+      !font.isNull() && font.isValid() ? font.toString() : "monospace";
+  QFont f = QFontDatabase::font(fontName, "", 13);
+  ui->scriptEditor->setFont(f);
 }
 
 void Naivis::setupLuaState() {
-  myL = luaL_newstate();
+  myLuaMgr = new LuaManager;
 
-  luaL_openlibs(myL);
-  luaopen_luaocct(myL);
-  Ext_Load(myL);
-
-  lua_getglobal(myL, "package");
-  lua_getfield(myL, -1, "path");
-  std::string path = lua_tostring(myL, -1);
-  path.append(";");
-  path.append(QCoreApplication::applicationDirPath().toUtf8().toStdString());
-  path.append("/?.lua");
-  lua_pop(myL, 1);
-  lua_pushstring(myL, path.c_str());
-  lua_setfield(myL, -2, "path");
-  lua_pop(myL, 1);
-
-  LuaBridge__G(myL)
+  LuaBridge__G(myLuaMgr->L())
       .Begin_Namespace(Naivis)
       .addProperty("ActiveDoc", [this]() { return document(); })
       .addProperty("Settings", [this]() { return settings(); })
@@ -316,7 +341,7 @@ void Naivis::updateSelectionPropertiesTable(
 
     QVariant aExtraAttributes =
         mySettings->Value("document", "extra_attributes");
-    if (!aExtraAttributes.isNull() || !aExtraAttributes.isValid()) {
+    if (!aExtraAttributes.isNull() && aExtraAttributes.isValid()) {
       QVariantHash aExtra = aExtraAttributes.toHash();
       aProps = Util_AIS::GetObjectProperties(anObj, aExtra);
     } else {

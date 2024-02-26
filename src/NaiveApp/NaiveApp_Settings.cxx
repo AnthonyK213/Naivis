@@ -11,8 +11,8 @@ void NaiveApp_Settings::Init(const QString &thePath) {
 
   QFile aFile(thePath);
   if (!aFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    mySettings->beginGroup("appearance");
-    mySettings->setValue("output_buffer_font", "monospace");
+    mySettings->beginGroup("script_editor");
+    mySettings->setValue("font", "monospace");
     mySettings->endGroup();
   }
 }
