@@ -203,7 +203,7 @@ void NaiveDoc_Document::displayXcafDoc() {
         skip = Standard_False;
     }
 
-    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+    const NaiveDoc_DocumentNode &aNode = aDocExpl.Current();
 
     if (aNode.IsAssembly) {
       if (anAsmMap.Contains(aNode.RefLabel)) {
@@ -228,7 +228,7 @@ void NaiveDoc_Document::displayXcafDoc() {
       continue;
 
     if (aDepth > 0) {
-      const XCAFPrs_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
+      const NaiveDoc_DocumentNode &aFather = aDocExpl.Current(aDepth - 1);
       anObj->SetLocalTransformation(aFather.Location);
     }
   }

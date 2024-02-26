@@ -3,6 +3,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(PROJECT_SOURCES
   main.cpp
   Ext/Ext_Load.cxx
+  Ext/Ext_NaiveApp.cxx
   Ext/Ext_NaiveDoc.cxx
   Ext/Ext_Override.cxx
   Ext/Ext_Qt.cxx
@@ -11,6 +12,7 @@ set(PROJECT_SOURCES
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/Mesh_MeshVSDriver.cxx
   Mesh/XSDRAWSTLVRML_DataSource_1.cxx
+  NaiveApp/NaiveApp_Settings.cxx
   NaiveApp/NaiveApp_Application.cxx
   NaiveDoc/NaiveDoc_Attribute.cxx
   NaiveDoc/NaiveDoc_Document.cxx

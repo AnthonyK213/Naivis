@@ -4,14 +4,13 @@
 #include <MeshVS_Mesh.hxx>
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_DocumentExplorer.hxx>
-#include <XCAFPrs_DocumentNode.hxx>
 
 #include "Ext_NaiveDoc.hxx"
 #include <NaiveDoc/NaiveDoc_Attribute.hxx>
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 
-class Ext_DocumentExplorer : public Standard_Transient,
-                             public XCAFPrs_DocumentExplorer {
+class NaiveDoc_DocumentExplorer : public Standard_Transient,
+                                  public XCAFPrs_DocumentExplorer {
 public:
   using XCAFPrs_DocumentExplorer::XCAFPrs_DocumentExplorer;
 };
@@ -19,6 +18,7 @@ public:
 void Ext_NaiveDoc(lua_State *L) {
   LuaBridge__G(L)
       .Begin_Namespace(Naivis)
+      .Begin_Namespace(NaiveDoc)
 
       .Begin_Class(NaiveDoc_Document)
       .addConstructorFrom<Handle(NaiveDoc_Document), void()>()
@@ -28,32 +28,17 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_Document, Undo)
       .Bind_Method(NaiveDoc_Document, Redo)
       .Bind_Method(NaiveDoc_Document, UpdateView)
-      /// FIXME: Crash at the last iteration? WTF?
+      /// NOTE: Crash at the last iteration? WTF?
       // .Bind_Method(NaiveDoc_Document, GetXcafExplorer)
-      /// WORKAROUND A: Encapsule |XCAFPrs_DocumentExplorer| with
+      /// WORKAROUND: Encapsule |XCAFPrs_DocumentExplorer| with
       /// |Standard_Transient| to take advantange of |handle|'s ability which
       /// shares life time with lua properly. But why?
       .addFunction(
           "GetXcafExplorer",
           +[](const NaiveDoc_Document &theSelf,
-              Standard_Integer theFlag) -> Handle(Ext_DocumentExplorer) {
-            return new Ext_DocumentExplorer(theSelf.Document(), 0);
+              Standard_Integer theFlag) -> Handle(NaiveDoc_DocumentExplorer) {
+            return new NaiveDoc_DocumentExplorer(theSelf.Document(), 0);
           })
-      /// WORKAROUND B: Returns a list of nodes instead of an
-      /// |XCAFPrs_DocumentExplorer|.
-      // .addFunction(
-      //     "GetDocumentNodes",
-      //     +[](const NaiveDoc_Document &theSelf,
-      //         Standard_Integer theFlag) -> std::vector<XCAFPrs_DocumentNode>
-      //         {
-      //       std::vector<XCAFPrs_DocumentNode> aRes{};
-      //       for (XCAFPrs_DocumentExplorer anExpl =
-      //                theSelf.GetXcafExplorer(theFlag);
-      //            anExpl.More(); anExpl.Next()) {
-      //         aRes.push_back(anExpl.Current());
-      //       }
-      //       return aRes;
-      //     })
       .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)
       .End_Class()
 
@@ -76,46 +61,37 @@ void Ext_NaiveDoc(lua_State *L) {
           })
       .End_Class()
 
-      .Begin_Class(XCAFPrs_DocumentNode)
-      .addProperty("Id", &XCAFPrs_DocumentNode::Id)
-      .addProperty("Label", &XCAFPrs_DocumentNode::Label)
-      .addProperty("RefLabel", &XCAFPrs_DocumentNode::RefLabel)
-      // .addProperty("Style", &XCAFPrs_DocumentNode::Style)
-      .addProperty("Location", &XCAFPrs_DocumentNode::Location)
-      .addProperty("LocalTrsf", &XCAFPrs_DocumentNode::LocalTrsf)
-      // .addProperty("ChildIter", &XCAFPrs_DocumentNode::ChildIter)
-      .addProperty("IsAssembly", &XCAFPrs_DocumentNode::IsAssembly)
+      .Begin_Class(NaiveDoc_DocumentNode)
+      .addProperty("Id", &NaiveDoc_DocumentNode::Id)
+      .addProperty("Label", &NaiveDoc_DocumentNode::Label)
+      .addProperty("RefLabel", &NaiveDoc_DocumentNode::RefLabel)
+      // .addProperty("Style", &NaiveDoc_DocumentNode::Style)
+      .addProperty("Location", &NaiveDoc_DocumentNode::Location)
+      .addProperty("LocalTrsf", &NaiveDoc_DocumentNode::LocalTrsf)
+      // .addProperty("ChildIter", &NaiveDoc_DocumentNode::ChildIter)
+      .addProperty("IsAssembly", &NaiveDoc_DocumentNode::IsAssembly)
       .addFunction(
           "__eq",
-          +[](const XCAFPrs_DocumentNode &theSelf,
-              const XCAFPrs_DocumentNode &theOther) {
-            return XCAFPrs_DocumentNode::IsEqual(theSelf, theOther);
+          +[](const NaiveDoc_DocumentNode &theSelf,
+              const NaiveDoc_DocumentNode &theOther) {
+            return NaiveDoc_DocumentNode::IsEqual(theSelf, theOther);
           })
       .addFunction(
           "__tostring",
-          +[](const XCAFPrs_DocumentNode &theSelf) -> std::string {
+          +[](const NaiveDoc_DocumentNode &theSelf) -> std::string {
             return theSelf.Id.ToCString();
           })
       .End_Class()
 
-      // .Begin_Class(XCAFPrs_DocumentExplorer)
-      // .Bind_Method(XCAFPrs_DocumentExplorer, More)
-      // .Bind_Method(XCAFPrs_DocumentExplorer, Next)
-      // .addFunction("Current",
-      //              luabridge::overload<>(&XCAFPrs_DocumentExplorer::Current),
-      //              luabridge::overload<Standard_Integer>(
-      //                  &XCAFPrs_DocumentExplorer::Current))
-      // .Bind_Method(XCAFPrs_DocumentExplorer, CurrentDepth)
-      // .End_Class()
-
-      .Begin_Derive(Ext_DocumentExplorer, Standard_Transient)
-      .addConstructorFrom<Handle(Ext_DocumentExplorer), void()>()
-      .Bind_Method(Ext_DocumentExplorer, More)
-      .Bind_Method(Ext_DocumentExplorer, Next)
-      .addFunction(
-          "Current", luabridge::overload<>(&Ext_DocumentExplorer::Current),
-          luabridge::overload<Standard_Integer>(&Ext_DocumentExplorer::Current))
-      .Bind_Method(Ext_DocumentExplorer, CurrentDepth)
+      .Begin_Derive(NaiveDoc_DocumentExplorer, Standard_Transient)
+      .addConstructorFrom<Handle(NaiveDoc_DocumentExplorer), void()>()
+      .Bind_Method(NaiveDoc_DocumentExplorer, More)
+      .Bind_Method(NaiveDoc_DocumentExplorer, Next)
+      .addFunction("Current",
+                   luabridge::overload<>(&NaiveDoc_DocumentExplorer::Current),
+                   luabridge::overload<Standard_Integer>(
+                       &NaiveDoc_DocumentExplorer::Current))
+      .Bind_Method(NaiveDoc_DocumentExplorer, CurrentDepth)
       .End_Class()
 
       .Begin_Class(NaiveDoc_Attribute)
@@ -236,28 +212,36 @@ void Ext_NaiveDoc(lua_State *L) {
       .Bind_Method(NaiveDoc_ObjectTable, SelectedObjects)
       .End_Class()
 
-      .Begin_Derive(AIS_Shape, NaiveDoc_Object)
-      .addConstructorFrom<Handle(AIS_Shape), void(const TopoDS_Shape &)>()
-      .Bind_Property_Readonly(AIS_Shape, Shape)
-      .Bind_DownCast1(AIS_Shape, NaiveDoc_Object)
-      .End_Derive()
-
-      .Begin_Derive(AIS_ColoredShape, AIS_Shape)
-      .addConstructorFrom<Handle(AIS_ColoredShape), void(const TopoDS_Shape &),
-                          void(const Handle(AIS_Shape) &)>()
-      .Bind_DownCast1(AIS_ColoredShape, NaiveDoc_Object)
-      .End_Derive()
-
-      .Begin_Derive(XCAFPrs_AISObject, AIS_ColoredShape)
-      .addConstructorFrom<Handle(XCAFPrs_AISObject),
-                          void(const NaiveDoc_Id &)>()
-      .Bind_DownCast1(XCAFPrs_AISObject, NaiveDoc_Object)
-      .End_Derive()
-
-      .Begin_Derive(MeshVS_Mesh, NaiveDoc_Object)
-      .addConstructorFrom<Handle(MeshVS_Mesh), void(const Standard_Boolean)>()
-      .Bind_DownCast1(MeshVS_Mesh, NaiveDoc_Object)
-      .End_Derive()
-
+      .End_Namespace()
       .End_Namespace();
+
+  // LuaBridge__G(L)
+  //     .Begin_Namespace(LuaOCCT)
+  //     .Begin_Namespace(AIS)
+
+  //     .Begin_Derive(AIS_Shape, NaiveDoc_Object)
+  //     .addConstructorFrom<Handle(AIS_Shape), void(const TopoDS_Shape &)>()
+  //     .Bind_Property_Readonly(AIS_Shape, Shape)
+  //     .Bind_DownCast1(AIS_Shape, NaiveDoc_Object)
+  //     .End_Derive()
+
+  //     .Begin_Derive(AIS_ColoredShape, AIS_Shape)
+  //     .addConstructorFrom<Handle(AIS_ColoredShape), void(const TopoDS_Shape &),
+  //                         void(const Handle(AIS_Shape) &)>()
+  //     .Bind_DownCast1(AIS_ColoredShape, NaiveDoc_Object)
+  //     .End_Derive()
+
+  //     .Begin_Derive(XCAFPrs_AISObject, AIS_ColoredShape)
+  //     .addConstructorFrom<Handle(XCAFPrs_AISObject),
+  //                         void(const NaiveDoc_Id &)>()
+  //     .Bind_DownCast1(XCAFPrs_AISObject, NaiveDoc_Object)
+  //     .End_Derive()
+
+  //     .Begin_Derive(MeshVS_Mesh, NaiveDoc_Object)
+  //     .addConstructorFrom<Handle(MeshVS_Mesh), void(const Standard_Boolean)>()
+  //     .Bind_DownCast1(MeshVS_Mesh, NaiveDoc_Object)
+  //     .End_Derive()
+
+  //     .End_Namespace()
+  //     .End_Namespace();
 }

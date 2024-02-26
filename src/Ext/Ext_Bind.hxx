@@ -1,6 +1,7 @@
 ﻿#ifndef _Naivis_Ext_Bind_HeaderFile
 #define _Naivis_Ext_Bind_HeaderFile
 
+#include <QHash>
 #include <QList>
 #include <QString>
 #include <QUuid>
@@ -68,7 +69,6 @@ template <class T> struct Stack<QList<T>> {
     array1.reserve(get_length(L, index));
 
     const int abs_index = lua_absindex(L, index);
-
     lua_pushnil(L);
 
     while (lua_next(L, abs_index) != 0) {
@@ -85,6 +85,63 @@ template <class T> struct Stack<QList<T>> {
     }
 
     return array1;
+  }
+};
+
+template <class K, class V> struct Stack<QHash<K, V>> {
+  static Result push(lua_State *L, const QHash<K, V> &hash) {
+    const int init_stack_size = lua_gettop(L);
+
+    lua_createtable(L, 0, hash.size());
+
+    for (auto it = hash.cbegin(); it != hash.cend(); ++it) {
+      auto key = Stack<K>::push(L, it.key());
+      if (!key) {
+        lua_pop(L, lua_gettop(L) - init_stack_size);
+        return key;
+      }
+
+      auto value = Stack<V>::push(L, it.value());
+      if (!value) {
+        lua_pop(L, lua_gettop(L) - init_stack_size);
+        return value;
+      }
+
+      lua_settable(L, -3);
+    }
+
+    return {};
+  }
+
+  static TypeResult<QHash<K, V>> get(lua_State *L, int index) {
+    if (!lua_istable(L, index)) {
+      return makeErrorCode(ErrorCode::InvalidTypeCast);
+    }
+
+    const int init_stack_size = lua_gettop(L);
+    QHash<K, V> hash{};
+    const int abs_index = lua_absindex(L, index);
+    lua_pushnil(L);
+
+    while (lua_next(L, abs_index) != 0) {
+      auto value = Stack<V>::get(L, -1);
+      if (!value) {
+        lua_pop(L, lua_gettop(L) - init_stack_size);
+        return value.error();
+      }
+
+      auto key = Stack<K>::get(L, -2);
+      if (!key) {
+        lua_pop(L, lua_gettop(L) - init_stack_size);
+        return key.error();
+      }
+
+      hash.insert(*key, *value);
+
+      lua_pop(L, 1);
+    }
+
+    return hash;
   }
 };
 

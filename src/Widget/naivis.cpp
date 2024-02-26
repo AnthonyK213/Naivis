@@ -18,6 +18,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 
   QApplication::setWindowIcon(QIcon(":icons/Naivis.ico"));
 
+  setupSettings();
   setupActions();
   setupActionIcons();
   setupOutputBuffer();
@@ -33,6 +34,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 
 Naivis::~Naivis() {
   lua_close(myL);
+  delete mySettings;
   delete myLogStream;
   delete ui;
 }
@@ -184,6 +186,12 @@ void Naivis::runScript() {
 
 // }}}
 
+void Naivis::setupSettings() {
+  QString aPath =
+      QCoreApplication::applicationDirPath() + "/NaivisSettings.ini";
+  mySettings = new NaiveApp_Settings(aPath);
+}
+
 #define CONNECT_ACTION(A, F) connect(A, &QAction::triggered, this, &Naivis::F);
 
 void Naivis::setupActions() {
@@ -271,7 +279,8 @@ void Naivis::setupLuaState() {
 
   LuaBridge__G(myL)
       .Begin_Namespace(Naivis)
-      .addVariable("ActiveDoc", document())
+      .addProperty("ActiveDoc", [this]() { return document(); })
+      .addProperty("Settings", [this]() { return settings(); })
       .End_Namespace();
 }
 
@@ -280,6 +289,8 @@ Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
 const Handle(NaiveDoc_Document) & Naivis::document() const {
   return ui->occtViewer->Document();
 }
+
+NaiveApp_Settings *Naivis::settings() const { return mySettings; }
 
 void Naivis::setViewProjectionType(
     Graphic3d_Camera::Projection projectionType) {
@@ -301,7 +312,17 @@ void Naivis::updateSelectionPropertiesTable(
   } else if (nbSelections == 1) {
     Handle(NaiveDoc_Object) anObj = theSelections[0];
     tbl->setColumnCount(2);
-    QStringList aProps = Util_AIS::GetObjectProperties(anObj);
+    QStringList aProps;
+
+    QVariant aExtraAttributes =
+        mySettings->Value("document", "extra_attributes");
+    if (!aExtraAttributes.isNull() || !aExtraAttributes.isValid()) {
+      QVariantHash aExtra = aExtraAttributes.toHash();
+      aProps = Util_AIS::GetObjectProperties(anObj, aExtra);
+    } else {
+      aProps = Util_AIS::GetObjectProperties(anObj);
+    }
+
     auto nbRow = aProps.size() >> 1;
     tbl->setRowCount(nbRow);
     QStringList header;
@@ -355,7 +376,7 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
 
   for (XCAFPrs_DocumentExplorer aDocExpl = theDoc->GetXcafExplorer();
        aDocExpl.More(); aDocExpl.Next()) {
-    const XCAFPrs_DocumentNode &aNode = aDocExpl.Current();
+    const NaiveDoc_DocumentNode &aNode = aDocExpl.Current();
     Standard_Integer aDepth = aDocExpl.CurrentDepth();
     TCollection_AsciiString aName =
         Util_OCAF::GetXcafNodeName(aDocExpl.Current(), Standard_False);

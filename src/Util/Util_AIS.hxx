@@ -6,11 +6,13 @@
 
 #include <vector>
 
+#include <QHash>
 #include <QList>
 
 namespace Util_AIS {
 
-QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj);
+QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
+                                const QVariantHash &theExtra = {});
 
 std::vector<Handle(AIS_InteractiveObject)>
 GetSelections(const Handle(AIS_InteractiveContext) & theCtx);

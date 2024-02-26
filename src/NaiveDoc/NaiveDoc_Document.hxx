@@ -30,6 +30,8 @@
 
 #include <QObject>
 
+using NaiveDoc_DocumentNode = XCAFPrs_DocumentNode;
+
 class NaiveDoc_Document : public QObject, public Standard_Transient {
   Q_OBJECT
 

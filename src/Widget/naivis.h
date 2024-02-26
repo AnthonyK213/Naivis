@@ -7,6 +7,7 @@
 #include <QString>
 
 #include <IO/IO_LogStream.hxx>
+#include <NaiveApp/NaiveApp_Settings.hxx>
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 #include <Widget/Widget_OcctViewer.hxx>
 
@@ -70,6 +71,8 @@ private slots:
   void updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc);
 
 private:
+  void setupSettings();
+
   void setupActions();
 
   void setupActionIcons();
@@ -84,6 +87,8 @@ private:
 
   const Handle(NaiveDoc_Document) & document() const;
 
+  NaiveApp_Settings *settings() const;
+
   void setViewProjectionType(Graphic3d_Camera::Projection projectionType);
 
   void setupSelectionPropertiesTable();
@@ -92,9 +97,13 @@ private:
 
 private:
   Ui::Naivis *ui;
+
   IO_LogStream *myLogStream;
+
   lua_State *myL;
   QString myLuaFile;
+
+  NaiveApp_Settings *mySettings;
 };
 
 #endif // NAIVIS_H

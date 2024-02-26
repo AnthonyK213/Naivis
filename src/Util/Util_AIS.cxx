@@ -15,9 +15,12 @@
 #include <NaiveDoc/NaiveDoc_Attribute.hxx>
 #include <NaiveDoc/NaiveDoc_Object.hxx>
 
+#include <QVariant>
+
 namespace Util_AIS {
 
-QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
+QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
+                                const QVariantHash &theExtra) {
   QStringList aProps{};
 
   if (theObj.IsNull())
@@ -127,17 +130,22 @@ QStringList GetObjectProperties(const Handle(NaiveDoc_Object) & theObj) {
     aProps.push_back("UNKNOWN");
   }
 
-  // TEMP: Display all integer attributes.
   NaiveDoc_Id anId = NaiveDoc_Attribute::GetId(theObj);
   if (!anId.IsNull() && anId.HasAttribute()) {
     for (TDF_AttributeIterator anIter(anId); anIter.More(); anIter.Next()) {
       Handle(TDF_Attribute) anAttr = anIter.Value();
+      const Standard_GUID &aGuid = anAttr->ID();
+      char anAttrId[37];
+      aGuid.ToCString(anAttrId);
+      QString anIdStr = anAttrId;
+      if (!theExtra.contains(anIdStr))
+        continue;
+      QString anIdName = theExtra[anIdStr].toString();
+      aProps.push_back(anIdName);
+
+      // TODO: |ToString| for other attribute types.
       if (anAttr->IsKind(STANDARD_TYPE(TDataStd_Integer))) {
         auto anIntAttr = Handle(TDataStd_Integer)::DownCast(anAttr);
-        const Standard_GUID &aGuid = anIntAttr->ID();
-        char anAttrId[37];
-        aGuid.ToCString(anAttrId);
-        aProps.push_back(anAttrId);
         aProps.push_back(QString::number(anIntAttr->Get()));
       }
     }
