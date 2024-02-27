@@ -43,7 +43,7 @@ void Ext_NaiveDoc(lua_State *L) {
       .End_Class()
 
       .Begin_Class(NaiveDoc_Id)
-      .addConstructor<void()>()
+      .addConstructor<void(), void(const NaiveDoc_Id &)>()
       .Bind_Method(NaiveDoc_Id, IsNull)
       .Bind_Method(NaiveDoc_Id, IsEqual)
       .Bind_Property_Readonly(NaiveDoc_Id, Depth)
@@ -113,7 +113,7 @@ void Ext_NaiveDoc(lua_State *L) {
           +[](const NaiveDoc_Id &theId, const Standard_GUID &theGuid)
               -> std::tuple<Standard_Boolean, Standard_Integer> {
             Standard_Integer aValue = 0;
-            Standard_Integer aRes =
+            Standard_Boolean aRes =
                 NaiveDoc_Attribute::GetInteger(theId, theGuid, aValue);
             return {aRes, aValue};
           },
@@ -121,7 +121,7 @@ void Ext_NaiveDoc(lua_State *L) {
               const Standard_GUID &theGuid)
               -> std::tuple<Standard_Boolean, Standard_Integer> {
             Standard_Integer aValue = 0;
-            Standard_Integer aRes =
+            Standard_Boolean aRes =
                 NaiveDoc_Attribute::GetInteger(theObj, theGuid, aValue);
             return {aRes, aValue};
           })
@@ -226,7 +226,8 @@ void Ext_NaiveDoc(lua_State *L) {
   //     .End_Derive()
 
   //     .Begin_Derive(AIS_ColoredShape, AIS_Shape)
-  //     .addConstructorFrom<Handle(AIS_ColoredShape), void(const TopoDS_Shape &),
+  //     .addConstructorFrom<Handle(AIS_ColoredShape), void(const TopoDS_Shape
+  //     &),
   //                         void(const Handle(AIS_Shape) &)>()
   //     .Bind_DownCast1(AIS_ColoredShape, NaiveDoc_Object)
   //     .End_Derive()
@@ -238,8 +239,8 @@ void Ext_NaiveDoc(lua_State *L) {
   //     .End_Derive()
 
   //     .Begin_Derive(MeshVS_Mesh, NaiveDoc_Object)
-  //     .addConstructorFrom<Handle(MeshVS_Mesh), void(const Standard_Boolean)>()
-  //     .Bind_DownCast1(MeshVS_Mesh, NaiveDoc_Object)
+  //     .addConstructorFrom<Handle(MeshVS_Mesh), void(const
+  //     Standard_Boolean)>() .Bind_DownCast1(MeshVS_Mesh, NaiveDoc_Object)
   //     .End_Derive()
 
   //     .End_Namespace()
