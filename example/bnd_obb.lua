@@ -2,7 +2,7 @@ local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local Bnd_OBB = LuaOCCT.Bnd.Bnd_OBB
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local doc = Naivis.ActiveDoc
+local doc = Naivis.NaiveDoc.ActiveDoc
 
 doc.Objects_:Clear()
 

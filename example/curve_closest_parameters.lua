@@ -1,4 +1,4 @@
-local doc = Naivis.ActiveDoc
+local doc = Naivis.NaiveDoc.ActiveDoc
 local gp = LuaOCCT.gp.gp
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local Geom_Circle = LuaOCCT.Geom.Geom_Circle

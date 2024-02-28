@@ -70,6 +70,8 @@ private slots:
 
   void updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc);
 
+  void clearOutputBuffer();
+
 private:
   void setupSettings();
 
@@ -81,7 +83,7 @@ private:
 
   void setupScriptEditor();
 
-  void setupLuaState();
+  void setupLua();
 
   Widget_OcctViewer *occtViewer();
 

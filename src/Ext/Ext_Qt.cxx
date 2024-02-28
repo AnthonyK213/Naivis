@@ -2,6 +2,20 @@
 
 #include <QVariant>
 
+#define Naivis_QVARIANT_FROM(T, N)                                             \
+  addStaticFunction(                                                           \
+      "from" #N, +[](const T &v) { return QVariant(v); })                      \
+      .addFunction(                                                            \
+          "set" #N, +[](QVariant &self, const T &v) { self.setValue(v); })
+
+#define Naivis_QVARIANT_TO(T, N)                                               \
+  addFunction(                                                                 \
+      "to" #N, +[](const QVariant &self) -> std::tuple<bool, T> {              \
+        bool ok = false;                                                       \
+        T result = self.to##N(&ok);                                            \
+        return {ok, result};                                                   \
+      })
+
 void Ext_Qt(lua_State *L) {
   LuaBridge__G(L)
       .Begin_Namespace(Qt)
@@ -24,43 +38,23 @@ void Ext_Qt(lua_State *L) {
       .End_Class()
 
       .Begin_Class(QVariant)
-      .addConstructor<void(), void(QUuid), void(const QString &), void(bool),
-                      void(double), void(float), void(int)>()
+      .addConstructor<void(), void(const QVariant &)>()
       .Bind_Method(QVariant, clear)
       .Bind_Method(QVariant, isNull)
       .Bind_Method(QVariant, isValid)
       .Bind_Method(QVariant, swap)
-      .addFunction(
-          "setHash", +[](QVariant &self,
-                         const QVariantHash &hash) { self.setValue(hash); })
-      .addFunction(
-          "setList", +[](QVariant &self,
-                         const QVariantList &list) { self.setValue(list); })
-      .addFunction(
-          "setString",
-          +[](QVariant &self, const QString &str) { self.setValue(str); })
+      .Naivis_QVARIANT_FROM(bool, Bool)
+      .Naivis_QVARIANT_FROM(int, Int)
+      .Naivis_QVARIANT_FROM(float, Float)
+      .Naivis_QVARIANT_FROM(double, Double)
+      .Naivis_QVARIANT_FROM(QUuid, Uuid)
+      .Naivis_QVARIANT_FROM(QString, String)
+      .Naivis_QVARIANT_FROM(QVariantList, List)
+      .Naivis_QVARIANT_FROM(QVariantHash, Hash)
       .Bind_Method(QVariant, toBool)
-      .addFunction(
-          "toDouble",
-          +[](const QVariant &self) -> std::tuple<bool, double> {
-            bool ok = false;
-            auto result = self.toDouble(&ok);
-            return {ok, result};
-          })
-      .addFunction(
-          "toFloat",
-          +[](const QVariant &self) -> std::tuple<bool, float> {
-            bool ok = false;
-            auto result = self.toFloat(&ok);
-            return {ok, result};
-          })
-      .addFunction(
-          "toInt",
-          +[](const QVariant &self) -> std::tuple<bool, int> {
-            bool ok = false;
-            auto result = self.toInt(&ok);
-            return {ok, result};
-          })
+      .Naivis_QVARIANT_TO(int, Int)
+      .Naivis_QVARIANT_TO(float, Float)
+      .Naivis_QVARIANT_TO(double, Double)
       .Bind_Method(QVariant, toHash)
       .Bind_Method(QVariant, toList)
       .Bind_Method(QVariant, toString)

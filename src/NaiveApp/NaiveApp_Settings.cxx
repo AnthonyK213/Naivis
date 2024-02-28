@@ -13,6 +13,7 @@ void NaiveApp_Settings::Init(const QString &thePath) {
   if (!aFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     mySettings->beginGroup("script_editor");
     mySettings->setValue("font", "monospace");
+    mySettings->setValue("font_size", 10);
     mySettings->endGroup();
   }
 }

@@ -86,7 +86,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupScriptEditor();
   setupAssemblyTree();
   setupSelectionPropertiesTable();
-  setupLuaState();
+  setupLua();
 
   NaiveApp_InitPrsDrivers();
 
@@ -292,20 +292,34 @@ void Naivis::setupOutputBuffer() {
 }
 
 void Naivis::setupScriptEditor() {
-  QVariant font = mySettings->Value("script_editor", "font");
+  QVariant vFont = mySettings->Value("script_editor", "font");
   QString fontName =
-      !font.isNull() && font.isValid() ? font.toString() : "monospace";
-  QFont f = QFontDatabase::font(fontName, "", 13);
+      !vFont.isNull() && vFont.isValid() ? vFont.toString() : "monospace";
+
+  QVariant vFontSize = mySettings->Value("script_editor", "font_size");
+  int fontSize =
+      !vFontSize.isNull() && vFontSize.isValid() ? vFontSize.toInt() : 10;
+  fontSize = std::min(std::max(fontSize, 3), 72);
+
+  QFont f = QFontDatabase::font(fontName, "", fontSize);
   ui->scriptEditor->setFont(f);
 }
 
-void Naivis::setupLuaState() {
+void Naivis::setupLua() {
   myLuaMgr = new LuaManager;
 
   LuaBridge__G(myLuaMgr->L())
       .Begin_Namespace(Naivis)
-      .addProperty("ActiveDoc", [this]() { return document(); })
+
+      .Begin_Namespace(NaiveApp)
       .addProperty("Settings", [this]() { return settings(); })
+      .addFunction("Clear", [this]() { clearOutputBuffer(); })
+      .End_Namespace()
+
+      .Begin_Namespace(NaiveDoc)
+      .addProperty("ActiveDoc", [this]() { return document(); })
+      .End_Namespace()
+
       .End_Namespace();
 }
 
@@ -423,5 +437,7 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
   aTree->addTopLevelItem(aRoot);
   aTree->expandAll();
 }
+
+void Naivis::clearOutputBuffer() { ui->outputBuffer->clear(); }
 
 // vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:

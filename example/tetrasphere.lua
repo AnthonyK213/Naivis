@@ -1,6 +1,6 @@
 local naivecgl = require("naivecgl")
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local doc = Naivis.ActiveDoc
+local doc = Naivis.NaiveDoc.ActiveDoc
 
 doc.Objects_:Clear()
 
