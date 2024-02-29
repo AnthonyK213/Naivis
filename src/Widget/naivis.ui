@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>720</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,20 +35,6 @@
           </property>
           <widget class="Widget_OcctViewer" name="occtViewer"/>
           <widget class="QTextBrowser" name="outputBuffer"/>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="verticalLayoutWidget_2">
-       <layout class="QVBoxLayout" name="scriptColumn">
-        <item>
-         <widget class="QPlainTextEdit" name="scriptEditor">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>300</height>
-           </size>
-          </property>
          </widget>
         </item>
        </layout>
@@ -182,8 +168,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
-     <height>21</height>
+     <width>800</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -240,10 +226,18 @@
     </property>
     <addaction name="actionRunScript"/>
    </widget>
+   <widget class="QMenu" name="menuAddon">
+    <property name="title">
+     <string>Extension</string>
+    </property>
+    <addaction name="actionManage"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEidt"/>
    <addaction name="menuView"/>
    <addaction name="menuScript"/>
+   <addaction name="menuAddon"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -420,6 +414,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+H</string>
+   </property>
+  </action>
+  <action name="actionManage">
+   <property name="text">
+    <string>Manage</string>
    </property>
   </action>
  </widget>

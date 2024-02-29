@@ -3,6 +3,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(PROJECT_SOURCES
   main.cpp
   Ext/Ext_Load.cxx
+  Ext/Ext_Manager.cxx
   Ext/Ext_NaiveApp.cxx
   Ext/Ext_NaiveDoc.cxx
   Ext/Ext_Override.cxx

@@ -1,6 +1,8 @@
 ﻿#include "naivis.h"
 #include "./ui_naivis.h"
 
+#include <QFont>
+#include <QFontDatabase>
 #include <QIcon>
 #include <QStack>
 #include <QStyle>
@@ -152,23 +154,21 @@ void Naivis::openScript() {
   QFile file{filePath};
   if (file.open(QFile::ReadOnly | QFile::Text)) {
     myLuaMgr->setFile(filePath);
-    ui->scriptEditor->setPlainText(file.readAll());
   }
 }
 
 void Naivis::saveScript() {
-  QString filePath =
-      QFileDialog::getSaveFileName(this, "Save", "", tr("Lua (*.lua)"));
+  // QString filePath =
+  //     QFileDialog::getSaveFileName(this, "Save", "", tr("Lua (*.lua)"));
 
-  if (filePath.isEmpty())
-    return;
+  // if (filePath.isEmpty())
+  //   return;
 
-  if (!filePath.endsWith(".lua", Qt::CaseInsensitive))
-    filePath += ".lua";
+  // if (!filePath.endsWith(".lua", Qt::CaseInsensitive))
+  //   filePath += ".lua";
 
-  QFile file{filePath};
-  file.open(QFile::ReadWrite | QIODevice::Truncate | QIODevice::Text);
-  file.write(ui->scriptEditor->toPlainText().toUtf8().toStdString().c_str());
+  // QFile file{filePath};
+  // file.open(QFile::ReadWrite | QIODevice::Truncate | QIODevice::Text);
 }
 
 void Naivis::quit() { close(); }
@@ -302,7 +302,6 @@ void Naivis::setupScriptEditor() {
   fontSize = std::min(std::max(fontSize, 3), 72);
 
   QFont f = QFontDatabase::font(fontName, "", fontSize);
-  ui->scriptEditor->setFont(f);
 }
 
 void Naivis::setupLua() {
