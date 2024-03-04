@@ -29,6 +29,8 @@ public:
 
   ~LuaManager() { lua_close(myL); }
 
+  operator lua_State *() { return myL; }
+
   lua_State *L() const { return myL; }
 
   const QString &file() const { return myFile; }
@@ -45,9 +47,19 @@ public:
     return true;
   }
 
-  bool doFile() const {
+  bool doString(const std::string &theCode, std::string &theErr) {
+    if (luaL_dostring(myL, theCode.c_str()) != 0) {
+      theErr = lua_tostring(myL, -1);
+      lua_pop(myL, -1);
+      return false;
+    }
+
+    return true;
+  }
+
+  bool doFile(std::string &theErr) const {
     if (luaL_dofile(myL, myFile.toUtf8().toStdString().c_str()) != 0) {
-      std::cout << lua_tostring(myL, -1) << '\n';
+      theErr = lua_tostring(myL, -1);
       lua_pop(myL, -1);
       return false;
     }
@@ -218,7 +230,12 @@ void Naivis::deleteCurrentSelection() {
   update();
 }
 
-void Naivis::runScript() { myLuaMgr->doFile(); }
+void Naivis::runScript() {
+  std::string anErr;
+  if (!myLuaMgr->doFile(anErr)) {
+    std::cout << anErr << '\n';
+  }
+}
 
 // }}}
 
@@ -320,6 +337,22 @@ void Naivis::setupLua() {
       .End_Namespace()
 
       .End_Namespace();
+
+  /* Import third-party lua libraries.
+   * [luv](https://github.com/luvit/luv)
+   * [wxLua](https://github.com/pkulchenko/wxlua)
+   * - Crash on |lua_close|,
+   *   issue[#20](https://github.com/pkulchenko/wxlua/issues/20)
+   */
+
+  std::string anErr;
+  std::string aCode = R"===(
+  _G.uv=require("luv")
+  --_G.wx=require("wx")
+  )===";
+  if (!myLuaMgr->doString(aCode, anErr)) {
+    std::cout << anErr << '\n';
+  }
 }
 
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }

@@ -31,5 +31,6 @@
   - [LuaOCCT](https://github.com/AnthonyK213/LuaOCCT)
     - Build & Install
     - Set environment variable `LUAOCCT_DIR`
+  - [luv](https://github.com/luvit/luv)
 - Configure with cmake
 - Build
