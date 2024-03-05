@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
@@ -7,7 +7,6 @@ list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
-list(APPEND CMAKE_PREFIX_PATH "$ENV{NAIVECGL_DIR}/lib/cmake/naivecgl")
 list(APPEND CMAKE_PREFIX_PATH "$ENV{LUAOCCT_DIR}/lib/cmake/luaocct")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
@@ -24,6 +23,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}/)
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
+include(cmake/FetchDeps.cmake)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
   Core
@@ -52,14 +53,11 @@ message("OCC-Libs: ${OpenCASCADE_LIBRARIES}")
 
 find_package(Eigen3 REQUIRED)
 
-find_package(NaiveCGL REQUIRED)
-message("NaiveCGL-Include-Dir: ${NaiveCGL_INCLUDE_DIR}")
-message("NaiveCGL-Lib-Dir: ${NaiveCGL_LIBRARY_DIR}")
+message("NaiveCGL-Source-Dir: ${naivecgl_SOURCE_DIR}")
+message("NaiveCGL-Binary-Dir: ${naivecgl_BINARY_DIR}")
 
-include(FindLuaJIT)
-find_package(LuaJIT REQUIRED)
-message("LuaJIT-Include-Dir: ${LUA_INCLUDE_DIR}")
-message("LuaJIT-Libs: ${LUA_LIBRARIES}")
+find_package(PkgConfig REQUIRED)  
+pkg_check_modules(LuaJIT REQUIRED IMPORTED_TARGET luajit)
 
 find_path(LuaBridge3_INCLUDE_DIR NAMES LuaBridge PATH_SUFFIXES luabridge3)
 message("LuaBridge3-Include-Dir: ${LuaBridge3_INCLUDE_DIR}")
@@ -71,16 +69,14 @@ message("LuaOCCT-Libs: ${LuaOCCT_LIBRARIES}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
-  ${NaiveCGL_INCLUDE_DIR}
+  ${naivecgl_SOURCE_DIR}/include
   ${EIGEN3_INCLUDE_DIRS}
-  ${LUA_INCLUDE_DIR}
   ${LuaBridge3_INCLUDE_DIR}
   ${LuaOCCT_INCLUDE_DIR}
   )
 
 link_directories(
   ${OpenCASCADE_LIBRARY_DIR}
-  ${NaiveCGL_LIBRARY_DIR}
   ${LuaOCCT_LIBRARY_DIR}
   )
 

@@ -63,8 +63,8 @@ target_link_libraries(
   Qt${QT_VERSION_MAJOR}::OpenGL
   ${OpenCASCADE_LIBRARIES}
   ${OPENGL_LIBRARIES}
-  ${NaiveCGL_LIBRARIES}
-  ${LUA_LIBRARIES}
+  NaiveCGL
+  PkgConfig::LuaJIT
   ${LuaOCCT_LIBRARIES}
   )
 
@@ -99,11 +99,8 @@ add_custom_command(
 if(WIN32)
   add_custom_command(
     TARGET Naivis POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$ENV{LUA_DIR}/bin/lua51.dll"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$ENV{NAIVECGL_DIR}/bin"
+        "${naivecgl_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$ENV{LUAOCCT_DIR}/bin"
@@ -122,7 +119,7 @@ elseif(UNIX AND NOT APPLE)
         "$ENV{OCCT_DIR}/lib/*.so*"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy
-        "$ENV{NAIVECGL_DIR}/lib/*.so"
+        "${naivecgl_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy
         "$ENV{LUAOCCT_DIR}/lib/*.so"
