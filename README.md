@@ -25,8 +25,5 @@
     since the vcpkg port on Linux is not usable.
     - Build & Install (on Linux)
     - Set environment variable `OCCT_DIR` (on Linux)
-  - [LuaOCCT](https://github.com/AnthonyK213/LuaOCCT)
-    - Build & Install
-    - Set environment variable `LUAOCCT_DIR`
 - Configure with cmake
 - Build

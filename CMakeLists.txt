@@ -7,7 +7,7 @@ list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
-list(APPEND CMAKE_PREFIX_PATH "$ENV{LUAOCCT_DIR}/lib/cmake/luaocct")
+# list(APPEND CMAKE_PREFIX_PATH "$ENV{LUAOCCT_DIR}/lib/cmake/luaocct")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
@@ -53,8 +53,8 @@ message("OCC-Libs: ${OpenCASCADE_LIBRARIES}")
 
 find_package(Eigen3 REQUIRED)
 
-message("NaiveCGL-Source-Dir: ${naivecgl_SOURCE_DIR}")
-message("NaiveCGL-Binary-Dir: ${naivecgl_BINARY_DIR}")
+message("naivecgl_SOURCE_DIR: ${naivecgl_SOURCE_DIR}")
+message("naivecgl_BINARY_DIR: ${naivecgl_BINARY_DIR}")
 
 find_package(PkgConfig REQUIRED)  
 pkg_check_modules(LuaJIT REQUIRED IMPORTED_TARGET luajit)
@@ -62,22 +62,22 @@ pkg_check_modules(LuaJIT REQUIRED IMPORTED_TARGET luajit)
 find_path(LuaBridge3_INCLUDE_DIR NAMES LuaBridge PATH_SUFFIXES luabridge3)
 message("LuaBridge3-Include-Dir: ${LuaBridge3_INCLUDE_DIR}")
 
-find_package(luaocct REQUIRED)
-message("LuaOCCT-Include-Dir: ${LuaOCCT_INCLUDE_DIR}")
-message("LuaOCCT-Lib-Dir: ${LuaOCCT_LIBRARY_DIR}")
-message("LuaOCCT-Libs: ${LuaOCCT_LIBRARIES}")
+message("luaocct_SOURCE_DIR: ${luaocct_SOURCE_DIR}")
+message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
+message("binder_SOURCE_DIR: ${binder_SOURCE_DIR}")
+message("binder_BINARY_DIR: ${binder_BINARY_DIR}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
   ${naivecgl_SOURCE_DIR}/include
   ${EIGEN3_INCLUDE_DIRS}
   ${LuaBridge3_INCLUDE_DIR}
-  ${LuaOCCT_INCLUDE_DIR}
+  ${luaocct_SOURCE_DIR}/include
+  ${CMAKE_BINARY_DIR}/binder-gen
   )
 
 link_directories(
   ${OpenCASCADE_LIBRARY_DIR}
-  ${LuaOCCT_LIBRARY_DIR}
   )
 
 add_subdirectory(src)

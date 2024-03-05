@@ -65,7 +65,7 @@ target_link_libraries(
   ${OPENGL_LIBRARIES}
   NaiveCGL
   PkgConfig::LuaJIT
-  ${LuaOCCT_LIBRARIES}
+  luaocct
   )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -103,7 +103,7 @@ if(WIN32)
         "${naivecgl_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$ENV{LUAOCCT_DIR}/bin"
+        "${luaocct_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND $ENV{QT_DIR}/bin/windeployqt.exe
         $<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/Naivis.exe
@@ -122,7 +122,7 @@ elseif(UNIX AND NOT APPLE)
         "${naivecgl_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy
-        "$ENV{LUAOCCT_DIR}/lib/*.so"
+        "${luaocct_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
