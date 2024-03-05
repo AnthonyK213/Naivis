@@ -23,8 +23,8 @@ public:
     Ext_Load(myL);
 
     auto rtp = QCoreApplication::applicationDirPath().toUtf8().toStdString();
-    rtp.append("/?.lua");
     pathAppend(rtp);
+    cpathAppend(rtp);
   }
 
   ~LuaManager() { lua_close(myL); }
@@ -41,8 +41,8 @@ public:
     /// WORKAROUND: Add the file directory to the runtime path.
     QFileInfo info(myFile);
     auto rtp = info.dir().absolutePath().toUtf8().toStdString();
-    rtp.append("/?.lua");
     pathAppend(rtp);
+    cpathAppend(rtp);
 
     return true;
   }
@@ -68,16 +68,41 @@ public:
   }
 
 private:
-  bool pathAppend(const std::string &thePath) const {
+  bool pathAppend(const std::string &thePath, bool theToComplete = true) const {
     lua_getglobal(myL, "package");
     lua_getfield(myL, -1, "path");
     std::string path = lua_tostring(myL, -1);
     if (!path.empty())
       path.append(";");
     path.append(thePath);
+    if (theToComplete)
+      path.append("/?.lua");
     lua_pop(myL, 1);
     lua_pushstring(myL, path.c_str());
     lua_setfield(myL, -2, "path");
+    lua_pop(myL, 1);
+
+    return true;
+  }
+
+  bool cpathAppend(const std::string &thePath,
+                   bool theToComplete = true) const {
+    lua_getglobal(myL, "package");
+    lua_getfield(myL, -1, "cpath");
+    std::string path = lua_tostring(myL, -1);
+    if (!path.empty())
+      path.append(";");
+    path.append(thePath);
+    if (theToComplete) {
+#ifdef _WIN32
+      path.append("/?.dll");
+#else
+      path.append("/?.so");
+#endif
+    }
+    lua_pop(myL, 1);
+    lua_pushstring(myL, path.c_str());
+    lua_setfield(myL, -2, "cpath");
     lua_pop(myL, 1);
 
     return true;
