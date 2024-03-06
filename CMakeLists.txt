@@ -5,9 +5,7 @@ set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 if(UNIX)
 list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
 endif()
-
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
-# list(APPEND CMAKE_PREFIX_PATH "$ENV{LUAOCCT_DIR}/lib/cmake/luaocct")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
@@ -23,6 +21,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}/)
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
+option(LUAOCCT_BINDER_SUPPRESS_REGENERATION "Suppress regeneration of LuaOCCT-binder" ON)
 
 include(cmake/FetchDeps.cmake)
 
@@ -47,9 +47,9 @@ find_package(OpenCASCADE COMPONENTS ModelingAlgorithms REQUIRED)
 find_package(OpenCASCADE COMPONENTS ModelingData REQUIRED)
 find_package(OpenCASCADE COMPONENTS DataExchange REQUIRED)
 find_package(OpenCASCADE COMPONENTS Visualization REQUIRED)
-message("OCC-Include-Dir: ${OpenCASCADE_INCLUDE_DIR}")
-message("OCC-Lib-Dir: ${OpenCASCADE_LIBRARY_DIR}")
-message("OCC-Libs: ${OpenCASCADE_LIBRARIES}")
+message("OpenCASCADE_INCLUDE_DIR: ${OpenCASCADE_INCLUDE_DIR}")
+message("OpenCASCADE_LIBRARY_DIR: ${OpenCASCADE_LIBRARY_DIR}")
+message("OpenCASCADE_LIBRARIES: ${OpenCASCADE_LIBRARIES}")
 
 find_package(Eigen3 REQUIRED)
 
@@ -60,12 +60,10 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LuaJIT REQUIRED IMPORTED_TARGET luajit)
 
 find_path(LuaBridge3_INCLUDE_DIR NAMES LuaBridge PATH_SUFFIXES luabridge3)
-message("LuaBridge3-Include-Dir: ${LuaBridge3_INCLUDE_DIR}")
+message("LuaBridge3_INCLUDE_DIR: ${LuaBridge3_INCLUDE_DIR}")
 
 message("luaocct_SOURCE_DIR: ${luaocct_SOURCE_DIR}")
 message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
-message("binder_SOURCE_DIR: ${binder_SOURCE_DIR}")
-message("binder_BINARY_DIR: ${binder_BINARY_DIR}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}

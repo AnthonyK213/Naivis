@@ -21,12 +21,13 @@
     - For [windows](https://stackoverflow.com/questions/1710922/how-to-install-pkg-config-in-windows)
   - [Libclang](https://github.com/llvm/llvm-project)
     - Set environment variable `LIBCLANG_DIR`
-  - [Qt](https://www.qt.io/download-open-source)
+  - [Qt6](https://www.qt.io/download-open-source)
     - Set environment variable `QT_DIR`
     - For linux, [`LINUXDEPLOYQT`](https://github.com/probonopd/linuxdeployqt) also should be set.
   - [OCCT](https://github.com/Open-Cascade-SAS/OCCT) >= 7.6.0 is needed on Linux,
     since the vcpkg port on Linux is not usable.
     - Build & Install (on Linux)
     - Set environment variable `OCCT_DIR` (on Linux)
-- Configure with cmake
-- Build
+- Build [LuaOCCT-binder](https://github.com/AnthonyK213/LuaOCCT-binder) in `build/deps`.
+- Configure with cmake, make sure the source files in `build/binder-gen` are generated successfully.
+- Build all.
