@@ -15,17 +15,13 @@
   git clone https://github.com/AnthonyK213/Naivis.git
   ```
 - Install dependencies
-  - Install the latest release of [vcpkg](https://github.com/microsoft/vcpkg)
-    - Set environment variable `VCPKG_ROOT`
   - [Libclang](https://github.com/llvm/llvm-project)
     - Set environment variable `LIBCLANG_DIR`
   - [Qt6](https://www.qt.io/download-open-source)
     - Set environment variable `QT_DIR`
     - For linux, [`LINUXDEPLOYQT`](https://github.com/probonopd/linuxdeployqt) also should be set.
-  - [OCCT](https://github.com/Open-Cascade-SAS/OCCT) >= 7.6.0 is needed on Linux,
-    since the vcpkg port on Linux is not usable.
-    - Build & Install (on Linux)
-    - Set environment variable `OCCT_DIR` (on Linux)
+  - [OCCT](https://github.com/Open-Cascade-SAS/OCCT) >= 7.6.0
+    - Set environment variable `OCCT_DIR`
 - Build [LuaOCCT-binder](https://github.com/AnthonyK213/LuaOCCT-binder) in `build/deps`.
 - Configure with cmake, make sure the source files in `build/binder-gen` are generated successfully.
 - Build all.

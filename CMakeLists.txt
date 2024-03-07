@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-
-if(UNIX)
-list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
-endif()
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
@@ -24,7 +20,14 @@ add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 option(LUAOCCT_BINDER_SUPPRESS_REGENERATION "Suppress regeneration of LuaOCCT-binder" ON)
 
-include(cmake/FetchDeps.cmake)
+include(cmake/FetchLuaOCCT.cmake)
+include(cmake/FetchBinder.cmake)
+include(cmake/FetchLuaJIT.cmake)
+include(cmake/FetchLuaBridge3.cmake)
+include(cmake/FetchNaiveCGL.cmake)
+include(cmake/FetchEigen3.cmake)
+include(cmake/Fetchluv.cmake)
+include(cmake/Fetchopencascade.cmake)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
   Core
