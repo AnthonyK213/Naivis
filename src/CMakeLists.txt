@@ -106,6 +106,9 @@ if(WIN32)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${luaocct_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${OpenCASCADE_LIBRARY_DIR}/../bin$<$<CONFIG:Debug>:d>"
+        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND $ENV{QT_DIR}/bin/windeployqt.exe
         $<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/Naivis.exe
     )

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_PREFIX_PATH "$ENV{QT_DIR}/lib/cmake/Qt6/")
-list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}/lib/cmake/opencascade")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{OCCT_DIR}")
 
 project(Naivis VERSION 0.1 LANGUAGES CXX)
 
@@ -44,6 +44,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
   OpenGLWidgets
   OpenGL
   )
+
+find_package(OpenGL REQUIRED)
+message("OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 
 find_package(OpenCASCADE COMPONENTS FoundationClasses REQUIRED)
 find_package(OpenCASCADE COMPONENTS ModelingAlgorithms REQUIRED)
