@@ -6,36 +6,12 @@
       "name": "opencascade",
       "platform": "windows",
       "host": true
-    },
-    {
-      "name": "eigen3",
-      "host": true
-    },
-    {
-      "name": "luabridge3",
-      "host": true
-    },
-    {
-      "name": "luajit",
-      "host": true
     }
   ],
   "overrides": [
     {
       "name": "opencascade",
       "version": "7.6.2#7"
-    },
-    {
-      "name": "eigen3",
-      "version": "3.4.0#2"
-    },
-    {
-      "name": "luabridge3",
-      "version": "3.0-rc3#0"
-    },
-    {
-      "name": "luajit",
-      "version": "2023-01-04#5"
     }
   ]
 }

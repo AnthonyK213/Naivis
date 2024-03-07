@@ -51,16 +51,14 @@ message("OpenCASCADE_INCLUDE_DIR: ${OpenCASCADE_INCLUDE_DIR}")
 message("OpenCASCADE_LIBRARY_DIR: ${OpenCASCADE_LIBRARY_DIR}")
 message("OpenCASCADE_LIBRARIES: ${OpenCASCADE_LIBRARIES}")
 
-find_package(Eigen3 REQUIRED)
-
 message("naivecgl_SOURCE_DIR: ${naivecgl_SOURCE_DIR}")
 message("naivecgl_BINARY_DIR: ${naivecgl_BINARY_DIR}")
 
-find_package(PkgConfig REQUIRED)  
-pkg_check_modules(LuaJIT REQUIRED IMPORTED_TARGET luajit)
+message("eigen3_SOURCE_DIR: ${eigen3_SOURCE_DIR}")
+message("eigen3_BINARY_DIR: ${eigen3_BINARY_DIR}")
 
-find_path(LuaBridge3_INCLUDE_DIR NAMES LuaBridge PATH_SUFFIXES luabridge3)
-message("LuaBridge3_INCLUDE_DIR: ${LuaBridge3_INCLUDE_DIR}")
+message("luabridge3_SOURCE_DIR: ${luabridge3_SOURCE_DIR}")
+message("luabridge3_BINARY_DIR: ${luabridge3_BINARY_DIR}")
 
 message("luaocct_SOURCE_DIR: ${luaocct_SOURCE_DIR}")
 message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
@@ -68,10 +66,11 @@ message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
   ${naivecgl_SOURCE_DIR}/include
-  ${EIGEN3_INCLUDE_DIRS}
-  ${LuaBridge3_INCLUDE_DIR}
+  ${eigen3_SOURCE_DIR}
+  ${luabridge3_SOURCE_DIR}/Source
   ${luaocct_SOURCE_DIR}/include
   ${CMAKE_BINARY_DIR}/binder-gen
+  ${luajit_BINARY_DIR}
   )
 
 link_directories(

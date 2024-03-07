@@ -64,7 +64,8 @@ target_link_libraries(
   ${OpenCASCADE_LIBRARIES}
   ${OPENGL_LIBRARIES}
   NaiveCGL
-  PkgConfig::LuaJIT
+  luajit::lib
+  luajit::header
   luaocct
   )
 

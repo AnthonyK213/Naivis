@@ -17,8 +17,6 @@
 - Install dependencies
   - Install the latest release of [vcpkg](https://github.com/microsoft/vcpkg)
     - Set environment variable `VCPKG_ROOT`
-  - Install `pkg-config`
-    - For [windows](https://stackoverflow.com/questions/1710922/how-to-install-pkg-config-in-windows)
   - [Libclang](https://github.com/llvm/llvm-project)
     - Set environment variable `LIBCLANG_DIR`
   - [Qt6](https://www.qt.io/download-open-source)
