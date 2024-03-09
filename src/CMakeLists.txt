@@ -95,6 +95,9 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_BINARY_DIR}/binder-gen/_meta"
+      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/_meta"
   )
 
 if(WIN32)
@@ -131,7 +134,10 @@ elseif(UNIX AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
         "${CMAKE_INSTALL_PREFIX}/bin"
-    )
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_BINARY_DIR}/binder-gen/_meta"
+        "${CMAKE_INSTALL_PREFIX}/bin"
+  )
   install(SCRIPT "${CMAKE_SOURCE_DIR}/cmake/PostInstall-Linux.cmake")
 endif()
 
