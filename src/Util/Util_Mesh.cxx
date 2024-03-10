@@ -12,7 +12,7 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
 
-#include <luaocct/util_shape.h>
+#include <luaocct/LOUtil_Shape.hxx>
 
 namespace Util_Mesh {
 
@@ -20,7 +20,7 @@ Handle(Poly_Triangulation)
     ShapeToMesh(const TopoDS_Shape &theShape,
                 const IMeshTools_Parameters &theMeshParams,
                 const TopLoc_Location &theLocation) {
-  return luaocct::util::Shape::ToMesh(theShape, theLocation, theMeshParams);
+  return LOUtil_Shape::ToMesh(theShape, theLocation, theMeshParams);
 }
 
 Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
