@@ -20,9 +20,28 @@ void Ext_NaiveDoc(lua_State *L) {
       .Begin_Namespace(Naivis)
       .Begin_Namespace(NaiveDoc)
 
-      .Begin_Derive(NaiveDoc_Document, LODoc_Document)
-      .addConstructorFrom<Handle(NaiveDoc_Document), void()>()
-      .End_Derive()
+      /* NOTE: Multiple inheritance is not supported by Luabridge3 yet,
+       * **DO NOT** use this:
+       * ```
+       * Begin_Derive(NaiveDoc_Document, LODoc_Document)
+       * ```
+       * which will parse instance with a wrong offset.
+       */
+      .Begin_Class(NaiveDoc_Document)
+      .addConstructorFrom<opencascade::handle<NaiveDoc_Document>, void()>()
+      .Bind_Method(NaiveDoc_Document, Init)
+      .Bind_Method(NaiveDoc_Document, Close)
+      .Bind_Method(NaiveDoc_Document, DocumentExplorer)
+      .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)
+      .Bind_Method(NaiveDoc_Document, ExportStep)
+      .Bind_Method(NaiveDoc_Document, ExportStl)
+      .Bind_Method(NaiveDoc_Document, ImportStep)
+      .Bind_Method(NaiveDoc_Document, ImportStl)
+      .Bind_Method(NaiveDoc_Document, Objects)
+      .Bind_Method(NaiveDoc_Document, Redo)
+      .Bind_Method(NaiveDoc_Document, Undo)
+      .Bind_Method(NaiveDoc_Document, UpdateView)
+      .End_Class()
 
       .Begin_Class(NaiveDoc_Object)
       .Bind_Property_Readonly(NaiveDoc_Object, Type)

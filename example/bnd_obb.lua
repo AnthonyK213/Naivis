@@ -4,7 +4,7 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local doc = Naivis.NaiveDoc.ActiveDoc
 
-doc.Objects_:Clear()
+doc:Objects():Clear()
 
 local nbPnts = 100
 local aPnts = {}
@@ -15,7 +15,7 @@ for i = 1, nbPnts do
   local z = math.random() * 20 - 10
 
   aPnts[i] = gp_Pnt(x, y, z)
-  doc.Objects_:AddShape(BRepBuilderAPI_MakeVertex(aPnts[i]):Vertex(), false)
+  doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(aPnts[i]):Vertex(), false)
 end
 
 local anOBB = Bnd_OBB()
@@ -23,7 +23,7 @@ anOBB:ReBuild(aPnts, true)
 local aCorners = anOBB:GetVertex()
 
 local function addEdge(m, n)
-  doc.Objects_:AddShape(BRepBuilderAPI_MakeEdge(aCorners[m], aCorners[n]):Edge(), false)
+  doc:Objects():AddShape(BRepBuilderAPI_MakeEdge(aCorners[m], aCorners[n]):Edge(), false)
 end
 
 addEdge(1, 2)

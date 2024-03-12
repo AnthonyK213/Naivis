@@ -16,13 +16,6 @@
 
 namespace Util_Mesh {
 
-Handle(Poly_Triangulation)
-    ShapeToMesh(const TopoDS_Shape &theShape,
-                const IMeshTools_Parameters &theMeshParams,
-                const TopLoc_Location &theLocation) {
-  return LOUtil_Shape::ToMesh(theShape, theLocation, theMeshParams);
-}
-
 Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
   const auto &vertices = thePoly.Vertices();
   const auto &triangles = thePoly.Triangles();

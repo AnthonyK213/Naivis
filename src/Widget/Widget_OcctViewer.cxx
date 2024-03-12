@@ -616,5 +616,5 @@ void Widget_OcctViewer::OnSelectionChanged(
 
 void Widget_OcctViewer::setupDocument() {
   myDoc = new NaiveDoc_Document();
-  myDoc->SetContext(myContext);
+  myDoc->Init(myContext);
 }

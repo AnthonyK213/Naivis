@@ -8,7 +8,6 @@ set(PROJECT_SOURCES
   Ext/Ext_NaiveDoc.cxx
   Ext/Ext_Override.cxx
   Ext/Ext_Qt.cxx
-  Ext/Ext_Util.cxx
   IO/IO_LogStream.cxx
   Mesh/HalfEdgeMesh_DataSource.cxx
   Mesh/Mesh_MeshVSDriver.cxx
@@ -23,7 +22,6 @@ set(PROJECT_SOURCES
   Sketch/Sketch_Manager.cxx
   Util/Util_AIS.cxx
   Util/Util_Mesh.cxx
-  Util/Util_OCAF.cxx
   Widget/naivis.cpp
   Widget/naivis.ui
   Widget/Widget_OcctViewer.cxx

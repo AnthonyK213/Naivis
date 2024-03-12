@@ -15,6 +15,8 @@
 #include <NaiveDoc/NaiveDoc_Attribute.hxx>
 #include <NaiveDoc/NaiveDoc_Object.hxx>
 
+#include <luaocct/LOUtil_AIS.hxx>
+
 #include <QVariant>
 
 namespace Util_AIS {
@@ -156,14 +158,7 @@ QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
 
 NaiveDoc_ObjectList GetSelections(const Handle(AIS_InteractiveContext) &
                                   theCtx) {
-  NaiveDoc_ObjectList aResult{};
-  aResult.reserve(theCtx->NbSelected());
-
-  for (theCtx->InitSelected(); theCtx->MoreSelected(); theCtx->NextSelected()) {
-    aResult.push_back(theCtx->SelectedInteractive());
-  }
-
-  return aResult;
+  return LOUtil_AIS::GetSelections(theCtx);
 }
 
 } // namespace Util_AIS

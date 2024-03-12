@@ -17,8 +17,7 @@ class NaiveDoc_Document : public QObject, public LODoc_Document {
 public:
   NaiveDoc_Document();
 
-  virtual void AddObjectEvent(const Handle(LODoc_Document) &
-                              theDoc) Standard_OVERRIDE;
+  virtual void AddObjectEvent() Standard_OVERRIDE;
 
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, LODoc_Document)
 
@@ -28,11 +27,11 @@ private:
 signals:
   void OnAddObject(const Handle(NaiveDoc_Document) & theDoc);
 
-  void OnDeleteObject();
+  void OnDeleteObject(const Handle(NaiveDoc_Document) & theDoc);
 
-  void OnUndeleteObject();
+  void OnUndeleteObject(const Handle(NaiveDoc_Document) & theDoc);
 };
 
-DEFINE_STANDARD_HANDLE(NaiveDoc_Document, Standard_Transient)
+DEFINE_STANDARD_HANDLE(NaiveDoc_Document, LODoc_Document)
 
 #endif

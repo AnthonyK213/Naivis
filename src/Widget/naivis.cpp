@@ -11,9 +11,9 @@
 #include <NaiveApp/NaiveApp_Application.hxx>
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
-#include <Util/Util_OCAF.hxx>
 
 #include <luaocct/luaocct.h>
+#include <luaocct/LOUtil_OCAF.hxx>
 
 class Naivis::LuaManager {
 public:
@@ -475,7 +475,7 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
     const NaiveDoc_DocumentNode &aNode = aDocExpl->Current();
     Standard_Integer aDepth = aDocExpl->CurrentDepth();
     TCollection_AsciiString aName =
-        Util_OCAF::GetXcafNodeName(aDocExpl->Current(), Standard_False);
+        LOUtil_OCAF::GetXcafNodeName(aDocExpl->Current(), Standard_False);
     auto nbPopPlusOne = aStack.size() - aDepth;
 
     for (int i = 1; i < nbPopPlusOne; ++i) {

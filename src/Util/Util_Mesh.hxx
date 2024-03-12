@@ -12,12 +12,6 @@
 namespace Util_Mesh {
 
 /// @brief
-Handle(Poly_Triangulation)
-    ShapeToMesh(const TopoDS_Shape &theShape,
-                const IMeshTools_Parameters &theMeshParams,
-                const TopLoc_Location &theLocation);
-
-/// @brief
 /// @param thePoly3D
 /// @return
 Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly);
