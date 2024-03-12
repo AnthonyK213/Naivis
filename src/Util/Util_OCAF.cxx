@@ -47,45 +47,6 @@ GetXcafNodePathNames(const XCAFPrs_DocumentExplorer &theExpl,
   return aPath;
 }
 
-Standard_Boolean ImportStep(Handle(TDocStd_Document) & theDoc,
-                            Standard_CString theFilePath) {
-  if (theDoc.IsNull()) {
-    std::cout << "Error: The document is null\n";
-    return Standard_False;
-  }
-
-  STEPCAFControl_Controller::Init();
-  STEPControl_Controller::Init();
-
-  STEPCAFControl_Reader aReader;
-
-  aReader.SetColorMode(Standard_True);
-  aReader.SetNameMode(Standard_True);
-  aReader.SetLayerMode(Standard_True);
-  aReader.SetSHUOMode(Standard_True);
-
-  try {
-    if (aReader.ReadFile(theFilePath) != IFSelect_RetDone) {
-      std::cout << "Error: On reading STEP file " << theFilePath << '\n';
-      return Standard_False;
-    }
-
-    if (!aReader.Transfer(theDoc)) {
-      std::cout << "Error: On transferring STEP file " << theFilePath << '\n';
-      return Standard_False;
-    }
-  } catch (const Standard_Failure &theFailure) {
-    std::cout << "Exception raised during STEP import: "
-              << theFailure.GetMessageString() << '\n';
-
-    return Standard_False;
-  }
-
-  std::cout << "File " << theFilePath << " is imported successfully" << '\n';
-
-  return Standard_True;
-}
-
 Handle(TPrsStd_AISViewer)
     InitAISViewer(const Handle(TDocStd_Document) & theDoc,
                   const Handle(AIS_InteractiveContext) & theCtx) {

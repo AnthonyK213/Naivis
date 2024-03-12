@@ -470,12 +470,12 @@ void Naivis::updateAssemblyTree(const Handle(NaiveDoc_Document) & theDoc) {
   QStack<QTreeWidgetItem *> aStack{};
   aStack.push(aRoot);
 
-  for (XCAFPrs_DocumentExplorer aDocExpl = theDoc->GetXcafExplorer();
-       aDocExpl.More(); aDocExpl.Next()) {
-    const NaiveDoc_DocumentNode &aNode = aDocExpl.Current();
-    Standard_Integer aDepth = aDocExpl.CurrentDepth();
+  for (auto aDocExpl = theDoc->DocumentExplorer(0); aDocExpl->More();
+       aDocExpl->Next()) {
+    const NaiveDoc_DocumentNode &aNode = aDocExpl->Current();
+    Standard_Integer aDepth = aDocExpl->CurrentDepth();
     TCollection_AsciiString aName =
-        Util_OCAF::GetXcafNodeName(aDocExpl.Current(), Standard_False);
+        Util_OCAF::GetXcafNodeName(aDocExpl->Current(), Standard_False);
     auto nbPopPlusOne = aStack.size() - aDepth;
 
     for (int i = 1; i < nbPopPlusOne; ++i) {
