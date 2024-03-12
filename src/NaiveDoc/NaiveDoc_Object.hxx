@@ -1,12 +1,12 @@
 ﻿#ifndef _Naivis_NaiveDoc_Object_HeaderFile
 #define _Naivis_NaiveDoc_Object_HeaderFile
 
-#include <AIS_InteractiveObject.hxx>
-#include <TDF_Label.hxx>
+#include <TDF_LabelList.hxx>
+#include <luaocct/LODoc_Object.hxx>
 
-using NaiveDoc_Object = AIS_InteractiveObject;
-using NaiveDoc_ObjectList = std::vector<Handle(NaiveDoc_Object)>;
-using NaiveDoc_Id = TDF_Label;
-using NaiveDoc_IdList = std::vector<TDF_Label>;
+typedef LODoc_Object NaiveDoc_Object;
+typedef LODoc_ObjectList NaiveDoc_ObjectList;
+typedef TDF_Label NaiveDoc_Id;
+typedef TDF_LabelList NaiveDoc_IdList;
 
 #endif

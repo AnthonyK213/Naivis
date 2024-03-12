@@ -5,12 +5,12 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local doc = Naivis.NaiveDoc.ActiveDoc
 
-doc.Objects_:Clear()
+doc:Objects():Clear()
 
 local p1 = gp_Pnt()
 local p2 = gp_Pnt(3, 1, 4)
 
 local edge = BRepBuilderAPI_MakeEdge(p1, p2):Edge()
-local id = doc.Objects_:AddShape(edge, true)
+local id = doc:Objects():AddShape(edge, true)
 
 print(id)

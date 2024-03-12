@@ -1,0 +1,17 @@
+{
+    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+    "runtime.version": "LuaJIT",
+    "workspace.library": [
+        "./build/binder-gen/"
+    ],
+    "diagnostics.globals": [
+        "LuaOCCT",
+        "Naivis",
+        "Qt",
+    ],
+    "telemetry.enable": false,
+    "format.defaultConfig": {
+        "indent_style": "space",
+        "indent_size": "2"
+    }
+}
