@@ -25,11 +25,11 @@ void Ext_NaiveDoc(lua_State *L) {
        * ```
        * Begin_Derive(NaiveDoc_Document, LODoc_Document)
        * ```
-       * which will parse instance with a wrong offset.
+       * which will parses instance with a wrong offset.
        */
       .Begin_Class(NaiveDoc_Document)
       .addConstructorFrom<opencascade::handle<NaiveDoc_Document>, void()>()
-      .Bind_Method(NaiveDoc_Document, Init)
+      .Bind_Method(NaiveDoc_Document, InitHeadless)
       .Bind_Method(NaiveDoc_Document, Close)
       .Bind_Method(NaiveDoc_Document, DocumentExplorer)
       .Bind_Method(NaiveDoc_Document, DumpXcafDocumentTree)

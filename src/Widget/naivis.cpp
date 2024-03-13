@@ -12,8 +12,15 @@
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
 
-#include <luaocct/luaocct.h>
 #include <luaocct/LOUtil_OCAF.hxx>
+#include <luaocct/luaocct.h>
+
+static QString getExeDir(const QString &relativePath = QString()) {
+  QString p = QCoreApplication::applicationDirPath();
+  if (relativePath.isNull() || relativePath.isEmpty())
+    return p;
+  return p + '/' + relativePath;
+}
 
 class Naivis::LuaManager {
 public:
@@ -22,7 +29,7 @@ public:
     luaopen_luaocct(myL);
     Ext_Load(myL);
 
-    auto rtp = QCoreApplication::applicationDirPath().toUtf8().toStdString();
+    auto rtp = getExeDir().toUtf8().toStdString();
     pathAppend(rtp);
     cpathAppend(rtp);
   }
@@ -58,7 +65,11 @@ public:
   }
 
   bool doFile(std::string &theErr) const {
-    if (luaL_dofile(myL, myFile.toUtf8().toStdString().c_str()) != 0) {
+    return doFile(myFile.toUtf8().toStdString(), theErr);
+  }
+
+  bool doFile(const std::string &theFile, std::string &theErr) const {
+    if (luaL_dofile(myL, theFile.c_str()) != 0) {
       theErr = lua_tostring(myL, -1);
       lua_pop(myL, -1);
       return false;
@@ -265,8 +276,7 @@ void Naivis::runScript() {
 // }}}
 
 void Naivis::setupSettings() {
-  QString aPath =
-      QCoreApplication::applicationDirPath() + "/NaivisSettings.ini";
+  QString aPath = getExeDir("NaivisSettings.ini");
   mySettings = new NaiveApp_Settings(aPath);
 }
 
@@ -349,6 +359,19 @@ void Naivis::setupScriptEditor() {
 void Naivis::setupLua() {
   myLuaMgr = new LuaManager;
 
+  /* Define alias and import third-party lua libraries.
+   * [luv](https://github.com/luvit/luv)
+   * [wxLua](https://github.com/pkulchenko/wxlua)
+   * - Crash on |lua_close|,
+   *   issue[#20](https://github.com/pkulchenko/wxlua/issues/20)
+   */
+
+  std::string anErr;
+  if (!myLuaMgr->doFile(getExeDir("naivis.lua").toUtf8().toStdString(),
+                        anErr)) {
+    std::cout << anErr << '\n';
+  }
+
   LuaBridge__G(myLuaMgr->L())
       .Begin_Namespace(Naivis)
 
@@ -362,22 +385,6 @@ void Naivis::setupLua() {
       .End_Namespace()
 
       .End_Namespace();
-
-  /* Import third-party lua libraries.
-   * [luv](https://github.com/luvit/luv)
-   * [wxLua](https://github.com/pkulchenko/wxlua)
-   * - Crash on |lua_close|,
-   *   issue[#20](https://github.com/pkulchenko/wxlua/issues/20)
-   */
-
-  std::string anErr;
-  std::string aCode = R"===(
-  _G.uv=require("luv")
-  --_G.wx=require("wx")
-  )===";
-  if (!myLuaMgr->doString(aCode, anErr)) {
-    std::cout << anErr << '\n';
-  }
 }
 
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
