@@ -13,7 +13,7 @@
 #include <TColStd_HArray2OfInteger.hxx>
 #include <TColStd_HArray2OfReal.hxx>
 
-#include <naivecgl/Common/geometry.h>
+#include <naivecgl/Geometry/HalfEdgeMesh.h>
 
 class HalfEdgeMesh_DataSource;
 DEFINE_STANDARD_HANDLE(HalfEdgeMesh_DataSource, MeshVS_DataSource)

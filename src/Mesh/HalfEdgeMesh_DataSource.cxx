@@ -32,9 +32,9 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     myNodes.Add(item);
     const Naive_Point3d &xyz = myMesh->GetVertex(item)->Coord();
 
-    myNodeCoords->SetValue(idxNode, 1, xyz(0));
-    myNodeCoords->SetValue(idxNode, 2, xyz(1));
-    myNodeCoords->SetValue(idxNode, 3, xyz(2));
+    myNodeCoords->SetValue(idxNode, 1, xyz.X());
+    myNodeCoords->SetValue(idxNode, 2, xyz.Y());
+    myNodeCoords->SetValue(idxNode, 3, xyz.Z());
 
     idxNode++;
   }
@@ -49,7 +49,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     myElements.Add(item);
     const auto *aFace = myMesh->GetFace(item);
 
-    Naive_Vector3d V[3];
+    Naive_Point3d V[3];
 
     Standard_Integer idxEdge = 1;
     for (auto it = aFace->EdgeIter(); it.More(); it.Next(), ++idxEdge) {
@@ -64,15 +64,15 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     Naive_Vector3d aV1 = V[1] - V[0];
     Naive_Vector3d aV2 = V[2] - V[1];
 
-    Naive_Vector3d aN = aV1.cross(aV2);
-    if (aN.squaredNorm() > Precision::SquareConfusion())
-      aN.normalize();
+    Naive_Vector3d aN = aV1.Crossed(aV2);
+    if (aN.SquareLength() > Precision::SquareConfusion())
+      aN.Normalize();
     else
       aN = {0., 0., 0.};
 
-    myElemNormals->SetValue(idxElem, 1, aN(0));
-    myElemNormals->SetValue(idxElem, 2, aN(1));
-    myElemNormals->SetValue(idxElem, 3, aN(2));
+    myElemNormals->SetValue(idxElem, 1, aN.X());
+    myElemNormals->SetValue(idxElem, 2, aN.Y());
+    myElemNormals->SetValue(idxElem, 3, aN.Z());
 
     idxElem++;
   }

@@ -29,7 +29,7 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
 
   for (Standard_Integer i = 0; i < vertices.size(); ++i) {
     aPoints.SetValue(i + 1,
-                     {vertices[i].x(), vertices[i].y(), vertices[i].z()});
+                     {vertices[i].X(), vertices[i].Y(), vertices[i].Z()});
   }
 
   for (Standard_Integer i = 0; i < thePoly.Triangles().size(); ++i) {

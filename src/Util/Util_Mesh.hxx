@@ -7,7 +7,7 @@
 
 #include <Mesh/XSDRAWSTLVRML_DataSource_1.hxx>
 
-#include <naivecgl/Common/geometry.h>
+#include <naivecgl/Geometry/TriangleSoup.h>
 
 namespace Util_Mesh {
 
