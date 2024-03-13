@@ -19,6 +19,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_V
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 option(LUAOCCT_BINDER_SUPPRESS_REGENERATION "Suppress regeneration of LuaOCCT-binder" ON)
+option(ENABLE_UNIT_TESTS "" OFF)
 
 include(cmake/FetchLuaOCCT.cmake)
 include(cmake/FetchBinder.cmake)
