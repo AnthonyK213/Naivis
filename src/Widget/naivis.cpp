@@ -22,6 +22,13 @@ static QString getExeDir(const QString &relativePath = QString()) {
   return p + '/' + relativePath;
 }
 
+static QString getLuaDir(const QString &relativePath = QString()) {
+  QString p = QCoreApplication::applicationDirPath() + "/runtime/lua/";
+  if (relativePath.isNull() || relativePath.isEmpty())
+    return p;
+  return p + '/' + relativePath;
+}
+
 class Naivis::LuaManager {
 public:
   LuaManager() : myL(luaL_newstate()) {
@@ -30,7 +37,7 @@ public:
     Ext_Load(myL);
 
     auto rtp = getExeDir().toUtf8().toStdString();
-    pathAppend(rtp);
+    pathAppend(rtp + "/runtime/lua");
     cpathAppend(rtp);
   }
 
@@ -367,7 +374,7 @@ void Naivis::setupLua() {
    */
 
   std::string anErr;
-  if (!myLuaMgr->doFile(getExeDir("naivis.lua").toUtf8().toStdString(),
+  if (!myLuaMgr->doFile(getLuaDir("naivis.lua").toUtf8().toStdString(),
                         anErr)) {
     std::cout << anErr << '\n';
   }

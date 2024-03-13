@@ -91,8 +91,8 @@ install(TARGETS Naivis
 add_custom_command(
   TARGET Naivis POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
-      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+      "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../runtime"
+      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/runtime"
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_BINARY_DIR}/binder-gen/_meta"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/_meta"
@@ -130,8 +130,8 @@ elseif(UNIX AND NOT APPLE)
         "${luaocct_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../lua"
-        "${CMAKE_INSTALL_PREFIX}/bin"
+        "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../runtime"
+        "${CMAKE_INSTALL_PREFIX}/bin/runtime"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/binder-gen/_meta"
         "${CMAKE_INSTALL_PREFIX}/bin"

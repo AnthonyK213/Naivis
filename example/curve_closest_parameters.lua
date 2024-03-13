@@ -16,7 +16,7 @@ local point = gp_Pnt(5, 1, 4)
 local vertex = BRepBuilderAPI_MakeVertex(point):Vertex()
 doc:Objects():AddShape(vertex, false)
 
-local tList = LuaOCCT.LOUtil.LOUtil_Curve.ClosestParameters(circle, point, 1e-7)
+local tList = LuaOCCT.LOUtil.LOUtil_Curve.ClosestParameters(circle, point)
 print("closest_parameters:", inspect(tList))
 
 for _, t in ipairs(tList) do
