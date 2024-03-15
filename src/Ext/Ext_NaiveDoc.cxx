@@ -9,12 +9,6 @@
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 #include <NaiveDoc/NaiveDoc_Object.hxx>
 
-class NaiveDoc_DocumentExplorer : public Standard_Transient,
-                                  public XCAFPrs_DocumentExplorer {
-public:
-  using XCAFPrs_DocumentExplorer::XCAFPrs_DocumentExplorer;
-};
-
 void Ext_NaiveDoc(lua_State *L) {
   LuaBridge__G(L)
       .Begin_Namespace(Naivis)
