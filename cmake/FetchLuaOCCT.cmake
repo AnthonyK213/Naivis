@@ -1,11 +1,18 @@
 include(FetchContent)
 
-FetchContent_Declare(
-  LuaOCCT
-  GIT_REPOSITORY https://github.com/AnthonyK213/LuaOCCT
-  GIT_TAG origin/main
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/LuaOCCT
-  )
+if(DEFINED ENV{LUAOCCT_DIR})
+  FetchContent_Declare(
+    LuaOCCT
+    SOURCE_DIR $ENV{LUAOCCT_DIR}
+    )
+else()
+  FetchContent_Declare(
+    LuaOCCT
+    GIT_REPOSITORY https://github.com/AnthonyK213/LuaOCCT
+    GIT_TAG origin/main
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/LuaOCCT
+    )
+endif()
 
 # FetchContent_MakeAvailable(LuaOCCT)
 FetchContent_GetProperties(luaocct)

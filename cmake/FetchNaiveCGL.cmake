@@ -1,11 +1,18 @@
 include(FetchContent)
 
-FetchContent_Declare(
-  NaiveCGL
-  GIT_REPOSITORY https://github.com/AnthonyK213/NaiveCGL
-  GIT_TAG origin/main
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/NaiveCGL
-  )
+if(DEFINED ENV{NAIVECGL_DIR})
+  FetchContent_Declare(
+    NaiveCGL
+    SOURCE_DIR $ENV{NAIVECGL_DIR}
+    )
+else()
+  FetchContent_Declare(
+    NaiveCGL
+    GIT_REPOSITORY https://github.com/AnthonyK213/NaiveCGL
+    GIT_TAG origin/main
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/NaiveCGL
+    )
+endif()
 
 # FetchContent_MakeAvailable(NaiveCGL)
 FetchContent_GetProperties(naivecgl)
