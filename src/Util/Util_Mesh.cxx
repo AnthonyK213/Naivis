@@ -46,7 +46,7 @@ Naive_H_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh) {
 
   const Standard_Integer nbNodes = theMesh->NbNodes();
   const Standard_Integer nbTris = theMesh->NbTriangles();
-  Naive_Point3d_List vertices{};
+  Naive_Point3dList vertices{};
   Naive_List<Naive_Triangle> triangles{};
   vertices.reserve(nbNodes);
   triangles.reserve(nbTris);

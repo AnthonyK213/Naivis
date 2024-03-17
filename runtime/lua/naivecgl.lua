@@ -103,6 +103,14 @@ Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_Handle theHandle
 
 void Naive_BndShape_ConvexHull2D_Release(Naive_Handle theHandle);
 
+Naive_Handle Naive_BndShape_EnclosingDisc_New();
+
+void Naive_BndShape_EnclosingDisc_Rebuild(Naive_Handle theHandle, int32_t nbPoints, const Naive_Point2d_T *thePoints);
+
+int32_t Naive_BndShape_EnclosingDisc_Circle(const Naive_Handle theHandle, Naive_Point2d_T *theOrigin, double *theR);
+
+void Naive_BndShape_EnclosingDisc_Release(Naive_Handle theHandle);
+
 /// }}}
 
 /// Tessellation {{{
@@ -194,6 +202,45 @@ function naivecgl.Naive_BndShape_ConvexHull2D(thePoints)
   return code, result
 end
 
+---Enclosing disc.
+---@param thePoints number[][]
+---@return number? Origin.X
+---@return number? Origin.Y
+---@return number? R
+function naivecgl.Naive_BndShape_EnclosingDisc(thePoints)
+  if not dylib_ then
+    return
+  end
+
+  local nbPoints = #thePoints;
+  local aPoints = ffi.new("Naive_Point2d_T[?]", nbPoints)
+
+  for i = 1, nbPoints do
+    aPoints[i - 1].x = thePoints[i][1]
+    aPoints[i - 1].y = thePoints[i][2]
+  end
+
+  local aDisc = dylib_.Naive_BndShape_EnclosingDisc_New()
+  dylib_.Naive_BndShape_EnclosingDisc_Rebuild(aDisc, nbPoints, aPoints)
+
+  local anOrigin = ffi.new("Naive_Point2d_T")
+  local aR = ffi.new("double[1]", 0)
+
+  local ok = dylib_.Naive_BndShape_EnclosingDisc_Circle(aDisc, anOrigin, aR)
+  dylib_.Naive_BndShape_EnclosingDisc_Release(aDisc)
+
+  if ok == 1 then
+    return anOrigin.x, anOrigin.y, aR[0]
+  else
+    return
+  end
+end
+
+---comment
+---@param theCenter any
+---@param theRadius any
+---@param theLevel any
+---@return Poly_Triangulation?
 function naivecgl.Naive_Tessellation_TetraSphere(theCenter, theRadius, theLevel)
   if not dylib_ then
     return

@@ -4,7 +4,7 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local doc = Naivis.NaiveDoc.ActiveDoc
 
-doc:Objects():Clear()
+doc:Objects():Clear(false)
 
 local nbPnts = 100
 local aPnts = {}

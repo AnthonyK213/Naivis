@@ -6,7 +6,7 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local inspect = require("inspect")
 
-doc:Objects():Clear()
+doc:Objects():Clear(false)
 
 local circle = Geom_Circle(gp.XOY(), 9)
 local edge = BRepBuilderAPI_MakeEdge(circle):Edge()

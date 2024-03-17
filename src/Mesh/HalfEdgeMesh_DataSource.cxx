@@ -24,7 +24,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
 
   Standard_Integer nbNodes =
       static_cast<Standard_Integer>(myMesh->NbVertices());
-  Naive_Integer_List aVertices = myMesh->GetAllVertices();
+  Naive_IntegerList aVertices = myMesh->GetAllVertices();
   myNodeCoords = new TColStd_HArray2OfReal(1, nbNodes, 1, 3);
 
   Standard_Integer idxNode = 1;
@@ -40,7 +40,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   }
 
   Standard_Integer nbTris = static_cast<Standard_Integer>(myMesh->NbFaces());
-  Naive_Integer_List aTriangles = myMesh->GetAllFaces();
+  Naive_IntegerList aTriangles = myMesh->GetAllFaces();
   myElemNormals = new TColStd_HArray2OfReal(1, nbTris, 1, 3);
   myElemNodes = new TColStd_HArray2OfInteger(1, nbTris, 1, 3);
 

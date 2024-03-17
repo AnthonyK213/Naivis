@@ -1,6 +1,9 @@
 local naivecgl = require("naivecgl")
+local gp = LuaOCCT.gp.gp
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
+local gp_Ax2 = LuaOCCT.gp.gp_Ax2
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local Geom_Circle = LuaOCCT.Geom.Geom_Circle
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local doc = Naivis.NaiveDoc.ActiveDoc
 
@@ -18,22 +21,11 @@ for i = 1, nbPoints do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), false)
 end
 
-local code, convexIndices = naivecgl.Naive_BndShape_ConvexHull2D(aPoints)
+local ox, oy, r = naivecgl.Naive_BndShape_EnclosingDisc(aPoints)
 
-if code == naivecgl.Naive_ConvexHull2D_Done and convexIndices then
-  local count = #convexIndices
-
-  for i = 1, count do
-    local thisIndex = convexIndices[i]
-    local nextIndex = convexIndices[i % count + 1]
-
-    local p1 = gp_Pnt(aPoints[thisIndex][1], aPoints[thisIndex][2], 0)
-    local p2 = gp_Pnt(aPoints[nextIndex][1], aPoints[nextIndex][2], 0)
-
-    doc:Objects():AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), false)
-  end
-else
-  print("Failed", code)
+if ox and oy and r then
+  local circle = Geom_Circle(gp_Ax2(gp_Pnt(ox, oy, 0), gp.DZ()), r)
+  print(ox, oy, r)
+  local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
+  doc:Objects():AddShape(edge, true)
 end
-
-doc:UpdateView()
