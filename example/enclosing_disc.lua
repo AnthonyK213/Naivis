@@ -15,17 +15,19 @@ local aPoints = {}
 for i = 1, nbPoints do
   local x = math.random() * 20 - 10
   local y = math.random() * 20 - 10
-
   aPoints[i] = { x, y }
-
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), false)
 end
 
-local ox, oy, r = naivecgl.Naive_BndShape_EnclosingDisc(aPoints)
+local aDisc = naivecgl.bndshape.EnclosingDisc.new()
+aDisc:ReBuild(aPoints)
+local ok, ox, oy, r = aDisc:Circle()
+aDisc:Dispose()
 
-if ox and oy and r then
+if ok then
   local circle = Geom_Circle(gp_Ax2(gp_Pnt(ox, oy, 0), gp.DZ()), r)
-  print(ox, oy, r)
   local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
-  doc:Objects():AddShape(edge, true)
+  doc:Objects():AddShape(edge, false)
 end
+
+doc:UpdateView()

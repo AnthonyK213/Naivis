@@ -7,7 +7,7 @@
     "diagnostics.globals": [
         "LuaOCCT",
         "Naivis",
-        "Qt",
+        "Qt"
     ],
     "telemetry.enable": false,
     "format.defaultConfig": {

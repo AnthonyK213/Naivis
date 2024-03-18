@@ -18,9 +18,13 @@ for i = 1, nbPoints do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), false)
 end
 
-local code, convexIndices = naivecgl.Naive_BndShape_ConvexHull2D(aPoints)
+local aCH2D = naivecgl.bndshape.ConvexHull2D.new(aPoints)
+aCH2D:Perform()
+local code = aCH2D:Status()
+local convexIndices = aCH2D:ConvexIndices()
+aCH2D:Dispose()
 
-if code == naivecgl.Naive_ConvexHull2D_Done and convexIndices then
+if code == naivecgl.Naive_ConvexHull2D_Done then
   local count = #convexIndices
 
   for i = 1, count do

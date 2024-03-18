@@ -4,7 +4,9 @@ local doc = Naivis.NaiveDoc.ActiveDoc
 
 doc:Objects():Clear(false)
 
-local tetrasphere = naivecgl.Naive_Tessellation_TetraSphere(gp_Pnt(), 10, 10)
+local tetrasphere = naivecgl.tessellation.Naive_Tessellation_TetraSphere(gp_Pnt(), 10, 10)
 if tetrasphere then
-  doc:Objects():AddMesh(tetrasphere, true)
+  doc:Objects():AddMesh(tetrasphere, false)
 end
+
+doc:UpdateView()
