@@ -207,6 +207,7 @@ function naivecgl.Naive_Poly.new(theNodes, theTris)
   for i = 1, nbNodes do
     aNodes[i - 1].x = theNodes[i][1]
     aNodes[i - 1].y = theNodes[i][2]
+    aNodes[i - 1].z = theNodes[i][3]
   end
 
   local nbTris = #theTris
