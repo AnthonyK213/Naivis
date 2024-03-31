@@ -2,6 +2,7 @@
 
 #include <AIS_PointCloud.hxx>
 #include <AIS_Shape.hxx>
+#include <BRepLib.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Curve.hxx>
@@ -70,8 +71,13 @@ QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
     }
 
     case TopAbs_EDGE: {
+      const TopoDS_Edge &anEdge = TopoDS::Edge(anShape);
+      if (!BRepLib::BuildCurve3d(anEdge)) {
+        aProps.push_back("Invalid edge");
+        break;
+      }
       Standard_Real s, e;
-      Handle(Geom_Curve) aCurve = BRep_Tool::Curve(TopoDS::Edge(anShape), s, e);
+      Handle(Geom_Curve) aCurve = BRep_Tool::Curve(anEdge, s, e);
 
       auto aCrvType = aCurve->DynamicType();
 
