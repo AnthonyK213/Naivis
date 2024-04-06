@@ -76,7 +76,7 @@ public:
 protected:
 private:
   Standard_Boolean myIsValid;
-  Naive_H_Mesh myMesh;
+  Handle_Naive_Mesh myMesh;
   TColStd_PackedMapOfInteger myNodes;
   TColStd_PackedMapOfInteger myElements;
   Handle(TColStd_HArray2OfInteger) myElemNodes;

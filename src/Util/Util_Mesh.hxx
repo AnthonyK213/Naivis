@@ -19,7 +19,7 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly);
 /// @brief
 /// @param thePoly3D
 /// @return
-Naive_H_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh);
+Handle_Naive_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh);
 
 /// @brief
 /// @param

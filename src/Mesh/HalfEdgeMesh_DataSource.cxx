@@ -12,12 +12,12 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   if (theMesh.IsNull())
     return;
 
-  Naive_H_Poly soup = Util_Mesh::MeshToNaivePoly3D(theMesh);
+  Handle_Naive_Poly soup = Util_Mesh::MeshToNaivePoly3D(theMesh);
 
   if (!soup || !soup->IsValid())
     return;
 
-  myMesh = std::make_shared<Naive_Mesh>(*soup);
+  myMesh = new Naive_Mesh(*soup);
 
   if (!myMesh->IsValid())
     return;

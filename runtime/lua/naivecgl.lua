@@ -28,7 +28,7 @@ function naivecgl:init()
   end
 
   ffi.cdef [[
-typedef void *Naive_Handle;
+typedef void *Naive_H;
 
 typedef enum {
   Naive_Ok,
@@ -46,7 +46,7 @@ typedef enum {
   Naive_ConvexHull2D_InitDone,
   Naive_ConvexHull2D_Failed,
   Naive_ConvexHull2D_InsufficientPoint,
-  Naive_ConvexHull2D_PointsAreColinear,
+  Naive_ConvexHull2D_PointsAreCollinear,
   Naive_ConvexHull2D_AlgoNotImplemented,
 } Naive_ConvexHull2D_Status;
 
@@ -61,77 +61,121 @@ typedef enum {
   Naive_ConvexHull3D_InitDone,
   Naive_ConvexHull3D_Failed,
   Naive_ConvexHull3D_InsufficientPoint,
-  Naive_ConvexHull3D_PointsAreColinear,
+  Naive_ConvexHull3D_PointsAreCollinear,
   Naive_ConvexHull3D_PointsAreCoplanar,
   Naive_ConvexHull3D_AlgoNotImplemented,
 } Naive_ConvexHull3D_Status;
 
-typedef struct { double x, y; } Naive_Vector2d_T;
-typedef struct { double x, y, z; } Naive_Vector3d_T;
+typedef struct {
+  double x, y;
+} Naive_Vector2d_T;
+
+typedef struct {
+  double x, y, z;
+} Naive_Vector3d_T;
+
 typedef Naive_Vector2d_T Naive_Point2d_T;
 typedef Naive_Vector3d_T Naive_Point3d_T;
-typedef struct { double t0, t1; } Naive_Interval_T;
-typedef struct { Naive_Point3d_T origin; Naive_Vector3d_T xAxis, yAxis; } Naive_Plane_T;
-typedef struct { Naive_Point3d_T from, to; } Naive_Line_T;
-typedef struct { int32_t n0, n1, n2; } Naive_Triangle_T;
+
+typedef struct {
+  double t0, t1;
+} Naive_Interval_T;
+
+typedef struct {
+  Naive_Point3d_T origin;
+  Naive_Vector3d_T xAxis, yAxis;
+} Naive_Plane_T;
+
+typedef struct {
+  Naive_Plane_T plane;
+  double radius;
+} Naive_Circle_T;
+
+typedef struct {
+  Naive_Point3d_T from, to;
+} Naive_Line_T;
+
+typedef struct {
+  Naive_Plane_T plane;
+  Naive_Interval_T x, y;
+} Naive_Rectangle_T;
+
+typedef struct {
+  Naive_Circle_T circle;
+  double height;
+} Naive_Cylinder_T;
+
+typedef struct {
+  int32_t n0, n1, n2;
+} Naive_Triangle_T;
+
+/// Naive_NurbsCurve {{{
+
+Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePoles, const double *theWeights, const int32_t nbKnots, const double *theKnots, const int32_t *theMults, const int32_t theDegree);
+
+bool Naive_NurbsCurve_PointAt(const Naive_H theHandle, const double theT, Naive_Point3d_T *theP);
+
+void Naive_NurbsCurve_Release(Naive_H theHandle);
+
+/// }}}
 
 /// Naive_Poly {{{
 
-Naive_Handle Naive_Poly_New(const int32_t nbVertices, const Naive_Point3d_T *theVertices, const int32_t nbTriangles, const Naive_Triangle_T *theTriangles);
+Naive_H Naive_Poly_New(const int32_t nbVertices, const Naive_Point3d_T *theVertices, const int32_t nbTriangles, const Naive_Triangle_T *theTriangles);
 
-int32_t Naive_Poly_NbVertices(const Naive_Handle theHandle);
+int32_t Naive_Poly_NbVertices(const Naive_H theHandle);
 
-void Naive_Poly_Vertices(const Naive_Handle theHandle, Naive_Point3d_T *theVertices);
+void Naive_Poly_Vertices(const Naive_H theHandle, Naive_Point3d_T *theVertices);
 
-int32_t Naive_Poly_NbTriangles(const Naive_Handle theHandle);
+int32_t Naive_Poly_NbTriangles(const Naive_H theHandle);
 
-void Naive_Poly_Triangles(const Naive_Handle theHandle, Naive_Triangle_T *theTriangles);
+void Naive_Poly_Triangles(const Naive_H theHandle, Naive_Triangle_T *theTriangles);
 
-void Naive_Poly_Release(Naive_Handle theHandle);
+void Naive_Poly_Release(Naive_H theHandle);
 
 /// }}}
 
 /// BndShape {{{
 
-Naive_Handle Naive_BndShape_ConvexHull2D_New(const Naive_Point2d_T *thePoints, int32_t nbPoints, Naive_ConvexHull2D_Algorithm theAlgo);
+Naive_H Naive_BndShape_ConvexHull2D_New(const Naive_Point2d_T *thePoints, int32_t nbPoints, Naive_ConvexHull2D_Algorithm theAlgo);
 
-void Naive_BndShape_ConvexHull2D_SetAlgorithm(Naive_Handle theHandle, Naive_ConvexHull2D_Algorithm theAlgo);
+void Naive_BndShape_ConvexHull2D_SetAlgorithm(Naive_H theHandle, Naive_ConvexHull2D_Algorithm theAlgo);
 
-void Naive_BndShape_ConvexHull2D_Perform(Naive_Handle theHandle);
+void Naive_BndShape_ConvexHull2D_Perform(Naive_H theHandle);
 
-void Naive_BndShape_ConvexHull2D_Add(Naive_Handle theHandle, Naive_Point2d_T thePoint, bool thePerform);
+void Naive_BndShape_ConvexHull2D_Add(Naive_H theHandle, Naive_Point2d_T thePoint, bool thePerform);
 
-Naive_ConvexHull2D_Status Naive_BndShape_ConvexHull2D_Status(const Naive_Handle theHandle);
+Naive_ConvexHull2D_Status Naive_BndShape_ConvexHull2D_Status(const Naive_H theHandle);
 
-int32_t Naive_BndShape_ConvexHull2D_NbConvexPoints(const Naive_Handle theHandle);
+int32_t Naive_BndShape_ConvexHull2D_NbConvexPoints(const Naive_H theHandle);
 
-Naive_Code Naive_BndShape_ConvexHull2D_ConvexIndices(const Naive_Handle theHandle, int32_t *theConvexIndices);
+Naive_Code Naive_BndShape_ConvexHull2D_ConvexIndices(const Naive_H theHandle, int32_t *theConvexIndices);
 
-Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_Handle theHandle, Naive_Point2d_T *theConvexIndices);
+Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_H theHandle, Naive_Point2d_T *theConvexIndices);
 
-void Naive_BndShape_ConvexHull2D_Release(Naive_Handle theHandle);
+void Naive_BndShape_ConvexHull2D_Release(Naive_H theHandle);
 
-Naive_Handle Naive_BndShape_EnclosingDisc_New();
+Naive_H Naive_BndShape_EnclosingDisc_New();
 
-void Naive_BndShape_EnclosingDisc_Rebuild(Naive_Handle theHandle, int32_t nbPoints, const Naive_Point2d_T *thePoints);
+void Naive_BndShape_EnclosingDisc_Rebuild(Naive_H theHandle, int32_t nbPoints, const Naive_Point2d_T *thePoints);
 
-int32_t Naive_BndShape_EnclosingDisc_Circle(const Naive_Handle theHandle, Naive_Point2d_T *theOrigin, double *theR);
+bool Naive_BndShape_EnclosingDisc_Circle(const Naive_H theHandle, Naive_Point2d_T *theOrigin, double *theR);
 
-void Naive_BndShape_EnclosingDisc_Release(Naive_Handle theHandle);
+void Naive_BndShape_EnclosingDisc_Release(Naive_H theHandle);
 
 /// }}}
 
 /// Tessellation {{{
 
-Naive_Handle Naive_Tessellation_TetraSphere(const Naive_Point3d_T *theCenter, double theRadius, int32_t theLevel);
+Naive_H Naive_Tessellation_TetraSphere(const Naive_Point3d_T *theCenter, double theRadius, int32_t theLevel);
 
 /// }}}
 
 /// Release {{{
 
-void Naive_Release_Int32Array(int32_t *theArray);
+void Naive_Release_Int32Array(const int32_t *theArray);
 
-void Naive_Release_DoubleArray(double *theArray);
+void Naive_Release_DoubleArray(const double *theArray);
 
 /// }}}
 ]]
@@ -162,7 +206,7 @@ function naivecgl:initEnums()
   self.Naive_ConvexHull2D_InitDone = dylib_.Naive_ConvexHull2D_InitDone
   self.Naive_ConvexHull2D_Failed = dylib_.Naive_ConvexHull2D_Failed
   self.Naive_ConvexHull2D_InsufficientPoint = dylib_.Naive_ConvexHull2D_InsufficientPoint
-  self.Naive_ConvexHull2D_PointsAreColinear = dylib_.Naive_ConvexHull2D_PointsAreColinear
+  self.Naive_ConvexHull2D_PointsAreCollinear = dylib_.Naive_ConvexHull2D_PointsAreCollinear
   self.Naive_ConvexHull2D_AlgoNotImplemented = dylib_.Naive_ConvexHull2D_AlgoNotImplemented
 
   self.Naive_ConvexHull3D_Quickhull = dylib_.Naive_ConvexHull3D_Quickhull
@@ -173,7 +217,7 @@ function naivecgl:initEnums()
   self.Naive_ConvexHull3D_InitDone = dylib_.Naive_ConvexHull3D_InitDone
   self.Naive_ConvexHull3D_Failed = dylib_.Naive_ConvexHull3D_Failed
   self.Naive_ConvexHull3D_InsufficientPoint = dylib_.Naive_ConvexHull3D_InsufficientPoint
-  self.Naive_ConvexHull3D_PointsAreColinear = dylib_.Naive_ConvexHull3D_PointsAreColinear
+  self.Naive_ConvexHull3D_PointsAreCollinear = dylib_.Naive_ConvexHull3D_PointsAreCollinear
   self.Naive_ConvexHull3D_PointsAreCoplanar = dylib_.Naive_ConvexHull3D_PointsAreCoplanar
   self.Naive_ConvexHull3D_AlgoNotImplemented = dylib_.Naive_ConvexHull3D_AlgoNotImplemented
 end
@@ -185,6 +229,74 @@ end
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local Poly_Triangle = LuaOCCT.Poly.Poly_Triangle
 local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
+
+--------------------------------------------------------------------------------
+--                            Naive_NurbsCurve                                --
+--------------------------------------------------------------------------------
+
+---@class naivecgl.Naive_NurbsCurve
+---@field private myH ffi.cdata*
+naivecgl.Naive_NurbsCurve = {}
+
+---@private
+naivecgl.Naive_NurbsCurve.__index = naivecgl.Naive_NurbsCurve
+
+---Constructor.
+---@param thePoles number[][]
+---@param theWeights number[]
+---@param theKnots number[]
+---@param theMults integer[]
+---@param theDegree integer
+---@return naivecgl.Naive_NurbsCurve
+function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
+  local nbPoles = #thePoles
+  local aPoles = ffi.new("Naive_Point3d_T[?]", nbPoles)
+  for i = 1, nbPoles do
+    aPoles[i - 1].x = thePoles[i][1]
+    aPoles[i - 1].y = thePoles[i][2]
+    aPoles[i - 1].z = thePoles[i][3]
+  end
+  local aWeights = ffi.new("double[?]", #theWeights)
+  for i = 1, #theWeights do
+    aWeights[i - 1] = theWeights[i];
+  end
+  local nbKnots = #theKnots
+  local aKnots = ffi.new("double[?]", nbKnots)
+  for i = 1, nbKnots do
+    aKnots[i - 1] = theKnots[i]
+  end
+  local aMults = ffi.new("int[?]", #theMults)
+  for i = 1, #theMults do
+    aMults[i - 1] = theMults[i]
+  end
+  local aH = dylib_.Naive_NurbsCurve_New(nbPoles, aPoles, aWeights, nbKnots, aKnots, aMults, theDegree)
+
+  local nurbsCurve = {
+    myH = ffi.gc(aH, function(theHandle)
+      dylib_.Naive_NurbsCurve_Release(theHandle)
+    end)
+  }
+  setmetatable(nurbsCurve, naivecgl.Naive_NurbsCurve)
+  return nurbsCurve
+end
+
+---Point at parameter |theT|.
+---@param theT number
+---@return gp_Pnt?
+function naivecgl.Naive_NurbsCurve:PointAt(theT)
+  local aP = ffi.new("Naive_Point3d_T")
+  if dylib_.Naive_NurbsCurve_PointAt(self.myH, theT, aP) then
+    return gp_Pnt(aP.x, aP.y, aP.z)
+  end
+end
+
+---Dispose.
+function naivecgl.Naive_NurbsCurve:Dispose()
+  if self.myH then
+    dylib_.Naive_NurbsCurve_Release(ffi.gc(self.myH, nil))
+    self.myH = nil
+  end
+end
 
 --------------------------------------------------------------------------------
 --                               Naive_Poly                                   --
@@ -426,7 +538,7 @@ function naivecgl.bndshape.EnclosingDisc:Circle()
   local anOrigin = ffi.new("Naive_Point2d_T")
   local aR = ffi.new("double[1]", 0)
   local ok = dylib_.Naive_BndShape_EnclosingDisc_Circle(self.myH, anOrigin, aR)
-  return ok == 1, anOrigin.x, anOrigin.y, aR[0]
+  return ok, anOrigin.x, anOrigin.y, aR[0]
 end
 
 function naivecgl.bndshape.EnclosingDisc:Dispose()
