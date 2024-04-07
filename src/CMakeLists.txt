@@ -1,30 +1,27 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} NAIVIS_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Ext NAIVIS_EXT_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Ghost NAIVIS_GHOST_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/IO NAIVIS_IO_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Mesh NAIVIS_MESH_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/NaiveApp NAIVIS_NAIVEAPP_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/NaiveDoc NAIVIS_NAIVEDOC_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Sketch NAIVIS_SKETCH_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Util NAIVIS_UTIL_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Widget NAIVIS_WIDGET_SRC)
 
-set(PROJECT_SOURCES
-  main.cpp
-  Ext/Ext_Load.cxx
-  Ext/Ext_Manager.cxx
-  Ext/Ext_NaiveApp.cxx
-  Ext/Ext_NaiveDoc.cxx
-  Ext/Ext_Override.cxx
-  Ext/Ext_Qt.cxx
-  IO/IO_LogStream.cxx
-  Mesh/HalfEdgeMesh_DataSource.cxx
-  Mesh/Mesh_MeshVSDriver.cxx
-  Mesh/XSDRAWSTLVRML_DataSource_1.cxx
-  NaiveApp/NaiveApp_Settings.cxx
-  NaiveApp/NaiveApp_Application.cxx
-  NaiveDoc/NaiveDoc_Attribute.cxx
-  NaiveDoc/NaiveDoc_Document.cxx
-  NaiveDoc/NaiveDoc_Object.cxx
-  NaiveDoc/NaiveDoc_ObjectTable.cxx
-  Sketch/Sketch_Command.cxx
-  Sketch/Sketch_Manager.cxx
-  Util/Util_AIS.cxx
-  Util/Util_Mesh.cxx
-  Widget/naivis.cpp
-  Widget/naivis.ui
-  Widget/Widget_OcctViewer.cxx
+set(
+  PROJECT_SOURCES
+  ${NAIVIS_SRC}
+  ${NAIVIS_EXT_SRC}
+  ${NAIVIS_GHOST_SRC}
+  ${NAIVIS_IO_SRC}
+  ${NAIVIS_MESH_SRC}
+  ${NAIVIS_NAIVEAPP_SRC}
+  ${NAIVIS_NAIVEDOC_SRC}
+  ${NAIVIS_SKETCH_SRC}
+  ${NAIVIS_UTIL_SRC}
+  ${NAIVIS_WIDGET_SRC}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Widget/naivis.ui
   )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -50,6 +47,12 @@ else()
       )
   endif()
 endif()
+
+target_include_directories(
+  Naivis
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 
 target_link_libraries(
   Naivis

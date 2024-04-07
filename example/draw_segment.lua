@@ -7,6 +7,7 @@ local Geom_BSplineCurve = LuaOCCT.Geom.Geom_BSplineCurve
 local gp = LuaOCCT.gp.gp
 local gp_Ax2 = LuaOCCT.gp.gp_Ax2
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
+local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
 
 local N = 64
 local S = math.sqrt(0.5)
@@ -30,14 +31,14 @@ local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(aPoles, aWeights, aKnots, aMul
 for i = 1, #aPoles do
   local o = gp_Ax2(gp_Pnt(aPoles[i][1], aPoles[i][2], aPoles[i][3]), gp.DZ())
   local edge = BRepBuilderAPI_MakeEdge(Geom_Circle(o, 0.03)):Edge()
-  doc:Objects():AddShape(edge, false)
+  doc:Objects():AddShape(edge, LODoc_Attribute(), false)
 end
 
 for i = 0, N do
   local aPnt = aNurbsCurve:PointAt(i * 1 / N)
   if aPnt then
     local aVert = BRepBuilderAPI_MakeVertex(aPnt):Vertex()
-    doc:Objects():AddShape(aVert, false)
+    doc:Objects():AddShape(aVert, LODoc_Attribute(), false)
   end
 end
 
@@ -48,6 +49,6 @@ for i, p in ipairs(aPoles) do
 end
 local aBS = Geom_BSplineCurve(poles, aWeights, aKnots, aMults, aDegree, false, false)
 local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
-doc:Objects():AddShape(aShape, false)
+doc:Objects():AddShape(aShape, LODoc_Attribute(), false)
 
 doc:UpdateView()
