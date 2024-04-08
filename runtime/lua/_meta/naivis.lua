@@ -19,3 +19,40 @@ Naivis.NaiveDoc.NaiveDoc_Document = {}
 
 ---@type NaiveDoc_Document
 Naivis.NaiveDoc.ActiveDoc = {}
+
+Naivis.Ghost = {}
+
+---@class Ghost_Attribute
+Naivis.Ghost.Ghost_Attribute = {}
+
+---@class Ghost_Document
+Naivis.Ghost.Ghost_Document = {}
+
+---
+---@param theShape TopoDS_Shape
+---@param theAttr Ghost_Attribute
+---@param theToUpdate boolean
+function Naivis.Ghost.Ghost_Document:AddShape(theShape, theAttr, theToUpdate) end
+
+---
+---@param theMesh Poly_Triangulation
+---@param theAttr Ghost_Attribute
+---@param theToUpdate boolean
+function Naivis.Ghost.Ghost_Document:AddMesh(theMesh, theAttr, theToUpdate) end
+
+---
+---@param theV gp_Vec
+---@param theAnchor gp_Pnt
+---@param theAttr Ghost_Attribute
+---@param theToUpdate boolean
+function Naivis.Ghost.Ghost_Document:AddVector(theV, theAnchor, theAttr, theToUpdate) end
+
+---
+---@param theAx3 gp_Ax3
+---@param theAttr Ghost_Attribute
+---@param theToUpdate boolean
+function Naivis.Ghost.Ghost_Document:AddAx3(theAx3, theAttr, theToUpdate) end
+
+---
+---@return Ghost_Document
+function Naivis.Ghost.NewDocument() end

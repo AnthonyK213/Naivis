@@ -1,6 +1,12 @@
+local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
+local gp = LuaOCCT.gp.gp
+local gp_Ax3 = LuaOCCT.gp.gp_Ax3
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local gp_Vec = LuaOCCT.gp.gp_Vec
-local Bnd_OBB = LuaOCCT.Bnd.Bnd_OBB
-local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
-local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
+
+if not _G.__ghost__ then
+  _G.__ghost__ = Naivis.Ghost.NewDocument()
+end
+
+local idV = __ghost__:AddVector(gp_Vec(10, 10, 10), gp_Pnt(3, -1, 4), Ghost_Attribute(), true)
+local idAx3 = __ghost__:AddAx3(gp_Ax3(gp.XOY()), Ghost_Attribute(), true)

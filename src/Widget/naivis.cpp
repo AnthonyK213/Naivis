@@ -8,6 +8,7 @@
 #include <QStyle>
 
 #include <Ext/Ext_Load.hxx>
+#include <Ghost/Ghost_Document.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
@@ -391,6 +392,13 @@ void Naivis::setupLua() {
       .addProperty("ActiveDoc", [this]() { return document(); })
       .End_Namespace()
 
+      .Begin_Namespace(Ghost)
+      .addFunction("NewDocument",
+                   [this]() -> Handle(Ghost_Document) {
+                     return new Ghost_Document(occtViewer()->Context());
+                   })
+      .End_Namespace()
+
       .End_Namespace();
 }
 
@@ -436,8 +444,7 @@ void Naivis::updateSelectionPropertiesTable(
     auto nbRow = aProps.size() >> 1;
     tbl->setRowCount(nbRow);
     QStringList header;
-    header << "Property"
-           << "Value";
+    header << "Property" << "Value";
     tbl->setHorizontalHeaderLabels(header);
 
     for (int i = 0; i < nbRow; ++i) {
