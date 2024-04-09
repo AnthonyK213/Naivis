@@ -111,7 +111,7 @@ typedef struct {
 
 /// Naive_NurbsCurve {{{
 
-Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePoles, const double *theWeights, const int32_t nbKnots, const double *theKnots, const int32_t *theMults, const int32_t theDegree);
+Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePoles, const int32_t nbWeights, const double *theWeights, const int32_t nbKnots, const double *theKnots, const int32_t nbMults, const int32_t *theMults, const int32_t theDegree);
 
 bool Naive_NurbsCurve_PointAt(const Naive_H theHandle, const double theT, Naive_Point3d_T *theP);
 
@@ -256,8 +256,9 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
     aPoles[i - 1].y = thePoles[i][2]
     aPoles[i - 1].z = thePoles[i][3]
   end
-  local aWeights = ffi.new("double[?]", #theWeights)
-  for i = 1, #theWeights do
+  local nbWeights = #theWeights
+  local aWeights = ffi.new("double[?]", nbWeights)
+  for i = 1, nbWeights do
     aWeights[i - 1] = theWeights[i];
   end
   local nbKnots = #theKnots
@@ -265,11 +266,15 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
   for i = 1, nbKnots do
     aKnots[i - 1] = theKnots[i]
   end
-  local aMults = ffi.new("int[?]", #theMults)
-  for i = 1, #theMults do
+  local nbMults = #theMults
+  local aMults = ffi.new("int[?]", nbMults)
+  for i = 1, nbMults do
     aMults[i - 1] = theMults[i]
   end
-  local aH = dylib_.Naive_NurbsCurve_New(nbPoles, aPoles, aWeights, nbKnots, aKnots, aMults, theDegree)
+  local aH = dylib_.Naive_NurbsCurve_New(
+    nbPoles, aPoles, nbWeights, aWeights,
+    nbKnots, aKnots, nbMults, aMults,
+    theDegree)
 
   local nurbsCurve = {
     myH = ffi.gc(aH, function(theHandle)

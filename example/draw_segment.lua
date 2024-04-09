@@ -22,12 +22,6 @@ local aKnots = { 0, 0.25, 0.5, 0.75, 1 }
 local aMults = { 3, 2, 2, 2, 3 }
 local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(aPoles, aWeights, aKnots, aMults, aDegree)
 
--- for i = 1, #aPoles - 1 do
---   local anEdge = BRepBuilderAPI_MakeEdge(gp_Pnt(aPoles[i][1], aPoles[i][2], aPoles[i][3]),
---     gp_Pnt(aPoles[i + 1][1], aPoles[i + 1][2], aPoles[i + 1][3])):Edge()
---   doc:Objects():AddShape(anEdge, false)
--- end
-
 for i = 1, #aPoles do
   local o = gp_Ax2(gp_Pnt(aPoles[i][1], aPoles[i][2], aPoles[i][3]), gp.DZ())
   local edge = BRepBuilderAPI_MakeEdge(Geom_Circle(o, 0.03)):Edge()
