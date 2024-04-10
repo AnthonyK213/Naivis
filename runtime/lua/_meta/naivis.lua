@@ -22,7 +22,8 @@ Naivis.NaiveDoc.ActiveDoc = {}
 
 Naivis.Ghost = {}
 
----@class Ghost_Attribute
+---@class Ghost_Attribute : LODoc_Attribute
+---@overload fun():Ghost_Attribute
 Naivis.Ghost.Ghost_Attribute = {}
 
 ---@class Ghost_Document
@@ -52,6 +53,22 @@ function Naivis.Ghost.Ghost_Document:AddVector(theV, theAnchor, theAttr, theToUp
 ---@param theAttr Ghost_Attribute
 ---@param theToUpdate boolean
 function Naivis.Ghost.Ghost_Document:AddAx3(theAx3, theAttr, theToUpdate) end
+
+---
+---@param theId QUuid
+---@param theToUpdate boolean
+---@return boolean
+function Naivis.Ghost.Ghost_Document:DeleteObject(theId, theToUpdate) end
+
+---
+---@param theIds QUuid[]
+---@param theToUpdate boolean
+---@return integer
+function Naivis.Ghost.Ghost_Document:DeleteObject(theIds, theToUpdate) end
+
+---
+---@param theToUpdate boolean
+function Naivis.Ghost.Ghost_Document:Clear(theToUpdate) end
 
 ---
 ---@return Ghost_Document

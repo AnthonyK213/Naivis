@@ -25,7 +25,7 @@ local code = aCH2D:Status()
 local convexIndices = aCH2D:ConvexIndices()
 aCH2D:Dispose()
 
-if code == naivecgl.Naive_ConvexHull2D_Done then
+if code == naivecgl.NS.Naive_Ok then
   local count = #convexIndices
 
   for i = 1, count do

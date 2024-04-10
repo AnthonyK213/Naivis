@@ -9,7 +9,7 @@ naivecgl.tessellation = {}
 local ffi = require("ffi")
 
 ---@type ffi.namespace*
-local dylib_ = nil
+naivecgl.NS = nil
 
 local function getDylibPath(theName)
   if jit.os == "Windows" then
@@ -23,7 +23,7 @@ end
 
 ---@private
 function naivecgl:init()
-  if dylib_ then
+  if self.NS then
     return
   end
 
@@ -31,40 +31,27 @@ function naivecgl:init()
 typedef void *Naive_H;
 
 typedef enum {
-  Naive_Ok,
+  Naive_Ok = 0,
   Naive_Err,
+  Naive_Initialized,
+  Naive_NullException,
+  Naive_NotImplemented,
+  Naive_ConvexHull_InsufficientPoint,
+  Naive_ConvexHull_PointsAreCollinear,
+  Naive_ConvexHull_PointsAreCoplanar,
 } Naive_Code;
 
 typedef enum {
-  Naive_ConvexHull2D_Quickhull,
+  Naive_ConvexHull2D_Quickhull = 0,
   Naive_ConvexHull2D_Incremental,
   Naive_ConvexHull2D_GrahamScan,
 } Naive_ConvexHull2D_Algorithm;
 
 typedef enum {
-  Naive_ConvexHull2D_Done,
-  Naive_ConvexHull2D_InitDone,
-  Naive_ConvexHull2D_Failed,
-  Naive_ConvexHull2D_InsufficientPoint,
-  Naive_ConvexHull2D_PointsAreCollinear,
-  Naive_ConvexHull2D_AlgoNotImplemented,
-} Naive_ConvexHull2D_Status;
-
-typedef enum {
-  Naive_ConvexHull3D_Quickhull,
+  Naive_ConvexHull3D_Quickhull = 0,
   Naive_ConvexHull3D_Incremental,
   Naive_ConvexHull3D_DivideAndConquer,
 } Naive_ConvexHull3D_Algorithm;
-
-typedef enum {
-  Naive_ConvexHull3D_Done,
-  Naive_ConvexHull3D_InitDone,
-  Naive_ConvexHull3D_Failed,
-  Naive_ConvexHull3D_InsufficientPoint,
-  Naive_ConvexHull3D_PointsAreCollinear,
-  Naive_ConvexHull3D_PointsAreCoplanar,
-  Naive_ConvexHull3D_AlgoNotImplemented,
-} Naive_ConvexHull3D_Status;
 
 typedef struct {
   double x, y;
@@ -145,7 +132,7 @@ void Naive_BndShape_ConvexHull2D_Perform(Naive_H theHandle);
 
 void Naive_BndShape_ConvexHull2D_Add(Naive_H theHandle, Naive_Point2d_T thePoint, bool thePerform);
 
-Naive_ConvexHull2D_Status Naive_BndShape_ConvexHull2D_Status(const Naive_H theHandle);
+Naive_Code Naive_BndShape_ConvexHull2D_Status(const Naive_H theHandle);
 
 int32_t Naive_BndShape_ConvexHull2D_NbConvexPoints(const Naive_H theHandle);
 
@@ -180,46 +167,7 @@ void Naive_Release_DoubleArray(const double *theArray);
 /// }}}
 ]]
 
-  dylib_ = ffi.load(getDylibPath("NaiveCGL"))
-
-  if dylib_ then
-    self:initEnums()
-  else
-    error("Failed to initialize NaiveCGL")
-  end
-end
-
----@private
-function naivecgl:initEnums()
-  if not dylib_ then
-    return
-  end
-
-  self.Naive_Ok = dylib_.Naive_Ok
-  self.Naive_Err = dylib_.Naive_Err
-
-  self.Naive_ConvexHull2D_Quickhull = dylib_.Naive_ConvexHull2D_Quickhull
-  self.Naive_ConvexHull2D_Incremental = dylib_.Naive_ConvexHull2D_Incremental
-  self.Naive_ConvexHull2D_GrahamScan = dylib_.Naive_ConvexHull2D_GrahamScan
-
-  self.Naive_ConvexHull2D_Done = dylib_.Naive_ConvexHull2D_Done
-  self.Naive_ConvexHull2D_InitDone = dylib_.Naive_ConvexHull2D_InitDone
-  self.Naive_ConvexHull2D_Failed = dylib_.Naive_ConvexHull2D_Failed
-  self.Naive_ConvexHull2D_InsufficientPoint = dylib_.Naive_ConvexHull2D_InsufficientPoint
-  self.Naive_ConvexHull2D_PointsAreCollinear = dylib_.Naive_ConvexHull2D_PointsAreCollinear
-  self.Naive_ConvexHull2D_AlgoNotImplemented = dylib_.Naive_ConvexHull2D_AlgoNotImplemented
-
-  self.Naive_ConvexHull3D_Quickhull = dylib_.Naive_ConvexHull3D_Quickhull
-  self.Naive_ConvexHull3D_Incremental = dylib_.Naive_ConvexHull3D_Incremental
-  self.Naive_ConvexHull3D_DivideAndConquer = dylib_.Naive_ConvexHull3D_DivideAndConquer
-
-  self.Naive_ConvexHull3D_Done = dylib_.Naive_ConvexHull3D_Done
-  self.Naive_ConvexHull3D_InitDone = dylib_.Naive_ConvexHull3D_InitDone
-  self.Naive_ConvexHull3D_Failed = dylib_.Naive_ConvexHull3D_Failed
-  self.Naive_ConvexHull3D_InsufficientPoint = dylib_.Naive_ConvexHull3D_InsufficientPoint
-  self.Naive_ConvexHull3D_PointsAreCollinear = dylib_.Naive_ConvexHull3D_PointsAreCollinear
-  self.Naive_ConvexHull3D_PointsAreCoplanar = dylib_.Naive_ConvexHull3D_PointsAreCoplanar
-  self.Naive_ConvexHull3D_AlgoNotImplemented = dylib_.Naive_ConvexHull3D_AlgoNotImplemented
+  self.NS = ffi.load(getDylibPath("NaiveCGL"))
 end
 
 --------------------------------------------------------------------------------
@@ -271,14 +219,14 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
   for i = 1, nbMults do
     aMults[i - 1] = theMults[i]
   end
-  local aH = dylib_.Naive_NurbsCurve_New(
+  local aH = naivecgl.NS.Naive_NurbsCurve_New(
     nbPoles, aPoles, nbWeights, aWeights,
     nbKnots, aKnots, nbMults, aMults,
     theDegree)
 
   local nurbsCurve = {
     myH = ffi.gc(aH, function(theHandle)
-      dylib_.Naive_NurbsCurve_Release(theHandle)
+      naivecgl.NS.Naive_NurbsCurve_Release(theHandle)
     end)
   }
   setmetatable(nurbsCurve, naivecgl.Naive_NurbsCurve)
@@ -290,7 +238,7 @@ end
 ---@return gp_Pnt?
 function naivecgl.Naive_NurbsCurve:PointAt(theT)
   local aP = ffi.new("Naive_Point3d_T")
-  if dylib_.Naive_NurbsCurve_PointAt(self.myH, theT, aP) then
+  if naivecgl.NS.Naive_NurbsCurve_PointAt(self.myH, theT, aP) then
     return gp_Pnt(aP.x, aP.y, aP.z)
   end
 end
@@ -298,7 +246,7 @@ end
 ---Dispose.
 function naivecgl.Naive_NurbsCurve:Dispose()
   if self.myH then
-    dylib_.Naive_NurbsCurve_Release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_NurbsCurve_Release(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -335,7 +283,7 @@ function naivecgl.Naive_Poly.new(theNodes, theTris)
     aTris[i - 1].n2 = theTris[i][3] - 1
   end
 
-  local aH = dylib_.Naive_Poly_New(nbNodes, aNodes, nbTris, aTris)
+  local aH = naivecgl.NS.Naive_Poly_New(nbNodes, aNodes, nbTris, aTris)
   return naivecgl.Naive_Poly.take(aH)
 end
 
@@ -344,7 +292,7 @@ end
 function naivecgl.Naive_Poly.take(theH)
   local poly = {
     myH = ffi.gc(theH, function(theHandle)
-      dylib_.Naive_Poly_Release(theHandle)
+      naivecgl.NS.Naive_Poly_Release(theHandle)
     end),
   }
   setmetatable(poly, naivecgl.Naive_Poly)
@@ -354,13 +302,13 @@ end
 ---Number of vertices.
 ---@return integer
 function naivecgl.Naive_Poly:NbVertices()
-  return dylib_.Naive_Poly_NbVertices(self.myH)
+  return naivecgl.NS.Naive_Poly_NbVertices(self.myH)
 end
 
 ---Number of triangles.
 ---@return integer
 function naivecgl.Naive_Poly:NbTriangles()
-  return dylib_.Naive_Poly_NbTriangles(self.myH)
+  return naivecgl.NS.Naive_Poly_NbTriangles(self.myH)
 end
 
 ---Vertices.
@@ -368,7 +316,7 @@ end
 function naivecgl.Naive_Poly:Vertices()
   local nbVertices = self:NbVertices()
   local aVertices = ffi.new("Naive_Point3d_T[?]", nbVertices)
-  dylib_.Naive_Poly_Vertices(self.myH, aVertices)
+  naivecgl.NS.Naive_Poly_Vertices(self.myH, aVertices)
 
   local aRes = {}
   for i = 1, nbVertices do
@@ -387,7 +335,7 @@ end
 function naivecgl.Naive_Poly:Triangles()
   local nbTriangles = self:NbTriangles()
   local aTriangles = ffi.new("Naive_Triangle_T[?]", nbTriangles)
-  dylib_.Naive_Poly_Triangles(self.myH, aTriangles)
+  naivecgl.NS.Naive_Poly_Triangles(self.myH, aTriangles)
 
   local aRes = {}
   for i = 1, nbTriangles do
@@ -403,7 +351,7 @@ end
 
 function naivecgl.Naive_Poly:Dispose()
   if self.myH then
-    dylib_.Naive_Poly_Release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Poly_Release(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -424,7 +372,7 @@ naivecgl.bndshape.ConvexHull2D.__index = naivecgl.bndshape.ConvexHull2D
 ---@param theAlgo any
 ---@return naivecgl.bndshape.ConvexHull2D
 function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
-  theAlgo = theAlgo or naivecgl.Naive_ConvexHull2D_Quickhull
+  theAlgo = theAlgo or naivecgl.NS.Naive_ConvexHull2D_Quickhull
 
   local nbPoints = #thePoints
   local aPoints = ffi.new("Naive_Point2d_T[?]", nbPoints)
@@ -433,11 +381,11 @@ function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
     aPoints[i - 1].y = thePoints[i][2]
   end
 
-  local aH = dylib_.Naive_BndShape_ConvexHull2D_New(aPoints, nbPoints, theAlgo)
+  local aH = naivecgl.NS.Naive_BndShape_ConvexHull2D_New(aPoints, nbPoints, theAlgo)
 
   local o = {
     myH = ffi.gc(aH, function(theHandle)
-      dylib_.Naive_BndShape_ConvexHull2D_Release(theHandle)
+      naivecgl.NS.Naive_BndShape_ConvexHull2D_Release(theHandle)
     end)
   }
   setmetatable(o, naivecgl.bndshape.ConvexHull2D)
@@ -445,12 +393,12 @@ function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
 end
 
 function naivecgl.bndshape.ConvexHull2D:SetAlgorithm(theAlgo)
-  dylib_.Naive_BndShape_ConvexHull2D_SetAlgorithm(self.myH, theAlgo)
+  naivecgl.NS.Naive_BndShape_ConvexHull2D_SetAlgorithm(self.myH, theAlgo)
 end
 
 ---Perform the algorithm.
 function naivecgl.bndshape.ConvexHull2D:Perform()
-  dylib_.Naive_BndShape_ConvexHull2D_Perform(self.myH)
+  naivecgl.NS.Naive_BndShape_ConvexHull2D_Perform(self.myH)
 end
 
 ---Add a point.
@@ -462,13 +410,13 @@ function naivecgl.bndshape.ConvexHull2D:Add(thePnt, thePerform)
   end
 
   local aPnt = ffi.new("Naive_Point2d_T", thePnt)
-  dylib_.Naive_BndShape_ConvexHull2D_Add(self.myH, aPnt, thePerform)
+  naivecgl.NS.Naive_BndShape_ConvexHull2D_Add(self.myH, aPnt, thePerform)
 end
 
 ---Get status.
 ---@return unknown
 function naivecgl.bndshape.ConvexHull2D:Status()
-  return dylib_.Naive_BndShape_ConvexHull2D_Status(self.myH)
+  return naivecgl.NS.Naive_BndShape_ConvexHull2D_Status(self.myH)
 end
 
 ---Get the convex indices.
@@ -476,10 +424,10 @@ end
 function naivecgl.bndshape.ConvexHull2D:ConvexIndices()
   local aRes = {}
 
-  if self:Status() == naivecgl.Naive_ConvexHull2D_Done then
-    local count = dylib_.Naive_BndShape_ConvexHull2D_NbConvexPoints(self.myH)
+  if self:Status() == naivecgl.NS.Naive_Ok then
+    local count = naivecgl.NS.Naive_BndShape_ConvexHull2D_NbConvexPoints(self.myH)
     local indices = ffi.new("int32_t[?]", count)
-    dylib_.Naive_BndShape_ConvexHull2D_ConvexIndices(self.myH, indices)
+    naivecgl.NS.Naive_BndShape_ConvexHull2D_ConvexIndices(self.myH, indices)
 
     for i = 1, count do
       aRes[i] = indices[i - 1] + 1
@@ -491,7 +439,7 @@ end
 
 function naivecgl.bndshape.ConvexHull2D:Dispose()
   if self.myH then
-    dylib_.Naive_BndShape_ConvexHull2D_Release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_BndShape_ConvexHull2D_Release(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -510,11 +458,11 @@ naivecgl.bndshape.EnclosingDisc.__index = naivecgl.bndshape.EnclosingDisc
 ---Constructor.
 ---@return naivecgl.bndshape.EnclosingDisc
 function naivecgl.bndshape.EnclosingDisc.new()
-  local aH = dylib_.Naive_BndShape_EnclosingDisc_New()
+  local aH = naivecgl.NS.Naive_BndShape_EnclosingDisc_New()
 
   local o = {
     myH = ffi.gc(aH, function(theHandle)
-      dylib_.Naive_BndShape_EnclosingDisc_Release(theHandle)
+      naivecgl.NS.Naive_BndShape_EnclosingDisc_Release(theHandle)
     end)
   }
   setmetatable(o, naivecgl.bndshape.EnclosingDisc)
@@ -531,7 +479,7 @@ function naivecgl.bndshape.EnclosingDisc:ReBuild(thePoints)
     aPoints[i - 1].y = thePoints[i][2]
   end
 
-  dylib_.Naive_BndShape_EnclosingDisc_Rebuild(self.myH, nbPoints, aPoints)
+  naivecgl.NS.Naive_BndShape_EnclosingDisc_Rebuild(self.myH, nbPoints, aPoints)
 end
 
 ---Get the cicle.
@@ -542,13 +490,13 @@ end
 function naivecgl.bndshape.EnclosingDisc:Circle()
   local anOrigin = ffi.new("Naive_Point2d_T")
   local aR = ffi.new("double[1]", 0)
-  local ok = dylib_.Naive_BndShape_EnclosingDisc_Circle(self.myH, anOrigin, aR)
+  local ok = naivecgl.NS.Naive_BndShape_EnclosingDisc_Circle(self.myH, anOrigin, aR)
   return ok, anOrigin.x, anOrigin.y, aR[0]
 end
 
 function naivecgl.bndshape.EnclosingDisc:Dispose()
   if self.myH then
-    dylib_.Naive_BndShape_EnclosingDisc_Release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_BndShape_EnclosingDisc_Release(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -563,12 +511,10 @@ end
 ---@param theLevel integer
 ---@return Poly_Triangulation?
 function naivecgl.tessellation.Naive_Tessellation_TetraSphere(theCenter, theRadius, theLevel)
-  if not dylib_ then
-    return
-  end
+  if not naivecgl.NS then return end
 
   local aCenter = ffi.new("Naive_Point3d_T", { theCenter:X(), theCenter:Y(), theCenter:Z() })
-  local aHandle = dylib_.Naive_Tessellation_TetraSphere(aCenter, theRadius, theLevel)
+  local aHandle = naivecgl.NS.Naive_Tessellation_TetraSphere(aCenter, theRadius, theLevel)
 
   if not aHandle then
     return

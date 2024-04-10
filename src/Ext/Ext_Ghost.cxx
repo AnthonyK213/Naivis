@@ -15,6 +15,9 @@ void Ext_Ghost(lua_State *L) {
       .Bind_Method(Ghost_Document, AddMesh)
       .Bind_Method(Ghost_Document, AddVector)
       .Bind_Method(Ghost_Document, AddAx3)
+      .Bind_Method(Ghost_Document, DeleteObject)
+      .Bind_Method(Ghost_Document, DeleteObjects)
+      .Bind_Method(Ghost_Document, Clear)
       .End_Derive()
 
       .Begin_Derive(Ghost_Attribute, LODoc_Attribute)

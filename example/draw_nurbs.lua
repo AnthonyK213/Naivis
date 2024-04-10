@@ -8,9 +8,13 @@ local gp = LuaOCCT.gp.gp
 local gp_Ax2 = LuaOCCT.gp.gp_Ax2
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
+local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
+if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
+__ghost__:Clear(false)
 
 local function draw_nurbs_circle(N)
   N = N or 64
@@ -44,7 +48,9 @@ local function draw_nurbs_circle(N)
   end
   local aBS = Geom_BSplineCurve(poles, aWeights, aKnots, aMults, aDegree, false, false)
   local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
-  doc:Objects():AddShape(aShape, LODoc_Attribute(), false)
+  local anAttr = Ghost_Attribute()
+  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+  __ghost__:AddShape(aShape, anAttr, false)
 end
 
 local function draw_nurbs_surface()

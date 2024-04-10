@@ -23,6 +23,7 @@ QUuid Ghost_Document::AddShape(const TopoDS_Shape &theShape,
   aShape->SetOwner(anAttr);
   aShape->SetColor(anAttr->Color());
   myContext->Display(aShape, AIS_Shaded, -1, theToUpdate);
+  myObjects.insert(anId, aShape);
 
   return anId;
 }
@@ -108,6 +109,50 @@ QUuid Ghost_Document::AddAx3(const gp_Ax3 &theAx3,
   aShape->SetCustomColor(aY, Quantity_NOC_GREEN);
   aShape->SetCustomColor(aZ, Quantity_NOC_BLUE);
   myContext->Display(aShape, AIS_Shaded, -1, theToUpdate);
+  myObjects.insert(anId, aShape);
 
   return anId;
+}
+
+Standard_Boolean Ghost_Document::DeleteObject(const QUuid &theId,
+                                              Standard_Boolean theToUpdate) {
+  if (!deleteObjectRaw(theId))
+    return Standard_False;
+
+  if (theToUpdate)
+    myContext->UpdateCurrentViewer();
+
+  return Standard_True;
+}
+
+Standard_Integer Ghost_Document::DeleteObjects(const QList<QUuid> &theIds,
+                                               Standard_Boolean theToUpdate) {
+  Standard_Integer nbDelete = 0;
+
+  for (const QUuid &anId : theIds) {
+    if (deleteObjectRaw(anId))
+      nbDelete++;
+  }
+
+  return nbDelete;
+}
+
+void Ghost_Document::Clear(const Standard_Boolean theToUpdate) {
+  for (const auto &anObj : myObjects) {
+    myContext->Remove(anObj, Standard_False);
+  }
+
+  myObjects.clear();
+}
+
+Standard_Boolean Ghost_Document::deleteObjectRaw(const QUuid &theId) {
+  auto it = myObjects.find(theId);
+  if (it == myObjects.end())
+    return Standard_False;
+
+  Handle(AIS_InteractiveObject) anObj = *it;
+  myContext->Remove(anObj, Standard_False);
+  myObjects.erase(it);
+
+  return Standard_True;
 }
