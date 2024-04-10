@@ -16,7 +16,8 @@ QUuid Ghost_Document::AddShape(const TopoDS_Shape &theShape,
   if (!myContext || theShape.IsNull())
     return {};
 
-  Handle(Ghost_Attribute) anAttr = !theAttr ? new Ghost_Attribute() : theAttr;
+  Handle(Ghost_Attribute) anAttr =
+      !theAttr ? new Ghost_Attribute() : new Ghost_Attribute(*theAttr);
   Handle(AIS_ColoredShape) aShape = new AIS_ColoredShape(theShape);
   QUuid anId = QUuid::createUuid();
   anAttr->setId(anId);

@@ -100,9 +100,31 @@ typedef struct {
 
 Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePoles, const int32_t nbWeights, const double *theWeights, const int32_t nbKnots, const double *theKnots, const int32_t nbMults, const int32_t *theMults, const int32_t theDegree);
 
+int32_t Naive_NurbsCurve_Degree(const Naive_H theHandle);
+
+double Naive_NurbsCurve_FirstParameter(const Naive_H theHandle);
+
+double Naive_NurbsCurve_LastParameter(const Naive_H theHandle);
+
 bool Naive_NurbsCurve_PointAt(const Naive_H theHandle, const double theT, Naive_Point3d_T *theP);
 
+bool Naive_NurbsCurve_TangentAt(const Naive_H theHandle, const double theT, Naive_Vector3d_T *theV);
+
 void Naive_NurbsCurve_Release(Naive_H theHandle);
+
+/// }}}
+
+/// Naive_NurbsSurface {{{
+
+Naive_H Naive_NurbsSurface_New(const int32_t nbUPoles, const int32_t nbVPoles, const Naive_Point3d_T *thePoles, const int32_t nbUWeights, const int32_t nbVWeights, const double *theWeights, const int32_t nbUKnots, const double *theUKnots, const int32_t nbVKnots, const double *theVKnots, const int32_t nbUMults, const int32_t *theUMults, const int32_t nbVMults, const int32_t *theVMults, const int32_t theUDegree, const int32_t theVDegree);
+
+int32_t Naive_NurbsSurface_UDegree(const Naive_H theHandle);
+
+int32_t Naive_NurbsSurface_VDegree(const Naive_H theHandle);
+
+bool Naive_NurbsSurface_PointAt(const Naive_H theHandle, const double theU, const double theV, Naive_Point3d_T *theP);
+
+void Naive_NurbsSurface_Release(Naive_H theHandle);
 
 /// }}}
 
@@ -247,6 +269,127 @@ end
 function naivecgl.Naive_NurbsCurve:Dispose()
   if self.myH then
     naivecgl.NS.Naive_NurbsCurve_Release(ffi.gc(self.myH, nil))
+    self.myH = nil
+  end
+end
+
+--------------------------------------------------------------------------------
+--                            Naive_NurbsCurve                                --
+--------------------------------------------------------------------------------
+
+---@class naivecgl.Naive_NurbsSurface
+---@field private myH ffi.cdata*
+naivecgl.Naive_NurbsSurface = {}
+
+---@private
+naivecgl.Naive_NurbsSurface.__index = naivecgl.Naive_NurbsSurface
+
+---
+---@generic T
+---@param theArr2 T[][]
+---@return integer
+---@return integer
+---@return T[]
+local function flattenArray2(theArr2)
+  if #theArr2 == 0 then
+    return 0, 0, {}
+  end
+
+  local nbU = #theArr2
+  local nbV = #(theArr2[1])
+
+  local aRes = {}
+  for i = 1, nbU, 1 do
+    if #(theArr2[i]) ~= nbV then
+      return 0, 0, {}
+    end
+
+    for j = 1, nbV, 1 do
+      table.insert(aRes, theArr2[i][j])
+    end
+  end
+
+  return nbU, nbV, aRes
+end
+
+---Constructor.
+---@param thePoles number[][][]
+---@param theWeights number[][]
+---@param theUKnots number[]
+---@param theVKnots number[]
+---@param theUMults integer[]
+---@param theVMults integer[]
+---@param theUDegree integer
+---@param theVDegree integer
+---@return naivecgl.Naive_NurbsSurface
+function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
+                                         theUKnots, theVKnots,
+                                         theUMults, theVMults,
+                                         theUDegree, theVDegree)
+  local nbUP, nbVP, aFlatPoles = flattenArray2(thePoles)
+  local aPoles = ffi.new("Naive_Point3d_T[?]", nbUP * nbVP)
+  for i, p in ipairs(aFlatPoles) do
+    aPoles[i - 1].x = p[1]
+    aPoles[i - 1].y = p[2]
+    aPoles[i - 1].z = p[3]
+  end
+
+  local nbUW, nbVW, aFlatWeights = flattenArray2(theWeights)
+  local aWeights = ffi.new("double[?]", nbUW * nbVW)
+  for i, w in ipairs(aFlatWeights) do
+    aWeights[i - 1] = w
+  end
+
+  local nbUKnots = #theUKnots
+  local aUKnots = ffi.new("double[?]", nbUKnots)
+  for i, k in ipairs(theUKnots) do
+    aUKnots[i - 1] = k
+  end
+
+  local nbVKnots = #theVKnots
+  local aVKnots = ffi.new("double[?]", nbVKnots)
+  for i, k in ipairs(theVKnots) do
+    aVKnots[i - 1] = k
+  end
+
+  local nbUMults = #theUMults
+  local aUMults = ffi.new("int32_t[?]", nbUMults)
+  for i, k in ipairs(theUMults) do
+    aUMults[i - 1] = k
+  end
+
+  local nbVMults = #theVMults
+  local aVMults = ffi.new("int32_t[?]", nbVMults)
+  for i, k in ipairs(theVMults) do
+    aVMults[i - 1] = k
+  end
+
+  local aH = naivecgl.NS.Naive_NurbsSurface_New(
+    nbUP, nbVP, aPoles,
+    nbUW, nbVW, aWeights,
+    nbUKnots, aUKnots, nbVKnots, aVKnots,
+    nbUMults, aUMults, nbVMults, aVMults,
+    theUDegree, theVDegree)
+
+  local nurbsSurface = {
+    myH = ffi.gc(aH, function(theHandle)
+      naivecgl.NS.Naive_NurbsSurface_Release(theHandle)
+    end)
+  }
+  setmetatable(nurbsSurface, naivecgl.Naive_NurbsSurface)
+  return nurbsSurface
+end
+
+function naivecgl.Naive_NurbsSurface:PointAt(theU, theV)
+  local aP = ffi.new("Naive_Point3d_T")
+  if naivecgl.NS.Naive_NurbsSurface_PointAt(self.myH, theU, theV, aP) then
+    return gp_Pnt(aP.x, aP.y, aP.z)
+  end
+end
+
+function naivecgl.Naive_NurbsSurface:Dispose()
+  if self.myH then
+    naivecgl.NS.Naive_NurbsSurface_Release(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
