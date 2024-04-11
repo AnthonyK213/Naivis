@@ -4,6 +4,8 @@
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
 
+#include <Util/Util_Mesh.hxx>
+
 IMPLEMENT_STANDARD_RTTIEXT(Ghost_Document, Standard_Transient)
 
 Ghost_Document::Ghost_Document(const Handle(AIS_InteractiveContext) &
@@ -35,7 +37,17 @@ QUuid Ghost_Document::AddMesh(const Handle(Poly_Triangulation) & theMesh,
   if (!myContext || theMesh.IsNull())
     return {};
 
-  return {};
+  Handle(Ghost_Attribute) anAttr =
+      !theAttr ? new Ghost_Attribute() : new Ghost_Attribute(*theAttr);
+  Handle(MeshVS_Mesh) aMesh = Util_Mesh::CreateMeshVS(theMesh);
+  QUuid anId = QUuid::createUuid();
+  anAttr->setId(anId);
+  aMesh->SetOwner(anAttr);
+  aMesh->SetColor(anAttr->Color());
+  myContext->Display(aMesh, MeshVS_DMF_Shading, -1, theToUpdate);
+  myObjects.insert(anId, aMesh);
+
+  return anId;
 }
 
 static TopoDS_Shape makeArrow(const gp_Vec &theV, const gp_Pnt &theAnchor,
@@ -136,6 +148,11 @@ Standard_Integer Ghost_Document::DeleteObjects(const QList<QUuid> &theIds,
   }
 
   return nbDelete;
+}
+
+Standard_Integer Ghost_Document::TransformObject(const QUuid &theId,
+                                                 Standard_Boolean theToUpdate) {
+  return Standard_True;
 }
 
 void Ghost_Document::Clear(const Standard_Boolean theToUpdate) {

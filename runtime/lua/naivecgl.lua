@@ -146,7 +146,7 @@ void Naive_Poly_Release(Naive_H theHandle);
 
 /// BndShape {{{
 
-Naive_H Naive_BndShape_ConvexHull2D_New(const Naive_Point2d_T *thePoints, int32_t nbPoints, Naive_ConvexHull2D_Algorithm theAlgo);
+Naive_H Naive_BndShape_ConvexHull2D_New(int32_t nbPoints, const Naive_Point2d_T *thePoints, Naive_ConvexHull2D_Algorithm theAlgo);
 
 void Naive_BndShape_ConvexHull2D_SetAlgorithm(Naive_H theHandle, Naive_ConvexHull2D_Algorithm theAlgo);
 
@@ -160,7 +160,7 @@ int32_t Naive_BndShape_ConvexHull2D_NbConvexPoints(const Naive_H theHandle);
 
 Naive_Code Naive_BndShape_ConvexHull2D_ConvexIndices(const Naive_H theHandle, int32_t *theConvexIndices);
 
-Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_H theHandle, Naive_Point2d_T *theConvexIndices);
+Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_H theHandle, Naive_Point2d_T *theConvexPoints);
 
 void Naive_BndShape_ConvexHull2D_Release(Naive_H theHandle);
 
@@ -190,15 +190,234 @@ void Naive_Release_DoubleArray(const double *theArray);
 ]]
 
   self.NS = ffi.load(getDylibPath("NaiveCGL"))
+
+  if not self.NS then
+    error("Failed to initialize NaiveCGL")
+  end
 end
 
 --------------------------------------------------------------------------------
---                                 LuaOCCT                                    --
+--                                Primitive                                   --
 --------------------------------------------------------------------------------
 
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local Poly_Triangle = LuaOCCT.Poly.Poly_Triangle
-local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
+---@class naivecgl.Naive_Point2d
+---@field private myH ffi.cdata*
+---@operator call:naivecgl.Naive_Point2d
+naivecgl.Naive_Point2d = { myType = "Naive_Point2d_T" }
+
+---@private
+naivecgl.Naive_Point2d.__index = naivecgl.Naive_Point2d
+
+---Constructor.
+---@param theX number?
+---@param theY number?
+---@return naivecgl.Naive_Point2d
+function naivecgl.Naive_Point2d.new(theX, theY)
+  return naivecgl.Naive_Point2d.take(ffi.new(naivecgl.Naive_Point2d.myType, {
+    x = theX or 0, y = theY or 0
+  }))
+end
+
+setmetatable(naivecgl.Naive_Point2d, {
+  __call = function(o, ...)
+    return o.new(...)
+  end
+})
+
+function naivecgl.Naive_Point2d.take(theH)
+  local pnt = { myH = theH }
+  setmetatable(pnt, naivecgl.Naive_Point2d)
+  return pnt
+end
+
+---
+---@return number
+function naivecgl.Naive_Point2d:X()
+  return self.myH.x
+end
+
+---
+---@return number
+function naivecgl.Naive_Point2d:Y()
+  return self.myH.y
+end
+
+---
+---@return ffi.cdata*
+function naivecgl.Naive_Point2d:Data()
+  return self.myH
+end
+
+---@class naivecgl.Naive_Point3d
+---@field private myH ffi.cdata*
+---@operator call:naivecgl.Naive_Point3d
+naivecgl.Naive_Point3d = { myType = "Naive_Point3d_T" }
+
+---@private
+naivecgl.Naive_Point3d.__index = naivecgl.Naive_Point3d
+
+---Constructor.
+---@param theX number?
+---@param theY number?
+---@param theZ number?
+---@return naivecgl.Naive_Point3d
+function naivecgl.Naive_Point3d.new(theX, theY, theZ)
+  return naivecgl.Naive_Point3d.take(ffi.new(naivecgl.Naive_Point3d.myType, {
+    x = theX or 0, y = theY or 0, z = theZ or 0
+  }))
+end
+
+setmetatable(naivecgl.Naive_Point3d, {
+  __call = function(o, ...)
+    return o.new(...)
+  end
+})
+
+---
+---@param theH ffi.cdata*
+---@return naivecgl.Naive_Point3d
+function naivecgl.Naive_Point3d.take(theH)
+  local pnt = { myH = theH }
+  setmetatable(pnt, naivecgl.Naive_Point3d)
+  return pnt
+end
+
+---
+---@return number
+function naivecgl.Naive_Point3d:X()
+  return self.myH.x
+end
+
+---
+---@return number
+function naivecgl.Naive_Point3d:Y()
+  return self.myH.y
+end
+
+---
+---@return number
+function naivecgl.Naive_Point3d:Z()
+  return self.myH.z
+end
+
+---
+---@return ffi.cdata*
+function naivecgl.Naive_Point3d:Data()
+  return self.myH
+end
+
+--------------------------------------------------------------------------------
+--                               Collections                                  --
+--------------------------------------------------------------------------------
+
+---
+---@param theObj any
+---@return ffi.cdata*
+local function getFFIType(theObj)
+  if type(theObj) == "table" then
+    return theObj.myType
+  elseif type(theObj) == "string" then
+    return theObj
+  else
+    error("Unknown ffi type")
+  end
+end
+
+---
+---@param theObj any
+---@return any
+local function getFFIData(theObj)
+  if type(theObj) == "table" then
+    return theObj:Data()
+  else
+    return theObj
+  end
+end
+
+---1-indexed
+---@class naivecgl.Naive_Array<T>
+---@field private myType any
+---@field private myH ffi.cdata*
+---@field private mySize integer
+naivecgl.Naive_Array = {}
+
+---@private
+naivecgl.Naive_Array.__index = naivecgl.Naive_Array
+
+---Constructor.
+---@generic T
+---@param theList T[]
+---@return naivecgl.Naive_Array
+function naivecgl.Naive_Array:new(theList)
+  local aSize = #theList
+  local aH = ffi.new(ffi.typeof(getFFIType(self.myType) .. "[?]"), aSize)
+  for i = 1, aSize do
+    aH[i - 1] = getFFIData(theList[i])
+  end
+  return self:take(aH, aSize)
+end
+
+---
+---@param theH ffi.cdata*?
+---@param theSize integer
+---@return naivecgl.Naive_Array
+function naivecgl.Naive_Array:take(theH, theSize)
+  local arr = { myH = theH, mySize = theH == nil and 0 or theSize }
+  setmetatable(arr, self)
+  return arr
+end
+
+---
+---@return integer
+function naivecgl.Naive_Array:Size()
+  return self.mySize
+end
+
+---
+---@return ffi.cdata*
+function naivecgl.Naive_Array:Data()
+  return self.myH
+end
+
+---
+---@generic T
+---@param theIndex integer
+---@return T
+function naivecgl.Naive_Array:Value(theIndex)
+  if theIndex < 1 or theIndex > self.mySize then
+    error("Out of range")
+  end
+  if type(self.myType) == "table" then
+    return self.myType.take(self.myH[theIndex - 1])
+  else
+    return self.myH[theIndex - 1]
+  end
+end
+
+function naivecgl.Naive_Array:Unset()
+  return self:take(nil, 0)
+end
+
+---
+---@param theType table|string
+local function declareArray(theType)
+  local arr = { myType = theType }
+  setmetatable(arr, naivecgl.Naive_Array)
+  arr.__index = arr
+  return arr
+end
+
+---@class naivecgl.Naive_Int32Array : naivecgl.Naive_Array<integer>
+naivecgl.Naive_Int32Array = declareArray("int32_t")
+
+---@class naivecgl.Naive_DoubleArray : naivecgl.Naive_Array<number>
+naivecgl.Naive_DoubleArray = declareArray("double")
+
+---@class naivecgl.Naive_Point2dArray : naivecgl.Naive_Array<naivecgl.Naive_Point2d>
+naivecgl.Naive_Point2dArray = declareArray(naivecgl.Naive_Point2d)
+
+---@class naivecgl.Naive_Point3dArray : naivecgl.Naive_Array<naivecgl.Naive_Point3d>
+naivecgl.Naive_Point3dArray = declareArray(naivecgl.Naive_Point3d)
 
 --------------------------------------------------------------------------------
 --                            Naive_NurbsCurve                                --
@@ -212,38 +431,21 @@ naivecgl.Naive_NurbsCurve = {}
 naivecgl.Naive_NurbsCurve.__index = naivecgl.Naive_NurbsCurve
 
 ---Constructor.
----@param thePoles number[][]
+---@param thePoles naivecgl.Naive_Point3d[]
 ---@param theWeights number[]
 ---@param theKnots number[]
 ---@param theMults integer[]
 ---@param theDegree integer
 ---@return naivecgl.Naive_NurbsCurve
 function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
-  local nbPoles = #thePoles
-  local aPoles = ffi.new("Naive_Point3d_T[?]", nbPoles)
-  for i = 1, nbPoles do
-    aPoles[i - 1].x = thePoles[i][1]
-    aPoles[i - 1].y = thePoles[i][2]
-    aPoles[i - 1].z = thePoles[i][3]
-  end
-  local nbWeights = #theWeights
-  local aWeights = ffi.new("double[?]", nbWeights)
-  for i = 1, nbWeights do
-    aWeights[i - 1] = theWeights[i];
-  end
-  local nbKnots = #theKnots
-  local aKnots = ffi.new("double[?]", nbKnots)
-  for i = 1, nbKnots do
-    aKnots[i - 1] = theKnots[i]
-  end
-  local nbMults = #theMults
-  local aMults = ffi.new("int[?]", nbMults)
-  for i = 1, nbMults do
-    aMults[i - 1] = theMults[i]
-  end
+  local aPoles = naivecgl.Naive_Point3dArray:new(thePoles)
+  local aWeights = naivecgl.Naive_DoubleArray:new(theWeights)
+  local aKnots = naivecgl.Naive_DoubleArray:new(theKnots)
+  local aMults = naivecgl.Naive_Int32Array:new(theMults)
+
   local aH = naivecgl.NS.Naive_NurbsCurve_New(
-    nbPoles, aPoles, nbWeights, aWeights,
-    nbKnots, aKnots, nbMults, aMults,
+    aPoles:Size(), aPoles:Data(), aWeights:Size(), aWeights:Data(),
+    aKnots:Size(), aKnots:Data(), aMults:Size(), aMults:Data(),
     theDegree)
 
   local nurbsCurve = {
@@ -257,11 +459,11 @@ end
 
 ---Point at parameter |theT|.
 ---@param theT number
----@return gp_Pnt?
+---@return naivecgl.Naive_Point3d?
 function naivecgl.Naive_NurbsCurve:PointAt(theT)
   local aP = ffi.new("Naive_Point3d_T")
   if naivecgl.NS.Naive_NurbsCurve_PointAt(self.myH, theT, aP) then
-    return gp_Pnt(aP.x, aP.y, aP.z)
+    return naivecgl.Naive_Point3d.take(aP)
   end
 end
 
@@ -313,7 +515,7 @@ local function flattenArray2(theArr2)
 end
 
 ---Constructor.
----@param thePoles number[][][]
+---@param thePoles naivecgl.Naive_Point3d[][]
 ---@param theWeights number[][]
 ---@param theUKnots number[]
 ---@param theVKnots number[]
@@ -327,48 +529,21 @@ function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
                                          theUMults, theVMults,
                                          theUDegree, theVDegree)
   local nbUP, nbVP, aFlatPoles = flattenArray2(thePoles)
-  local aPoles = ffi.new("Naive_Point3d_T[?]", nbUP * nbVP)
-  for i, p in ipairs(aFlatPoles) do
-    aPoles[i - 1].x = p[1]
-    aPoles[i - 1].y = p[2]
-    aPoles[i - 1].z = p[3]
-  end
+  local aPoles = naivecgl.Naive_Point3dArray:new(aFlatPoles)
 
   local nbUW, nbVW, aFlatWeights = flattenArray2(theWeights)
-  local aWeights = ffi.new("double[?]", nbUW * nbVW)
-  for i, w in ipairs(aFlatWeights) do
-    aWeights[i - 1] = w
-  end
+  local aWeights = naivecgl.Naive_DoubleArray:new(aFlatWeights)
 
-  local nbUKnots = #theUKnots
-  local aUKnots = ffi.new("double[?]", nbUKnots)
-  for i, k in ipairs(theUKnots) do
-    aUKnots[i - 1] = k
-  end
-
-  local nbVKnots = #theVKnots
-  local aVKnots = ffi.new("double[?]", nbVKnots)
-  for i, k in ipairs(theVKnots) do
-    aVKnots[i - 1] = k
-  end
-
-  local nbUMults = #theUMults
-  local aUMults = ffi.new("int32_t[?]", nbUMults)
-  for i, k in ipairs(theUMults) do
-    aUMults[i - 1] = k
-  end
-
-  local nbVMults = #theVMults
-  local aVMults = ffi.new("int32_t[?]", nbVMults)
-  for i, k in ipairs(theVMults) do
-    aVMults[i - 1] = k
-  end
+  local aUKnots = naivecgl.Naive_DoubleArray:new(theUKnots)
+  local aVKnots = naivecgl.Naive_DoubleArray:new(theVKnots)
+  local aUMults = naivecgl.Naive_Int32Array:new(theUMults)
+  local aVMults = naivecgl.Naive_Int32Array:new(theVMults)
 
   local aH = naivecgl.NS.Naive_NurbsSurface_New(
-    nbUP, nbVP, aPoles,
-    nbUW, nbVW, aWeights,
-    nbUKnots, aUKnots, nbVKnots, aVKnots,
-    nbUMults, aUMults, nbVMults, aVMults,
+    nbUP, nbVP, aPoles:Data(),
+    nbUW, nbVW, aWeights:Data(),
+    aUKnots:Size(), aUKnots:Data(), aVKnots:Size(), aVKnots:Data(),
+    aUMults:Size(), aUMults:Data(), aVMults:Size(), aVMults:Data(),
     theUDegree, theVDegree)
 
   local nurbsSurface = {
@@ -380,10 +555,14 @@ function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
   return nurbsSurface
 end
 
+---
+---@param theU number
+---@param theV number
+---@return naivecgl.Naive_Point3d?
 function naivecgl.Naive_NurbsSurface:PointAt(theU, theV)
   local aP = ffi.new("Naive_Point3d_T")
   if naivecgl.NS.Naive_NurbsSurface_PointAt(self.myH, theU, theV, aP) then
-    return gp_Pnt(aP.x, aP.y, aP.z)
+    return naivecgl.Naive_Point3d.take(aP)
   end
 end
 
@@ -406,16 +585,14 @@ naivecgl.Naive_Poly = {}
 naivecgl.Naive_Poly.__index = naivecgl.Naive_Poly
 
 ---Constructor.
----@param theNodes number[][]
+---@param theNodes naivecgl.Naive_Point3d[]
 ---@param theTris integer[][] 1-indexed
 ---@return naivecgl.Naive_Poly
 function naivecgl.Naive_Poly.new(theNodes, theTris)
   local nbNodes = #theNodes
   local aNodes = ffi.new("Naive_Point3d_T[?]", nbNodes)
   for i = 1, nbNodes do
-    aNodes[i - 1].x = theNodes[i][1]
-    aNodes[i - 1].y = theNodes[i][2]
-    aNodes[i - 1].z = theNodes[i][3]
+    aNodes[i - 1] = theNodes[i]:Data()
   end
 
   local nbTris = #theTris
@@ -455,22 +632,12 @@ function naivecgl.Naive_Poly:NbTriangles()
 end
 
 ---Vertices.
----@return number[][]
+---@return naivecgl.Naive_Point3dArray
 function naivecgl.Naive_Poly:Vertices()
   local nbVertices = self:NbVertices()
   local aVertices = ffi.new("Naive_Point3d_T[?]", nbVertices)
   naivecgl.NS.Naive_Poly_Vertices(self.myH, aVertices)
-
-  local aRes = {}
-  for i = 1, nbVertices do
-    aRes[i] = {
-      aVertices[i - 1].x,
-      aVertices[i - 1].y,
-      aVertices[i - 1].z,
-    }
-  end
-
-  return aRes
+  return naivecgl.Naive_Point3dArray:take(aVertices, nbVertices)
 end
 
 ---Triangles (1-indexed).
@@ -511,20 +678,14 @@ naivecgl.bndshape.ConvexHull2D = {}
 naivecgl.bndshape.ConvexHull2D.__index = naivecgl.bndshape.ConvexHull2D
 
 ---Constructor.
----@param thePoints number[][]
+---@param thePoints naivecgl.Naive_Point2d[]
 ---@param theAlgo any
 ---@return naivecgl.bndshape.ConvexHull2D
 function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
   theAlgo = theAlgo or naivecgl.NS.Naive_ConvexHull2D_Quickhull
 
-  local nbPoints = #thePoints
-  local aPoints = ffi.new("Naive_Point2d_T[?]", nbPoints)
-  for i = 1, nbPoints do
-    aPoints[i - 1].x = thePoints[i][1]
-    aPoints[i - 1].y = thePoints[i][2]
-  end
-
-  local aH = naivecgl.NS.Naive_BndShape_ConvexHull2D_New(aPoints, nbPoints, theAlgo)
+  local aPoints = naivecgl.Naive_Point2dArray:new(thePoints)
+  local aH = naivecgl.NS.Naive_BndShape_ConvexHull2D_New(aPoints:Size(), aPoints:Data(), theAlgo)
 
   local o = {
     myH = ffi.gc(aH, function(theHandle)
@@ -557,7 +718,7 @@ function naivecgl.bndshape.ConvexHull2D:Add(thePnt, thePerform)
 end
 
 ---Get status.
----@return unknown
+---@return any
 function naivecgl.bndshape.ConvexHull2D:Status()
   return naivecgl.NS.Naive_BndShape_ConvexHull2D_Status(self.myH)
 end
@@ -613,28 +774,21 @@ function naivecgl.bndshape.EnclosingDisc.new()
 end
 
 ---Rebuild the disc.
----@param thePoints number[][]
+---@param thePoints naivecgl.Naive_Point2d[]
 function naivecgl.bndshape.EnclosingDisc:ReBuild(thePoints)
-  local nbPoints = #thePoints;
-  local aPoints = ffi.new("Naive_Point2d_T[?]", nbPoints)
-  for i = 1, nbPoints do
-    aPoints[i - 1].x = thePoints[i][1]
-    aPoints[i - 1].y = thePoints[i][2]
-  end
-
-  naivecgl.NS.Naive_BndShape_EnclosingDisc_Rebuild(self.myH, nbPoints, aPoints)
+  local aPoints = naivecgl.Naive_Point2dArray:new(thePoints)
+  naivecgl.NS.Naive_BndShape_EnclosingDisc_Rebuild(self.myH, aPoints:Size(), aPoints:Data())
 end
 
 ---Get the cicle.
 ---@return boolean
----@return number origin.x
----@return number origin.y
+---@return naivecgl.Naive_Point2d origin
 ---@return number r
 function naivecgl.bndshape.EnclosingDisc:Circle()
   local anOrigin = ffi.new("Naive_Point2d_T")
   local aR = ffi.new("double[1]", 0)
   local ok = naivecgl.NS.Naive_BndShape_EnclosingDisc_Circle(self.myH, anOrigin, aR)
-  return ok, anOrigin.x, anOrigin.y, aR[0]
+  return ok, naivecgl.Naive_Point2d.take(anOrigin), aR[0]
 end
 
 function naivecgl.bndshape.EnclosingDisc:Dispose()
@@ -649,36 +803,13 @@ end
 --------------------------------------------------------------------------------
 
 ---Calculates the tetrasphere with a tessellation level.
----@param theCenter gp_Pnt
+---@param theCenter naivecgl.Naive_Point3d
 ---@param theRadius number
 ---@param theLevel integer
----@return Poly_Triangulation?
+---@return naivecgl.Naive_Poly
 function naivecgl.tessellation.Naive_Tessellation_TetraSphere(theCenter, theRadius, theLevel)
-  if not naivecgl.NS then return end
-
-  local aCenter = ffi.new("Naive_Point3d_T", { theCenter:X(), theCenter:Y(), theCenter:Z() })
-  local aHandle = naivecgl.NS.Naive_Tessellation_TetraSphere(aCenter, theRadius, theLevel)
-
-  if not aHandle then
-    return
-  end
-
-  local tetrasphere = naivecgl.Naive_Poly.take(aHandle)
-  local aVertices = tetrasphere:Vertices()
-  local aTriangles = tetrasphere:Triangles()
-  tetrasphere:Dispose()
-
-  local vList = {}
-  for i, v in ipairs(aVertices) do
-    vList[i] = gp_Pnt(v[1], v[2], v[3])
-  end
-
-  local tList = {}
-  for i, t in ipairs(aTriangles) do
-    tList[i] = Poly_Triangle(t[1], t[2], t[3])
-  end
-
-  return Poly_Triangulation(vList, tList)
+  local aHandle = naivecgl.NS.Naive_Tessellation_TetraSphere(theCenter:Data(), theRadius, theLevel)
+  return naivecgl.Naive_Poly.take(aHandle)
 end
 
 --------------------------------------------------------------------------------

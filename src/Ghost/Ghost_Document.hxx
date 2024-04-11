@@ -34,6 +34,10 @@ public:
   Standard_Integer DeleteObjects(const QList<QUuid> &theIds,
                                  Standard_Boolean theToUpdate = Standard_False);
 
+  Standard_Integer
+  TransformObject(const QUuid &theId,
+                  Standard_Boolean theToUpdate = Standard_False);
+
   void Clear(Standard_Boolean theToUpdate);
 
   DEFINE_STANDARD_RTTIEXT(Ghost_Document, Standard_Transient)

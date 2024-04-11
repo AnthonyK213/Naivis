@@ -38,7 +38,11 @@ public:
     Ext_Load(myL);
 
     auto rtp = getExeDir().toUtf8().toStdString();
+#ifdef NDEBUG
     pathAppend(rtp + "/runtime/lua");
+#else
+    pathAppend(rtp + "/../../../runtime/lua");
+#endif
     cpathAppend(rtp);
   }
 

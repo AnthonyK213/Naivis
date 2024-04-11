@@ -11,6 +11,7 @@ local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
 local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
 local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
+local P3 = naivecgl.Naive_Point3d
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -22,7 +23,17 @@ local function draw_nurbs_circle(N)
   local S = math.sqrt(0.5)
 
   local aDegree = 2
-  local aPoles = { { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { -1, 1, 0 }, { -1, 0, 0 }, { -1, -1, 0 }, { 0, -1, 0 }, { 1, -1, 0 }, { 1, 0, 0 } }
+  local aPoles = {
+    P3(10, 0, 0),
+    P3(10, 10, 0),
+    P3(0, 10, 0),
+    P3(-10, 10, 0),
+    P3(-10, 0, 0),
+    P3(-10, -10, 0),
+    P3(0, -10, 0),
+    P3(10, -10, 0),
+    P3(10, 0, 0)
+  }
   local aWeights = { 1, S, 1, S, 1, S, 1, S, 1 }
   local aKnots = { 0, 0.25, 0.5, 0.75, 1 }
   local aMults = { 3, 2, 2, 2, 3 }
@@ -32,14 +43,14 @@ local function draw_nurbs_circle(N)
   pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
   for _, p in ipairs(aPoles) do
-    local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p[1], p[2], p[3]), 0.03):Shape()
+    local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
     __ghost__:AddShape(pole, pAttr, false)
   end
 
   for i = 0, N do
     local aPnt = aNurbsCurve:PointAt(i / N)
     if aPnt then
-      local aVert = BRepBuilderAPI_MakeVertex(aPnt):Vertex()
+      local aVert = BRepBuilderAPI_MakeVertex(gp_Pnt(aPnt:X(), aPnt:Y(), aPnt:Z())):Vertex()
       doc:Objects():AddShape(aVert, LODoc_Attribute(), false)
     end
   end
@@ -62,9 +73,9 @@ local function draw_nurbs_surface(N)
   local aUDegree = 2
   local aVDegree = 2
   local aPoles = {
-    { { 0, 0, 1.3 }, { 1, 0, 1.1 }, { 2, 0, 0.6 } },
-    { { 0, 1, 1.9 }, { 1, 1, 1.5 }, { 2, 1, 1.1 } },
-    { { 0, 2, 1.2 }, { 1, 2, 0.4 }, { 2, 2, 1.5 } },
+    { P3(0, 0, 13),  P3(10, 0, 11),  P3(20, 0, 6) },
+    { P3(0, 10, 19), P3(10, 10, 15), P3(20, 10, 11) },
+    { P3(0, 20, 12), P3(10, 20, 4),  P3(20, 20, 15) },
   }
   local aWeights = {
     { 1, 1, 1 },
@@ -85,7 +96,7 @@ local function draw_nurbs_surface(N)
 
   for _, c in ipairs(aPoles) do
     for _, p in ipairs(c) do
-      local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p[1], p[2], p[3]), 0.03):Shape()
+      local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
       __ghost__:AddShape(pole, pAttr, false)
     end
   end
@@ -94,7 +105,7 @@ local function draw_nurbs_surface(N)
     for j = 0, N do
       local aPnt = aNurbsSurface:PointAt(i / N, j / N)
       if aPnt then
-        local aVert = BRepBuilderAPI_MakeVertex(aPnt):Vertex()
+        local aVert = BRepBuilderAPI_MakeVertex(gp_Pnt(aPnt:X(), aPnt:Y(), aPnt:Z())):Vertex()
         doc:Objects():AddShape(aVert, LODoc_Attribute(), false)
       end
     end
