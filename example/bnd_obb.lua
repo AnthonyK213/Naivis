@@ -3,9 +3,13 @@ local Bnd_OBB = LuaOCCT.Bnd.Bnd_OBB
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local doc = Naivis.NaiveDoc.ActiveDoc
+local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 
+local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
+if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
+__ghost__:Clear(false)
 
 local nbPnts = 100
 local aPnts = {}
@@ -24,7 +28,9 @@ anOBB:ReBuild(aPnts, true)
 local aCorners = anOBB:GetVertex()
 
 local function addEdge(m, n)
-  doc:Objects():AddShape(BRepBuilderAPI_MakeEdge(aCorners[m], aCorners[n]):Edge(), LODoc_Attribute(), false)
+  local anAttr = Ghost_Attribute()
+  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+  __ghost__:AddShape(BRepBuilderAPI_MakeEdge(aCorners[m], aCorners[n]):Edge(), anAttr, false)
 end
 
 addEdge(1, 2)

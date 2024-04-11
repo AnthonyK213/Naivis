@@ -6,10 +6,14 @@ local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVert
 local Geom_Circle = LuaOCCT.Geom.Geom_Circle
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
+local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 local P2 = naivecgl.Naive_Point2d
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
+if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
+__ghost__:Clear(false)
 
 local nbPoints = 100
 local aPoints = {}
@@ -29,7 +33,9 @@ aDisc:Dispose()
 if ok then
   local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:X(), o:Y(), 0), gp.DZ()), r)
   local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
-  doc:Objects():AddShape(edge, LODoc_Attribute(), false)
+  local anAttr = Ghost_Attribute()
+  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+  __ghost__:AddShape(edge, anAttr, false)
 end
 
 doc:UpdateView()

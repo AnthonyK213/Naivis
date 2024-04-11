@@ -110,6 +110,8 @@ bool Naive_NurbsCurve_PointAt(const Naive_H theHandle, const double theT, Naive_
 
 bool Naive_NurbsCurve_TangentAt(const Naive_H theHandle, const double theT, Naive_Vector3d_T *theV);
 
+bool Naive_NurbsCurve_DerivativeAt(const Naive_H theHandle, const double theT, int32_t theN, int32_t *nbD, Naive_Vector3d_T *theD);
+
 void Naive_NurbsCurve_Release(Naive_H theHandle);
 
 /// }}}
@@ -177,14 +179,6 @@ void Naive_BndShape_EnclosingDisc_Release(Naive_H theHandle);
 /// Tessellation {{{
 
 Naive_H Naive_Tessellation_TetraSphere(const Naive_Point3d_T *theCenter, double theRadius, int32_t theLevel);
-
-/// }}}
-
-/// Release {{{
-
-void Naive_Release_Int32Array(const int32_t *theArray);
-
-void Naive_Release_DoubleArray(const double *theArray);
 
 /// }}}
 ]]
