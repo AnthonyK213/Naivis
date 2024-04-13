@@ -5,7 +5,7 @@ local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
 local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
 local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
-local P2 = naivecgl.Naive_Point2d
+local P2 = naivecgl.Naive_XY
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)

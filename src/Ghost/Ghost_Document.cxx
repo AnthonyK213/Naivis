@@ -12,18 +12,20 @@ Ghost_Document::Ghost_Document(const Handle(AIS_InteractiveContext) &
                                theContext)
     : myContext(theContext) {}
 
-QUuid Ghost_Document::AddShape(const TopoDS_Shape &theShape,
-                               const Handle(Ghost_Attribute) & theAttr,
-                               Standard_Boolean theToUpdate) {
+Ghost_Id Ghost_Document::AddShape(const TopoDS_Shape &theShape,
+                                  const Handle(Ghost_Attribute) & theAttr,
+                                  Standard_Boolean theToUpdate) {
   if (!myContext || theShape.IsNull())
     return {};
 
-  Handle(Ghost_Attribute) anAttr =
-      !theAttr ? new Ghost_Attribute() : new Ghost_Attribute(*theAttr);
   Handle(AIS_ColoredShape) aShape = new AIS_ColoredShape(theShape);
-  QUuid anId = QUuid::createUuid();
+  Handle(Ghost_Attribute) anAttr = Ghost_Attribute::Set(aShape, theAttr);
+  if (!anAttr)
+    return {};
+
+  Ghost_Id anId = Ghost_Id::createUuid();
+  anAttr->setType(Ghost_OTShape);
   anAttr->setId(anId);
-  aShape->SetOwner(anAttr);
   aShape->SetColor(anAttr->Color());
   myContext->Display(aShape, AIS_Shaded, -1, theToUpdate);
   myObjects.insert(anId, aShape);
@@ -31,19 +33,20 @@ QUuid Ghost_Document::AddShape(const TopoDS_Shape &theShape,
   return anId;
 }
 
-QUuid Ghost_Document::AddMesh(const Handle(Poly_Triangulation) & theMesh,
-                              const Handle(Ghost_Attribute) & theAttr,
-                              Standard_Boolean theToUpdate) {
+Ghost_Id Ghost_Document::AddMesh(const Handle(Poly_Triangulation) & theMesh,
+                                 const Handle(Ghost_Attribute) & theAttr,
+                                 Standard_Boolean theToUpdate) {
   if (!myContext || theMesh.IsNull())
     return {};
 
-  Handle(Ghost_Attribute) anAttr =
-      !theAttr ? new Ghost_Attribute() : new Ghost_Attribute(*theAttr);
   Handle(MeshVS_Mesh) aMesh = Util_Mesh::CreateMeshVS(theMesh);
-  QUuid anId = QUuid::createUuid();
+  Handle(Ghost_Attribute) anAttr = Ghost_Attribute::Set(aMesh, theAttr);
+  if (!anAttr)
+    return {};
+
+  Ghost_Id anId = Ghost_Id::createUuid();
+  anAttr->setType(Ghost_OTMesh);
   anAttr->setId(anId);
-  aMesh->SetOwner(anAttr);
-  aMesh->SetColor(anAttr->Color());
   myContext->Display(aMesh, MeshVS_DMF_Shading, -1, theToUpdate);
   myObjects.insert(anId, aMesh);
 
@@ -51,18 +54,15 @@ QUuid Ghost_Document::AddMesh(const Handle(Poly_Triangulation) & theMesh,
 }
 
 static TopoDS_Shape makeArrow(const gp_Vec &theV, const gp_Pnt &theAnchor,
-                              const Standard_Real theTipL,
-                              const Standard_Real theTipR,
-                              const Standard_Real theBodyR) {
-  if (theTipL <= Precision::Confusion() || theTipR <= Precision::Confusion() ||
-      theBodyR <= Precision::Confusion() || theTipR < theBodyR)
+                              const Handle(Ghost_AttrOfVector) & theAttr) {
+  if (!theAttr)
     return TopoDS_Shape();
 
   Standard_Real aVLen = theV.Magnitude();
   if (aVLen < Precision::Confusion())
     return TopoDS_Shape();
 
-  Standard_Real aTipLen = theTipL;
+  Standard_Real aTipLen = theAttr->TipL();
   if (aVLen - aTipLen < Precision::Confusion())
     aTipLen = 0.38 * aVLen;
 
@@ -71,9 +71,10 @@ static TopoDS_Shape makeArrow(const gp_Vec &theV, const gp_Pnt &theAnchor,
     return TopoDS_Shape();
 
   gp_Ax2 aBase1(theAnchor, theV);
-  TopoDS_Shape aBody = BRepPrimAPI_MakeCylinder(aBase1, theBodyR, aBodyLen);
+  TopoDS_Shape aBody =
+      BRepPrimAPI_MakeCylinder(aBase1, theAttr->BodyR(), aBodyLen);
   gp_Ax2 aBase2(theAnchor.Translated(theV), -theV);
-  TopoDS_Shape aTip = BRepPrimAPI_MakeCone(aBase2, 0, theTipR, aTipLen);
+  TopoDS_Shape aTip = BRepPrimAPI_MakeCone(aBase2, 0, theAttr->TipR(), aTipLen);
 
   TopoDS_Compound aCompound{};
   BRep_Builder aBuilder{};
@@ -84,27 +85,35 @@ static TopoDS_Shape makeArrow(const gp_Vec &theV, const gp_Pnt &theAnchor,
   return aCompound;
 }
 
-QUuid Ghost_Document::AddVector(const gp_Vec &theV, const gp_Pnt &theAnchor,
-                                const Handle(Ghost_Attribute) & theAttr,
-                                Standard_Boolean theToUpdate) {
-  TopoDS_Shape anArrow = makeArrow(theV, theAnchor, 5, 2, 1);
-  return AddShape(anArrow, theAttr, theToUpdate);
+Ghost_Id Ghost_Document::AddVector(const gp_Vec &theV, const gp_Pnt &theAnchor,
+                                   const Handle(Ghost_AttrOfVector) & theAttr,
+                                   Standard_Boolean theToUpdate) {
+  TopoDS_Shape anArrow = makeArrow(theV, theAnchor, theAttr);
+  Ghost_Id anId = AddShape(anArrow, theAttr, theToUpdate);
+  Handle(Ghost_Object) anObj = Find(anId);
+  Handle(Ghost_AttrOfVector) anAttr = Ghost_AttrOfVector::Get(anObj);
+  if (!anAttr)
+    return {};
+  anAttr->setType(Ghost_OTVector);
+  return anId;
 }
 
-QUuid Ghost_Document::AddAx3(const gp_Ax3 &theAx3,
-                             const Handle(Ghost_Attribute) & theAttr,
-                             Standard_Boolean theToUpdate) {
+Ghost_Id Ghost_Document::AddAx3(const gp_Ax3 &theAx3,
+                                const Handle(Ghost_AttrOfVector) & theAttr,
+                                Standard_Boolean theToUpdate) {
+  Handle(Ghost_AttrOfVector) anAttr =
+      !theAttr ? new Ghost_AttrOfVector : theAttr;
   const gp_Pnt &anAnchor = theAx3.Location();
-  const Standard_Real aTL = 5;
-  const Standard_Real aTR = 2;
-  const Standard_Real aBR = 1;
+  const Standard_Real aTL = anAttr->TipL();
+  const Standard_Real aTR = anAttr->TipR();
+  const Standard_Real aBR = anAttr->BodyR();
   const Standard_Real aL = 42;
   const gp_Vec &aVX = theAx3.XDirection();
   const gp_Vec &aVY = theAx3.YDirection();
   const gp_Vec &aVZ = theAx3.Direction();
-  TopoDS_Shape aX = makeArrow(aVX * aL, anAnchor, aTL, aTR, aBR);
-  TopoDS_Shape aY = makeArrow(aVY * aL, anAnchor, aTL, aTR, aBR);
-  TopoDS_Shape aZ = makeArrow(aVZ * aL, anAnchor, aTL, aTR, aBR);
+  TopoDS_Shape aX = makeArrow(aVX * aL, anAnchor, anAttr);
+  TopoDS_Shape aY = makeArrow(aVY * aL, anAnchor, anAttr);
+  TopoDS_Shape aZ = makeArrow(aVZ * aL, anAnchor, anAttr);
 
   TopoDS_Compound aCompound{};
   BRep_Builder aBuilder{};
@@ -113,11 +122,11 @@ QUuid Ghost_Document::AddAx3(const gp_Ax3 &theAx3,
   aBuilder.Add(aCompound, aY);
   aBuilder.Add(aCompound, aZ);
 
-  Handle(Ghost_Attribute) anAttr = !theAttr ? new Ghost_Attribute() : theAttr;
   Handle(AIS_ColoredShape) aShape = new AIS_ColoredShape(aCompound);
-  QUuid anId = QUuid::createUuid();
-  anAttr->setId(anId);
-  aShape->SetOwner(anAttr);
+  Handle(Ghost_Attribute) anAttr1 = Ghost_Attribute::Set(aShape, anAttr);
+  Ghost_Id anId = Ghost_Id::createUuid();
+  anAttr1->setType(Ghost_OTAx3);
+  anAttr1->setId(anId);
   aShape->SetCustomColor(aX, Quantity_NOC_RED);
   aShape->SetCustomColor(aY, Quantity_NOC_GREEN);
   aShape->SetCustomColor(aZ, Quantity_NOC_BLUE);
@@ -127,7 +136,7 @@ QUuid Ghost_Document::AddAx3(const gp_Ax3 &theAx3,
   return anId;
 }
 
-Standard_Boolean Ghost_Document::DeleteObject(const QUuid &theId,
+Standard_Boolean Ghost_Document::DeleteObject(const Ghost_Id &theId,
                                               Standard_Boolean theToUpdate) {
   if (!deleteObjectRaw(theId))
     return Standard_False;
@@ -138,11 +147,11 @@ Standard_Boolean Ghost_Document::DeleteObject(const QUuid &theId,
   return Standard_True;
 }
 
-Standard_Integer Ghost_Document::DeleteObjects(const QList<QUuid> &theIds,
+Standard_Integer Ghost_Document::DeleteObjects(const QList<Ghost_Id> &theIds,
                                                Standard_Boolean theToUpdate) {
   Standard_Integer nbDelete = 0;
 
-  for (const QUuid &anId : theIds) {
+  for (const Ghost_Id &anId : theIds) {
     if (deleteObjectRaw(anId))
       nbDelete++;
   }
@@ -150,9 +159,16 @@ Standard_Integer Ghost_Document::DeleteObjects(const QList<QUuid> &theIds,
   return nbDelete;
 }
 
-Standard_Integer Ghost_Document::TransformObject(const QUuid &theId,
+Standard_Integer Ghost_Document::TransformObject(const Ghost_Id &theId,
                                                  Standard_Boolean theToUpdate) {
   return Standard_True;
+}
+
+Handle(Ghost_Object) Ghost_Document::Find(const Ghost_Id &theId) const {
+  auto it = myObjects.find(theId);
+  if (it != myObjects.end())
+    return it.value();
+  return nullptr;
 }
 
 void Ghost_Document::Clear(const Standard_Boolean theToUpdate) {
@@ -163,12 +179,12 @@ void Ghost_Document::Clear(const Standard_Boolean theToUpdate) {
   myObjects.clear();
 }
 
-Standard_Boolean Ghost_Document::deleteObjectRaw(const QUuid &theId) {
+Standard_Boolean Ghost_Document::deleteObjectRaw(const Ghost_Id &theId) {
   auto it = myObjects.find(theId);
   if (it == myObjects.end())
     return Standard_False;
 
-  Handle(AIS_InteractiveObject) anObj = *it;
+  Handle(Ghost_Object) anObj = it.value();
   myContext->Remove(anObj, Standard_False);
   myObjects.erase(it);
 

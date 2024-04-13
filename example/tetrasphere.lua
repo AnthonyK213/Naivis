@@ -7,7 +7,7 @@ local doc = Naivis.NaiveDoc.ActiveDoc
 
 doc:Objects():Clear(false)
 
-local tetrasphere = naivecgl.tessellation.Naive_Tessellation_TetraSphere(naivecgl.Naive_Point3d(), 10, 10)
+local tetrasphere = naivecgl.tessellation.Naive_Tessellation_TetraSphere(naivecgl.Naive_XYZ(), 10, 10)
 local aVertices = tetrasphere:Vertices()
 local aTriangles = tetrasphere:Triangles()
 

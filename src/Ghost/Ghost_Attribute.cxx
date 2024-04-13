@@ -2,4 +2,7 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(Ghost_Attribute, LODoc_Attribute)
 
-Ghost_Attribute::Ghost_Attribute() : LODoc_Attribute(), myId() {}
+Naivis_GHOSTATTR_IMPLEMENT_GETSET(Ghost_Attribute);
+
+Ghost_Attribute::Ghost_Attribute()
+    : LODoc_Attribute(), myType(Ghost_OTNone), myId() {}

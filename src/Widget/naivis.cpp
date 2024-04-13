@@ -7,7 +7,6 @@
 #include <QStack>
 #include <QStyle>
 
-#include <Ext/Ext_Load.hxx>
 #include <Ghost/Ghost_Document.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
 #include <Util/Util_AIS.hxx>
@@ -15,6 +14,8 @@
 
 #include <luaocct/LOUtil_OCAF.hxx>
 #include <luaocct/luaocct.h>
+
+#include <Ext/Ext_Load.hxx>
 
 static QString getExeDir(const QString &relativePath = QString()) {
   QString p = QCoreApplication::applicationDirPath();
