@@ -48,6 +48,17 @@ local function draw_nurbs_circle(N)
     __ghost__:AddShape(pole, pAttr, false)
   end
 
+  local cpAttr = Ghost_Attribute()
+  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  for i = 1, #aPoles - 1 do
+    local aThis = aPoles[i]
+    local aNext = aPoles[i + 1]
+    local cp = BRepBuilderAPI_MakeEdge(
+      gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
+      gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+    __ghost__:AddShape(cp, cpAttr, false)
+  end
+
   for i = 0, N do
     local aPnt = aNurbsCurve:PointAt(i / N)
     if aPnt then
@@ -90,7 +101,7 @@ local function draw_nurbs_surface(N)
   local aVDegree = 2
   local aPoles = {
     { P3(15, -10, 3), P3(25, -10, 1), P3(35, -10, -4) },
-    { P3(15, 0, 9),   P3(25, 0, 5),   P3(35, 0, 1) },
+    { P3(15, 0, 9),   P3(25, 0, 0),   P3(35, 0, 1) },
     { P3(15, 10, 2),  P3(25, 10, -6), P3(35, 10, 5) },
   }
   local aWeights = {
@@ -114,6 +125,30 @@ local function draw_nurbs_surface(N)
     for _, p in ipairs(c) do
       local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
       __ghost__:AddShape(pole, pAttr, false)
+    end
+  end
+
+  local cpAttr = Ghost_Attribute()
+  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  for i = 1, #aPoles do
+    local aColThis = aPoles[i]
+    local aColNext = aPoles[i + 1]
+    for j = 1, #aColThis do
+      local aThis = aColThis[j]
+      local aNext = aColThis[j + 1]
+      if aNext then
+        local cp = BRepBuilderAPI_MakeEdge(
+          gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
+          gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+        __ghost__:AddShape(cp, cpAttr, false)
+      end
+      if aColNext then
+        aNext = aColNext[j]
+        local cp = BRepBuilderAPI_MakeEdge(
+          gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
+          gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+        __ghost__:AddShape(cp, cpAttr, false)
+      end
     end
   end
 
