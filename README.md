@@ -23,6 +23,8 @@
   - [OCCT](https://github.com/Open-Cascade-SAS/OCCT) >= 7.6.0
     - [Build OCCT](https://dev.opencascade.org/doc/overview/html/build_upgrade__building_occt.html)
     - Set environment variable `OCCT_DIR`
+  > Environment variables could be set by `.vscode/settings.json` with VSCode,
+  > or `CMakeSettings.json` with Visual Studio.
 - Build [LuaOCCT-binder](https://github.com/AnthonyK213/LuaOCCT-binder) in `build/deps`.
-- Configure with cmake, make sure the source files in `build/binder-gen` are generated successfully.
+- Configure with cmake (with multi-config), make sure the source files in `build/binder-gen` are generated successfully.
 - Build all.
