@@ -2,8 +2,10 @@ local naivecgl = require("naivecgl")
 
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local BRepBuilderAPI_MakeFace = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeFace
 local BRepPrimAPI_MakeSphere = LuaOCCT.BRepPrimAPI.BRepPrimAPI_MakeSphere
 local Geom_BSplineCurve = LuaOCCT.Geom.Geom_BSplineCurve
+local Geom_BSplineSurface = LuaOCCT.Geom.Geom_BSplineSurface
 local gp = LuaOCCT.gp.gp
 local gp_Ax2 = LuaOCCT.gp.gp_Ax2
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
@@ -100,9 +102,9 @@ local function draw_nurbs_surface(N)
   local aUDegree = 2
   local aVDegree = 2
   local aPoles = {
-    { P3(15, -10, 3), P3(25, -10, 1), P3(35, -10, -4) },
-    { P3(15, 0, 9),   P3(25, 0, 0),   P3(35, 0, 1) },
-    { P3(15, 10, 2),  P3(25, 10, -6), P3(35, 10, 5) },
+    { P3(15, -10, 3),  P3(15, 0, 9), P3(15, 10, 2) },
+    { P3(25, -10, 1),  P3(25, 0, 0), P3(25, 10, -6) },
+    { P3(35, -10, -4), P3(35, 0, 1), P3(35, 10, 5) },
   }
   local aWeights = {
     { 1, 1, 1 },
@@ -119,7 +121,7 @@ local function draw_nurbs_surface(N)
     aUDegree, aVDegree)
 
   local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
   for _, c in ipairs(aPoles) do
     for _, p in ipairs(c) do
@@ -161,6 +163,37 @@ local function draw_nurbs_surface(N)
       end
     end
   end
+
+  local u = 0.1
+  local v = 0.4
+  local ok, aD = aNurbsSurface:Evaluate(u, v, 2)
+  if ok then
+    local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
+
+    local anAttr = Ghost_AttrOfVector()
+    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+    for i = 2, aD:Size() do
+      local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
+      __ghost__:AddVector(aV, aP, anAttr, false)
+    end
+  end
+
+  -- Check!
+  local poles = {}
+  for i, col in ipairs(aPoles) do
+    local c = {}
+    for j, item in ipairs(col) do
+      c[j] = gp_Pnt(item:X(), item:Y(), item:Z())
+    end
+    poles[i] = c
+  end
+  local aBS = Geom_BSplineSurface(poles, aWeights, aUKnots, aVKnots, aUMults, aVMults, aUDegree, aVDegree, false, false)
+  local aShape = BRepBuilderAPI_MakeFace(aBS, 1e-2):Face()
+  local anAttr = Ghost_Attribute()
+  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+  local aBS_2 = aBS:DN(u, v, 1, 1)
+  __ghost__:AddShape(aShape, anAttr, false)
+  __ghost__:AddVector(aBS_2, aBS:Value(u, v), Ghost_AttrOfVector(), false)
 end
 
 draw_nurbs_circle()

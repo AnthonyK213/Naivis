@@ -132,6 +132,8 @@ int32_t Naive_NurbsSurface_VDegree(const Naive_H theHandle);
 
 bool Naive_NurbsSurface_PointAt(const Naive_H theHandle, const double theU, const double theV, Naive_Point3d_T *theP);
 
+bool Naive_NurbsSurface_Evaluate(const Naive_H theHandle, const double theU, const double theV, int32_t theN, int32_t *nbD, Naive_Vector3d_T *theD);
+
 void Naive_NurbsSurface_Release(Naive_H theHandle);
 
 /// }}}
@@ -591,6 +593,24 @@ function naivecgl.Naive_NurbsSurface:PointAt(theU, theV)
   if naivecgl.NS.Naive_NurbsSurface_PointAt(self.myH, theU, theV, aP) then
     return naivecgl.Naive_XYZ.take(aP)
   end
+end
+
+---
+---@param theU number
+---@param theV number
+---@param theN integer
+---@return boolean
+---@return naivecgl.Naive_XYZArray
+function naivecgl.Naive_NurbsSurface:Evaluate(theU, theV, theN)
+  local nbD = ffi.new("int32_t[1]", 0)
+  if not naivecgl.NS.Naive_NurbsSurface_Evaluate(self.myH, theU, theV, theN, nbD, nil) then
+    return false, {}
+  end
+  local aD = ffi.new("Naive_Vector3d_T[?]", nbD[0])
+  if not naivecgl.NS.Naive_NurbsSurface_Evaluate(self.myH, theU, theV, theN, nbD, aD) then
+    return false, {}
+  end
+  return true, naivecgl.Naive_XYZArray:take(aD, nbD[0])
 end
 
 function naivecgl.Naive_NurbsSurface:Dispose()
