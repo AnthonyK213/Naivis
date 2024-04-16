@@ -21,11 +21,59 @@ doc:Objects():Clear(false)
 if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
 __ghost__:Clear(false)
 
+if Naivis then
+  Naivis.NaiveApp.Clear()
+end
+
 ---
 ---@param theXYZ naivecgl.Naive_XYZ
 ---@return gp_Pnt
 local function xyz_to_pnt(theXYZ)
   return gp_Pnt(theXYZ:X(), theXYZ:Y(), theXYZ:Z())
+end
+
+---
+---@param theCrv naivecgl.Naive_NurbsCurve
+local function display_nurbs_curve(theCrv, theN)
+  theN = theN or 64
+  local nbPoles = theCrv:NbPoles()
+  ---@type naivecgl.Naive_XYZ[]
+  local aPoles = {}
+  local t0 = theCrv:FirstParameter()
+  local t1 = theCrv:LastParameter()
+
+  local pAttr = Ghost_Attribute()
+  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
+
+  for i = 0, nbPoles - 1 do
+    local aPole = theCrv:Pole(i)
+    aPoles[i + 1] = aPole
+    local pole = BRepPrimAPI_MakeSphere(xyz_to_pnt(aPole), 0.3):Shape()
+    __ghost__:AddShape(pole, pAttr, false)
+  end
+
+  local cpAttr = Ghost_Attribute()
+  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  for i = 1, nbPoles - 1 do
+    local aThis = aPoles[i]
+    local aNext = aPoles[i + 1]
+    local cp = BRepBuilderAPI_MakeEdge(xyz_to_pnt(aThis), xyz_to_pnt(aNext)):Edge()
+    __ghost__:AddShape(cp, cpAttr, false)
+  end
+
+  local prevPnt = xyz_to_pnt(theCrv:PointAt(t0))
+  local segAttr = Ghost_Attribute()
+  segAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
+  for i = 1, theN do
+    local aPnt = xyz_to_pnt(theCrv:PointAt(t0 + i * (t1 - t0) / theN))
+    if aPnt then
+      local aSeg = BRepBuilderAPI_MakeEdge(prevPnt, aPnt):Shape()
+      __ghost__:AddShape(aSeg, segAttr, false)
+      prevPnt = aPnt
+    else
+      error("Invalid point?")
+    end
+  end
 end
 
 ---
@@ -39,41 +87,8 @@ end
 ---@return naivecgl.Naive_NurbsCurve
 ---@return Geom_BSplineCurve
 local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDegree, theCheck, theN)
-  theN = theN or 64
   local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
-
-  local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
-
-  for _, p in ipairs(thePoles) do
-    local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
-    __ghost__:AddShape(pole, pAttr, false)
-  end
-
-  local cpAttr = Ghost_Attribute()
-  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
-  for i = 1, #thePoles - 1 do
-    local aThis = thePoles[i]
-    local aNext = thePoles[i + 1]
-    local cp = BRepBuilderAPI_MakeEdge(
-      gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
-      gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
-    __ghost__:AddShape(cp, cpAttr, false)
-  end
-
-  local prevPnt = xyz_to_pnt(aNurbsCurve:PointAt(theKnots[1]))
-  local segAttr = Ghost_Attribute()
-  segAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
-  for i = 1, theN do
-    local aPnt = xyz_to_pnt(aNurbsCurve:PointAt(theKnots[1] + i * (theKnots[#theKnots] - theKnots[1]) / theN))
-    if aPnt then
-      local aSeg = BRepBuilderAPI_MakeEdge(prevPnt, aPnt):Shape()
-      __ghost__:AddShape(aSeg, segAttr, false)
-      prevPnt = aPnt
-    else
-      error("Invalid point?")
-    end
-  end
+  display_nurbs_curve(aNurbsCurve, theN)
 
   if theCheck then
     local poles = {}
@@ -92,7 +107,7 @@ local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDeg
   return aNurbsCurve, nil
 end
 
-local function draw_nurbs_circle(N)
+local function draw_nurbs_curve(N)
   N = N or 64
   local S = math.sqrt(0.5)
 
@@ -253,10 +268,13 @@ local function nurbs_curve_insert_knot()
   local aMults = { 4, 1, 1, 4 }
   local aDegree = 3
   local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree)
+  aNurbsCurve:InsertKnot(1.8, 1)
+  -- __ghost__:Clear(false)
+  display_nurbs_curve(aNurbsCurve)
 end
 
--- draw_nurbs_circle()
--- draw_nurbs_surface()
+draw_nurbs_curve()
+draw_nurbs_surface()
 nurbs_curve_insert_knot()
 
 doc:UpdateView()

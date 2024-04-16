@@ -108,6 +108,10 @@ Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePo
 
 int32_t Naive_NurbsCurve_Degree(const Naive_H theHandle);
 
+int32_t Naive_NurbsCurve_NbPoles(const Naive_H theHandle);
+
+bool Naive_NurbsCurve_Pole(const Naive_H theHandle, const int32_t theI, Naive_Point3d_T *thePole);
+
 double Naive_NurbsCurve_FirstParameter(const Naive_H theHandle);
 
 double Naive_NurbsCurve_LastParameter(const Naive_H theHandle);
@@ -117,6 +121,8 @@ bool Naive_NurbsCurve_PointAt(const Naive_H theHandle, const double theT, Naive_
 bool Naive_NurbsCurve_TangentAt(const Naive_H theHandle, const double theT, Naive_Vector3d_T *theV);
 
 bool Naive_NurbsCurve_DerivativeAt(const Naive_H theHandle, const double theT, int32_t theN, int32_t *nbD, Naive_Vector3d_T *theD);
+
+bool Naive_NurbsCurve_InsertKnot(Naive_H theHandle, const double theT, const int32_t theM);
 
 void Naive_NurbsCurve_Release(Naive_H theHandle);
 
@@ -459,6 +465,40 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
   return nurbsCurve
 end
 
+---
+---@return integer
+function naivecgl.Naive_NurbsCurve:Degree()
+  return naivecgl.NS.Naive_NurbsCurve_Degree(self.myH)
+end
+
+---
+---@return integer
+function naivecgl.Naive_NurbsCurve:NbPoles()
+  return naivecgl.NS.Naive_NurbsCurve_NbPoles(self.myH)
+end
+
+---
+---@param theI integer
+---@return naivecgl.Naive_XYZ?
+function naivecgl.Naive_NurbsCurve:Pole(theI)
+  local aP = ffi.new(naivecgl.Naive_XYZ.myType)
+  if naivecgl.NS.Naive_NurbsCurve_Pole(self.myH, theI, aP) then
+    return naivecgl.Naive_XYZ.take(aP)
+  end
+end
+
+---
+---@return number
+function naivecgl.Naive_NurbsCurve:FirstParameter()
+  return naivecgl.NS.Naive_NurbsCurve_FirstParameter(self.myH)
+end
+
+---
+---@return number
+function naivecgl.Naive_NurbsCurve:LastParameter()
+  return naivecgl.NS.Naive_NurbsCurve_LastParameter(self.myH)
+end
+
 ---Point at parameter |theT|.
 ---@param theT number
 ---@return naivecgl.Naive_XYZ?
@@ -494,6 +534,14 @@ function naivecgl.Naive_NurbsCurve:DerivativeAt(theT, theN)
     return false, {}
   end
   return true, naivecgl.Naive_XYZArray:take(aD, nbD[0])
+end
+
+---
+---@param theT number
+---@param theM integer
+---@return boolean
+function naivecgl.Naive_NurbsCurve:InsertKnot(theT, theM)
+  return naivecgl.NS.Naive_NurbsCurve_InsertKnot(self.myH, theT, theM)
 end
 
 ---Dispose.
