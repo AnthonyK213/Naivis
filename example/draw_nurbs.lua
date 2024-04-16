@@ -21,11 +21,81 @@ doc:Objects():Clear(false)
 if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
 __ghost__:Clear(false)
 
+---
+---@param theXYZ naivecgl.Naive_XYZ
+---@return gp_Pnt
+local function xyz_to_pnt(theXYZ)
+  return gp_Pnt(theXYZ:X(), theXYZ:Y(), theXYZ:Z())
+end
+
+---
+---@param thePoles naivecgl.Naive_XYZ[]
+---@param theWeights number[]
+---@param theKnots number[]
+---@param theMults integer[]
+---@param theDegree integer
+---@param theCheck boolean?
+---@param theN integer?
+---@return naivecgl.Naive_NurbsCurve
+---@return Geom_BSplineCurve
+local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDegree, theCheck, theN)
+  theN = theN or 64
+  local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
+
+  local pAttr = Ghost_Attribute()
+  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
+
+  for _, p in ipairs(thePoles) do
+    local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
+    __ghost__:AddShape(pole, pAttr, false)
+  end
+
+  local cpAttr = Ghost_Attribute()
+  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  for i = 1, #thePoles - 1 do
+    local aThis = thePoles[i]
+    local aNext = thePoles[i + 1]
+    local cp = BRepBuilderAPI_MakeEdge(
+      gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
+      gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+    __ghost__:AddShape(cp, cpAttr, false)
+  end
+
+  local prevPnt = xyz_to_pnt(aNurbsCurve:PointAt(theKnots[1]))
+  local segAttr = Ghost_Attribute()
+  segAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
+  for i = 1, theN do
+    local aPnt = xyz_to_pnt(aNurbsCurve:PointAt(theKnots[1] + i * (theKnots[#theKnots] - theKnots[1]) / theN))
+    if aPnt then
+      local aSeg = BRepBuilderAPI_MakeEdge(prevPnt, aPnt):Shape()
+      __ghost__:AddShape(aSeg, segAttr, false)
+      prevPnt = aPnt
+    else
+      error("Invalid point?")
+    end
+  end
+
+  if theCheck then
+    local poles = {}
+    for i, p in ipairs(thePoles) do
+      poles[i] = gp_Pnt(p:X(), p:Y(), p:Z())
+    end
+    local aBS = Geom_BSplineCurve(poles, theWeights, theKnots, theMults, theDegree, false, false)
+    local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
+    local anAttr = Ghost_Attribute()
+    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+    __ghost__:AddShape(aShape, anAttr, false)
+
+    return aNurbsCurve, aBS
+  end
+
+  return aNurbsCurve, nil
+end
+
 local function draw_nurbs_circle(N)
   N = N or 64
   local S = math.sqrt(0.5)
 
-  local aDegree = 2
   local aPoles = {
     P3(10, 0, 0),
     P3(10, 10, 0),
@@ -40,34 +110,8 @@ local function draw_nurbs_circle(N)
   local aWeights = { 1, S, 1, S, 1, S, 1, S, 1 }
   local aKnots = { 0, 0.25, 0.5, 0.75, 1 }
   local aMults = { 3, 2, 2, 2, 3 }
-  local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(aPoles, aWeights, aKnots, aMults, aDegree)
-
-  local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
-
-  for _, p in ipairs(aPoles) do
-    local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
-    __ghost__:AddShape(pole, pAttr, false)
-  end
-
-  local cpAttr = Ghost_Attribute()
-  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
-  for i = 1, #aPoles - 1 do
-    local aThis = aPoles[i]
-    local aNext = aPoles[i + 1]
-    local cp = BRepBuilderAPI_MakeEdge(
-      gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
-      gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
-    __ghost__:AddShape(cp, cpAttr, false)
-  end
-
-  for i = 0, N do
-    local aPnt = aNurbsCurve:PointAt(i / N)
-    if aPnt then
-      local aVert = BRepBuilderAPI_MakeVertex(gp_Pnt(aPnt:X(), aPnt:Y(), aPnt:Z())):Vertex()
-      doc:Objects():AddShape(aVert, LODoc_Attribute(), false)
-    end
-  end
+  local aDegree = 2
+  local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree, true)
 
   local t = 0.42
   local ok, aD = aNurbsCurve:DerivativeAt(t, 2)
@@ -87,7 +131,6 @@ local function draw_nurbs_circle(N)
   for i, p in ipairs(aPoles) do
     poles[i] = gp_Pnt(p:X(), p:Y(), p:Z())
   end
-  local aBS = Geom_BSplineCurve(poles, aWeights, aKnots, aMults, aDegree, false, false)
   local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
   local anAttr = Ghost_Attribute()
   anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
@@ -196,7 +239,24 @@ local function draw_nurbs_surface(N)
   __ghost__:AddVector(aBS_2, aBS:Value(u, v), Ghost_AttrOfVector(), false)
 end
 
-draw_nurbs_circle()
-draw_nurbs_surface()
+local function nurbs_curve_insert_knot()
+  local aPoles = {
+    P3(-10, 34, 0),
+    P3(-9, 15, 0),
+    P3(-6, 20, 0),
+    P3(0, 26, 0),
+    P3(4, 17, 0),
+    P3(10, 21, 0),
+  }
+  local aWeights = { 1, 1, 1, 1, 1, 1 }
+  local aKnots = { 0, 1, 2, 3 }
+  local aMults = { 4, 1, 1, 4 }
+  local aDegree = 3
+  local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree)
+end
+
+-- draw_nurbs_circle()
+-- draw_nurbs_surface()
+nurbs_curve_insert_knot()
 
 doc:UpdateView()

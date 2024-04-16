@@ -16,6 +16,6 @@ Ghost_AttrOfVector::Ghost_AttrOfVector() : Ghost_Attribute() {
 void Ghost_AttrOfVector::setData(const Standard_Integer theIndex,
                                  const Standard_Real theData) {
   if (theData > Precision::Confusion() &&
-      naivecgl::math::Util::IsValidDouble(theData))
+      naivecgl::math::Util::IsValidReal(theData))
     myData[theIndex] = theData;
 }
