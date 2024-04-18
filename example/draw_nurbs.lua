@@ -268,7 +268,8 @@ local function nurbs_curve_insert_knot()
   local aMults = { 4, 1, 1, 4 }
   local aDegree = 3
   local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree)
-  aNurbsCurve:InsertKnot(1.8, 1)
+  aNurbsCurve:InsertKnot(1.8, 2)
+  -- aNurbsCurve:IncreaseMultiplicity(2, 2)
   -- __ghost__:Clear(false)
   display_nurbs_curve(aNurbsCurve)
 end

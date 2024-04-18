@@ -122,6 +122,8 @@ bool Naive_NurbsCurve_TangentAt(const Naive_H theHandle, const double theT, Naiv
 
 bool Naive_NurbsCurve_DerivativeAt(const Naive_H theHandle, const double theT, int32_t theN, int32_t *nbD, Naive_Vector3d_T *theD);
 
+bool Naive_NurbsCurve_IncreaseMultiplicity(Naive_H theHandle, const int32_t theI, const int32_t theM);
+
 bool Naive_NurbsCurve_InsertKnot(Naive_H theHandle, const double theT, const int32_t theM);
 
 void Naive_NurbsCurve_Release(Naive_H theHandle);
@@ -534,6 +536,14 @@ function naivecgl.Naive_NurbsCurve:DerivativeAt(theT, theN)
     return false, {}
   end
   return true, naivecgl.Naive_XYZArray:take(aD, nbD[0])
+end
+
+---
+---@param theI integer
+---@param theM integer
+---@return boolean
+function naivecgl.Naive_NurbsCurve:IncreaseMultiplicity(theI, theM)
+  return naivecgl.NS.Naive_NurbsCurve_IncreaseMultiplicity(self.myH, theI, theM)
 end
 
 ---
