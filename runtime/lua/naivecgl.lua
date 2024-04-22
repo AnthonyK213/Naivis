@@ -112,6 +112,14 @@ int32_t Naive_NurbsCurve_NbPoles(const Naive_H theHandle);
 
 bool Naive_NurbsCurve_Pole(const Naive_H theHandle, const int32_t theI, Naive_Point3d_T *thePole);
 
+double Naive_NurbsCurve_Weight(const Naive_H theHandle, const int32_t theI);
+
+int32_t Naive_NurbsCurve_NbKnots(const Naive_H theHandle);
+
+double Naive_NurbsCurve_Knot(const Naive_H theHandle, const int32_t theI);
+
+int32_t Naive_NurbsCurve_Multiplicity(const Naive_H theHandle, const int32_t theI);
+
 double Naive_NurbsCurve_FirstParameter(const Naive_H theHandle);
 
 double Naive_NurbsCurve_LastParameter(const Naive_H theHandle);
@@ -487,6 +495,33 @@ function naivecgl.Naive_NurbsCurve:Pole(theI)
   if naivecgl.NS.Naive_NurbsCurve_Pole(self.myH, theI, aP) then
     return naivecgl.Naive_XYZ.take(aP)
   end
+end
+
+---
+---@param theI integer
+---@return number
+function naivecgl.Naive_NurbsCurve:Weight(theI)
+  return naivecgl.NS.Naive_NurbsCurve_Weight(self.myH, theI)
+end
+
+---
+---@return integer
+function naivecgl.Naive_NurbsCurve:NbKnots()
+  return naivecgl.NS.Naive_NurbsCurve_NbKnots(self.myH)
+end
+
+---
+---@param theI integer
+---@return number
+function naivecgl.Naive_NurbsCurve:Knot(theI)
+  return naivecgl.NS.Naive_NurbsCurve_Knot(self.myH, theI)
+end
+
+---
+---@param theI integer
+---@return integer
+function naivecgl.Naive_NurbsCurve:Multiplicity(theI)
+  return naivecgl.NS.Naive_NurbsCurve_Multiplicity(self.myH, theI)
 end
 
 ---

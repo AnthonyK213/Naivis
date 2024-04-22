@@ -45,12 +45,16 @@ local function display_nurbs_curve(theCrv, theN)
   local pAttr = Ghost_Attribute()
   pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
+  -- Draw control points.
+
   for i = 0, nbPoles - 1 do
     local aPole = theCrv:Pole(i)
     aPoles[i + 1] = aPole
     local pole = BRepPrimAPI_MakeSphere(xyz_to_pnt(aPole), 0.3):Shape()
     __ghost__:AddShape(pole, pAttr, false)
   end
+
+  -- Draw control polygon.
 
   local cpAttr = Ghost_Attribute()
   cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
@@ -60,6 +64,8 @@ local function display_nurbs_curve(theCrv, theN)
     local cp = BRepBuilderAPI_MakeEdge(xyz_to_pnt(aThis), xyz_to_pnt(aNext)):Edge()
     __ghost__:AddShape(cp, cpAttr, false)
   end
+
+  -- Draw curve.
 
   local prevPnt = xyz_to_pnt(theCrv:PointAt(t0))
   local segAttr = Ghost_Attribute()
@@ -72,6 +78,15 @@ local function display_nurbs_curve(theCrv, theN)
       prevPnt = aPnt
     else
       error("Invalid point?")
+    end
+  end
+
+  -- Draw knots.
+  for i = 0, theCrv:NbKnots() - 1 do
+    local aPnt = xyz_to_pnt(theCrv:PointAt(theCrv:Knot(i)))
+    if aPnt then
+      local aVert = BRepBuilderAPI_MakeVertex(aPnt):Shape()
+      __ghost__:AddShape(aVert, Ghost_Attribute(), false)
     end
   end
 end
@@ -128,6 +143,7 @@ local function draw_nurbs_curve(N)
   local aDegree = 2
   local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree, true)
 
+  local vecRatio = 0.1
   local t = 0.42
   local ok, aD = aNurbsCurve:DerivativeAt(t, 2)
   if ok then
@@ -137,7 +153,7 @@ local function draw_nurbs_curve(N)
     anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
     for i = 2, aD:Size() do
       local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
-      __ghost__:AddVector(aV, aP, anAttr, false)
+      __ghost__:AddVector(aV:Multiplied(vecRatio), aP, anAttr, false)
     end
   end
 
@@ -151,7 +167,7 @@ local function draw_nurbs_curve(N)
   anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
   local aBS_2 = aBS:DN(t, 2)
   __ghost__:AddShape(aShape, anAttr, false)
-  __ghost__:AddVector(aBS_2, aBS:Value(t), Ghost_AttrOfVector(), false)
+  __ghost__:AddVector(aBS_2:Multiplied(vecRatio), aBS:Value(t), Ghost_AttrOfVector(), false)
 end
 
 local function draw_nurbs_surface(N)
@@ -165,9 +181,9 @@ local function draw_nurbs_surface(N)
     { P3(35, -10, -4), P3(35, 0, 1), P3(35, 10, 5) },
   }
   local aWeights = {
-    { 1, 1, 1 },
-    { 1, 1, 1 },
-    { 1, 1, 1 },
+    { 0.3, 1.4, 2.9 },
+    { 1.2, 1.2, 1.2 },
+    { 0.8, 1.1, 1.8 },
   }
   local aUKnots = { 0, 1 }
   local aVKnots = { 0, 1 }
@@ -256,14 +272,14 @@ end
 
 local function nurbs_curve_insert_knot()
   local aPoles = {
-    P3(-10, 34, 0),
-    P3(-9, 15, 0),
-    P3(-6, 20, 0),
-    P3(0, 26, 0),
-    P3(4, 17, 0),
-    P3(10, 21, 0),
+    P3(-10, 34, 6),
+    P3(-9, 15, -6),
+    P3(-6, 20, 1),
+    P3(0, 26, 2),
+    P3(4, 17, -3),
+    P3(10, 21, 10),
   }
-  local aWeights = { 1, 1, 1, 1, 1, 1 }
+  local aWeights = { 1.5, 2, 0.5, 1.1, 0.1, 1 }
   local aKnots = { 0, 1, 2, 3 }
   local aMults = { 4, 1, 1, 4 }
   local aDegree = 3
