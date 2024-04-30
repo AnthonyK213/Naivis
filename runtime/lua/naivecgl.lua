@@ -62,42 +62,18 @@ typedef struct {
   double x, y, z;
 } Naive_XYZ_T;
 
-typedef Naive_XY_T Naive_Vector2d_T;
-typedef Naive_XY_T Naive_Point2d_T;
-typedef Naive_XYZ_T Naive_Vector3d_T;
-typedef Naive_XYZ_T Naive_Point3d_T;
-
 typedef struct {
   double t0, t1;
 } Naive_Interval_T;
 
 typedef struct {
-  Naive_Point3d_T origin;
-  Naive_Vector3d_T xAxis, yAxis;
-} Naive_Plane_T;
-
-typedef struct {
-  Naive_Plane_T plane;
-  double radius;
-} Naive_Circle_T;
-
-typedef struct {
-  Naive_Point3d_T from, to;
-} Naive_Line_T;
-
-typedef struct {
-  Naive_Plane_T plane;
-  Naive_Interval_T x, y;
-} Naive_Rectangle_T;
-
-typedef struct {
-  Naive_Circle_T circle;
-  double height;
-} Naive_Cylinder_T;
-
-typedef struct {
   int32_t n0, n1, n2;
 } Naive_Triangle_T;
+
+typedef Naive_XY_T Naive_Vector2d_T;
+typedef Naive_XY_T Naive_Point2d_T;
+typedef Naive_XYZ_T Naive_Vector3d_T;
+typedef Naive_XYZ_T Naive_Point3d_T;
   ]]
 
   -- NaiveCGL_c.h
@@ -105,6 +81,8 @@ typedef struct {
 /// Naive_NurbsCurve {{{
 
 Naive_H Naive_NurbsCurve_New(const int32_t nbPoles, const Naive_Point3d_T *thePoles, const int32_t nbWeights, const double *theWeights, const int32_t nbKnots, const double *theKnots, const int32_t nbMults, const int32_t *theMults, const int32_t theDegree);
+
+Naive_H Naive_NurbsCurve_Clone(const Naive_H theHandle);
 
 int32_t Naive_NurbsCurve_Degree(const Naive_H theHandle);
 
@@ -130,6 +108,8 @@ bool Naive_NurbsCurve_TangentAt(const Naive_H theHandle, const double theT, Naiv
 
 bool Naive_NurbsCurve_DerivativeAt(const Naive_H theHandle, const double theT, int32_t theN, int32_t *nbD, Naive_Vector3d_T *theD);
 
+bool Naive_NurbsCurve_CurvatureAt(const Naive_H theHandle, const double theT, Naive_Vector3d_T *theV);
+
 bool Naive_NurbsCurve_IncreaseMultiplicity(Naive_H theHandle, const int32_t theI, const int32_t theM);
 
 bool Naive_NurbsCurve_InsertKnot(Naive_H theHandle, const double theT, const int32_t theM);
@@ -141,6 +121,8 @@ void Naive_NurbsCurve_Release(Naive_H theHandle);
 /// Naive_NurbsSurface {{{
 
 Naive_H Naive_NurbsSurface_New(const int32_t nbUPoles, const int32_t nbVPoles, const Naive_Point3d_T *thePoles, const int32_t nbUWeights, const int32_t nbVWeights, const double *theWeights, const int32_t nbUKnots, const double *theUKnots, const int32_t nbVKnots, const double *theVKnots, const int32_t nbUMults, const int32_t *theUMults, const int32_t nbVMults, const int32_t *theVMults, const int32_t theUDegree, const int32_t theVDegree);
+
+Naive_H Naive_NurbsSurface_Clone(const Naive_H theHandle);
 
 int32_t Naive_NurbsSurface_UDegree(const Naive_H theHandle);
 
@@ -170,7 +152,7 @@ void Naive_Poly_Release(Naive_H theHandle);
 
 /// }}}
 
-/// BndShape {{{
+/// BndShape_ConvexHull2D {{{
 
 Naive_H Naive_BndShape_ConvexHull2D_New(int32_t nbPoints, const Naive_Point2d_T *thePoints, Naive_ConvexHull2D_Algorithm theAlgo);
 
@@ -188,7 +170,11 @@ Naive_Code Naive_BndShape_ConvexHull2D_ConvexIndices(const Naive_H theHandle, in
 
 Naive_Code Naive_BndShape_ConvexHull2D_ConvexPoints(const Naive_H theHandle, Naive_Point2d_T *theConvexPoints);
 
-void Naive_BndShape_ConvexHull2D_Release(Naive_H theHandle);
+void Naive_BndShape_ConvexHull2D_Release(const Naive_H theHandle);
+
+/// }}}
+
+/// BndShape_EnclosingDisc {{{
 
 Naive_H Naive_BndShape_EnclosingDisc_New();
 
@@ -196,7 +182,7 @@ void Naive_BndShape_EnclosingDisc_Rebuild(Naive_H theHandle, int32_t nbPoints, c
 
 bool Naive_BndShape_EnclosingDisc_Circle(const Naive_H theHandle, Naive_Point2d_T *theOrigin, double *theR);
 
-void Naive_BndShape_EnclosingDisc_Release(Naive_H theHandle);
+void Naive_BndShape_EnclosingDisc_Release(const Naive_H theHandle);
 
 /// }}}
 
@@ -322,6 +308,10 @@ end
 ---@return ffi.cdata*
 function naivecgl.Naive_XYZ:Data()
   return self.myH
+end
+
+function naivecgl.Naive_XYZ:Magnitude()
+  return math.sqrt(self:X() ^ 2 + self:Y() ^ 2 + self:Z() ^ 2)
 end
 
 --------------------------------------------------------------------------------
@@ -571,6 +561,16 @@ function naivecgl.Naive_NurbsCurve:DerivativeAt(theT, theN)
     return false, {}
   end
   return true, naivecgl.Naive_XYZArray:take(aD, nbD[0])
+end
+
+---
+---@param theT number
+---@return naivecgl.Naive_XYZ?
+function naivecgl.Naive_NurbsCurve:CurvatureAt(theT)
+  local aV = ffi.new("Naive_Vector3d_T")
+  if naivecgl.NS.Naive_NurbsCurve_CurvatureAt(self.myH, theT, aV) then
+    return naivecgl.Naive_XYZ.take(aV)
+  end
 end
 
 ---

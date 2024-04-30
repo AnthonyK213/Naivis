@@ -284,10 +284,23 @@ local function nurbs_curve_insert_knot()
   local aMults = { 4, 1, 1, 4 }
   local aDegree = 3
   local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree)
-  aNurbsCurve:InsertKnot(1.8, 2)
+  aNurbsCurve:InsertKnot(0.7, 2)
   -- aNurbsCurve:IncreaseMultiplicity(2, 2)
   -- __ghost__:Clear(false)
   display_nurbs_curve(aNurbsCurve)
+
+  local t = 0.7
+  local aC = aNurbsCurve:CurvatureAt(t)
+  local aP = aNurbsCurve:PointAt(t)
+  if aC and aP then
+    local aV = gp_Vec(aC:X(), aC:Y(), aC:Z())
+    local o = xyz_to_pnt(aP)
+    local r = 1 / aV:Magnitude()
+    aV:Multiply(r * r)
+    o:Translate(aV)
+    local aS = BRepPrimAPI_MakeSphere(o, r):Shape()
+    __ghost__:AddShape(aS, Ghost_Attribute(), false)
+  end
 end
 
 draw_nurbs_curve()
