@@ -22,12 +22,16 @@
 #include <MeshVS_DataSource.hxx>
 #include <MeshVS_EntityType.hxx>
 #include <Poly_Triangulation.hxx>
-#include <Standard_Address.hxx>
 #include <Standard_Integer.hxx>
+#include <Standard_Version.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray2OfInteger.hxx>
 #include <TColStd_HArray2OfReal.hxx>
+
+#if (OCC_VERSION_MAJOR < 7 || (OCC_VERSION_MAJOR == 7 && OCC_VERSION_MINOR < 8))
+#include <Standard_Address.hxx>
+#endif
 
 class XSDRAWSTLVRML_DataSource_1;
 DEFINE_STANDARD_HANDLE(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)

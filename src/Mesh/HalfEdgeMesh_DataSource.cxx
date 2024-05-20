@@ -52,13 +52,13 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     Naive_Point3d V[3];
 
     Standard_Integer idxEdge = 1;
-    for (auto it = aFace->EdgeIter(); it.More(); it.Next(), ++idxEdge) {
+    for (auto it = myMesh->EdgeIter(item); it.More(); it.Next(), ++idxEdge) {
       if (idxEdge > 3)
         return;
 
-      const auto *aEdge = it.Current();
-      myElemNodes->SetValue(idxElem, idxEdge, aEdge->Origin()->Id());
-      V[idxEdge - 1] = aEdge->Origin()->Coord();
+      const auto *aEdge = myMesh->GetHalfEdge(it.Current());
+      myElemNodes->SetValue(idxElem, idxEdge, aEdge->Origin());
+      V[idxEdge - 1] = myMesh->GetVertex(aEdge->Origin())->Coord();
     }
 
     Naive_Vector3d aV1 = V[1] - V[0];
