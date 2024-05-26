@@ -5,7 +5,7 @@
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_DocumentExplorer.hxx>
 
-#include "Ext_NaiveDoc.hxx"
+#include "Ext_Bind.hxx"
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 #include <NaiveDoc/NaiveDoc_Object.hxx>
 

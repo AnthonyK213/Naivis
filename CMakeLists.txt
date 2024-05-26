@@ -72,12 +72,11 @@ message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
-  ${naivecgl_SOURCE_DIR}/include
   ${eigen3_SOURCE_DIR}
+  ${luajit_BINARY_DIR}
   ${luabridge3_SOURCE_DIR}/Source
   ${luaocct_SOURCE_DIR}/include
-  ${CMAKE_BINARY_DIR}/binder-gen
-  ${luajit_BINARY_DIR}
+  ${naivecgl_SOURCE_DIR}/include
   )
 
 link_directories(
