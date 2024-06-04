@@ -1,4 +1,4 @@
-#include "Ext_Ghost.hxx"
+#include "Ext_Bind.hxx"
 
 #include <Ghost/Ghost_AttrOfVector.hxx>
 #include <Ghost/Ghost_Attribute.hxx>

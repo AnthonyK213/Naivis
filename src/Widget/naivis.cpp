@@ -15,6 +15,7 @@
 #include <luaocct/LOUtil_OCAF.hxx>
 #include <luaocct/luaocct.h>
 
+#include <Ext/Ext_Bind.hxx>
 #include <Ext/Ext_Load.hxx>
 
 static QString getExeDir(const QString &relativePath = QString()) {

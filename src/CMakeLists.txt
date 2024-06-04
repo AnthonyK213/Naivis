@@ -137,7 +137,7 @@ elseif(UNIX AND NOT APPLE)
         "${CMAKE_INSTALL_PREFIX}/bin/runtime"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/binder-gen/_meta"
-        "${CMAKE_INSTALL_PREFIX}/bin"
+        "${CMAKE_INSTALL_PREFIX}/bin/_meta"
   )
   install(SCRIPT "${CMAKE_SOURCE_DIR}/cmake/PostInstall-Linux.cmake")
 endif()

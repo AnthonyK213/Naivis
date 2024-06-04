@@ -170,9 +170,7 @@ struct Stack<QUuid::StringFormat>
 #define Begin_Derive(D, B) deriveClass<D, B>(#D)
 #define End_Derive() End_Class()
 
-#define Bind_Enum(E, V)                                                        \
-  addProperty(                                                                 \
-      #V, +[]() { return E::V; })
+#define Bind_Enum(E, V) addProperty(#V, +[]() { return E::V; })
 
 #define Bind_Property(T, G, S)                                                 \
   addProperty(#G "_", &T::G, &T::S)                                            \
