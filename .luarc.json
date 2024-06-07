@@ -2,7 +2,9 @@
     "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
     "runtime.version": "LuaJIT",
     "workspace.library": [
-        "./build/binder-gen/"
+        "./build/binder-gen/",
+        "./build/deps/lua_inspect/",
+        "./build/deps/lua_json/"
     ],
     "diagnostics.globals": [
         "LuaOCCT",

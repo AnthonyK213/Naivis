@@ -96,6 +96,12 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../runtime"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/runtime"
+  COMMAND ${CMAKE_COMMAND} -E copy
+      "${lua_inspect_SOURCE_DIR}/inspect.lua"
+      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/runtime/lua"
+  COMMAND ${CMAKE_COMMAND} -E copy
+      "${lua_json_SOURCE_DIR}/json.lua"
+      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/runtime/lua"
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_BINARY_DIR}/binder-gen/_meta"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/_meta"
@@ -135,6 +141,12 @@ elseif(UNIX AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<TARGET_PROPERTY:Naivis,SOURCE_DIR>/../runtime"
         "${CMAKE_INSTALL_PREFIX}/bin/runtime"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${lua_inspect_SOURCE_DIR}/inspect.lua"
+        "${CMAKE_INSTALL_PREFIX}/bin/runtime/lua"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${lua_json_SOURCE_DIR}/json.lua"
+        "${CMAKE_INSTALL_PREFIX}/bin/runtime/lua"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/binder-gen/_meta"
         "${CMAKE_INSTALL_PREFIX}/bin/_meta"

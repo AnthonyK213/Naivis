@@ -23,12 +23,11 @@ for i = 1, nbPoints do
 end
 
 local aCH2D = naivecgl.bndshape.ConvexHull2D.new(aPoints)
-aCH2D:Perform()
-local code = aCH2D:Status()
+local aCode = aCH2D:Perform()
 local convexIndices = aCH2D:ConvexIndices()
 aCH2D:Dispose()
 
-if code == naivecgl.NS.Naive_Ok then
+if aCode == 0 then
   local count = #convexIndices
 
   for i = 1, count do

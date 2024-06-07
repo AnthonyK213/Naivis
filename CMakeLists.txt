@@ -29,6 +29,7 @@ include(cmake/FetchNaiveCGL.cmake)
 include(cmake/FetchEigen3.cmake)
 include(cmake/Fetchluv.cmake)
 include(cmake/Fetchopencascade.cmake)
+include(cmake/FetchLuaPackages.cmake)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
   Core
