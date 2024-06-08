@@ -37,8 +37,9 @@ end
 local function display_nurbs_curve(theCrv, theN)
   theN = theN or 64
   local nbPoles = theCrv:NbPoles()
-  ---@type naivecgl.Naive_XYZ[]
-  local aPoles = {}
+  local aPoles = theCrv:Poles()
+  -- ---@type naivecgl.Naive_XYZ[]
+  -- local aPoles = {}
   local t0 = theCrv:FirstParameter()
   local t1 = theCrv:LastParameter()
 
@@ -47,9 +48,8 @@ local function display_nurbs_curve(theCrv, theN)
 
   -- Draw control points.
 
-  for i = 0, nbPoles - 1 do
-    local aPole = theCrv:Pole(i)
-    aPoles[i + 1] = aPole
+  for i = 1, nbPoles do
+    local aPole = aPoles:Value(i)
     local pole = BRepPrimAPI_MakeSphere(xyz_to_pnt(aPole), 0.3):Shape()
     __ghost__:AddShape(pole, pAttr, false)
   end
@@ -59,8 +59,8 @@ local function display_nurbs_curve(theCrv, theN)
   local cpAttr = Ghost_Attribute()
   cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
   for i = 1, nbPoles - 1 do
-    local aThis = aPoles[i]
-    local aNext = aPoles[i + 1]
+    local aThis = aPoles:Value(i)
+    local aNext = aPoles:Value(i + 1)
     local cp = BRepBuilderAPI_MakeEdge(xyz_to_pnt(aThis), xyz_to_pnt(aNext)):Edge()
     __ghost__:AddShape(cp, cpAttr, false)
   end
@@ -80,10 +80,12 @@ local function display_nurbs_curve(theCrv, theN)
       error("Invalid point?")
     end
   end
+  
+  local aKnots = theCrv:Knots()
 
   -- Draw knots.
-  for i = 0, theCrv:NbKnots() - 1 do
-    local aPnt = xyz_to_pnt(theCrv:PointAt(theCrv:Knot(i)))
+  for i = 1, theCrv:NbKnots() do
+    local aPnt = xyz_to_pnt(theCrv:PointAt(aKnots:Value(i)))
     if aPnt then
       local aVert = BRepBuilderAPI_MakeVertex(aPnt):Shape()
       __ghost__:AddShape(aVert, Ghost_Attribute(), false)
