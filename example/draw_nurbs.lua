@@ -80,7 +80,7 @@ local function display_nurbs_curve(theCrv, theN)
       error("Invalid point?")
     end
   end
-  
+
   local aKnots = theCrv:Knots()
 
   -- Draw knots.
