@@ -27,7 +27,7 @@ local aCode = aCH2D:Perform()
 local convexIndices = aCH2D:ConvexIndices()
 aCH2D:Dispose()
 
-if aCode == 0 then
+if aCode == naivecgl.NS.Naive_Code_ok then
   local count = #convexIndices
 
   for i = 1, count do
@@ -42,7 +42,7 @@ if aCode == 0 then
     __ghost__:AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), anAttr, false)
   end
 else
-  print("Failed", code)
+  print("Failed", aCode)
 end
 
 doc:UpdateView()

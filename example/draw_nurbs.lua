@@ -102,7 +102,7 @@ end
 ---@param theCheck boolean?
 ---@param theN integer?
 ---@return naivecgl.Naive_NurbsCurve
----@return Geom_BSplineCurve
+---@return Geom_BSplineCurve?
 local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDegree, theCheck, theN)
   local aNurbsCurve = naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
   display_nurbs_curve(aNurbsCurve, theN)
@@ -147,16 +147,14 @@ local function draw_nurbs_curve(N)
 
   local vecRatio = 0.1
   local t = 0.42
-  local ok, aD = aNurbsCurve:DerivativeAt(t, 2)
-  if ok then
-    local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
+  local aD = aNurbsCurve:DerivativeAt(t, 2)
+  local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
 
-    local anAttr = Ghost_AttrOfVector()
-    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-    for i = 2, aD:Size() do
-      local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
-      __ghost__:AddVector(aV:Multiplied(vecRatio), aP, anAttr, false)
-    end
+  local anVecAttr = Ghost_AttrOfVector()
+  anVecAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+  for i = 2, aD:Size() do
+    local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
+    __ghost__:AddVector(aV:Multiplied(vecRatio), aP, anVecAttr, false)
   end
 
   -- Check!
@@ -164,12 +162,15 @@ local function draw_nurbs_curve(N)
   for i, p in ipairs(aPoles) do
     poles[i] = gp_Pnt(p:X(), p:Y(), p:Z())
   end
-  local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
-  local anAttr = Ghost_Attribute()
-  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
-  local aBS_2 = aBS:DN(t, 2)
-  __ghost__:AddShape(aShape, anAttr, false)
-  __ghost__:AddVector(aBS_2:Multiplied(vecRatio), aBS:Value(t), Ghost_AttrOfVector(), false)
+
+  if aBS then
+    local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
+    local anAttr = Ghost_Attribute()
+    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+    local aBS_2 = aBS:DN(t, 2)
+    __ghost__:AddShape(aShape, anAttr, false)
+    __ghost__:AddVector(aBS_2:Multiplied(vecRatio), aBS:Value(t), Ghost_AttrOfVector(), false)
+  end
 end
 
 local function draw_nurbs_surface(N)
@@ -242,16 +243,14 @@ local function draw_nurbs_surface(N)
 
   local u = 0.1
   local v = 0.4
-  local ok, aD = aNurbsSurface:Evaluate(u, v, 2)
-  if ok then
-    local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
+  local aD = aNurbsSurface:Evaluate(u, v, 2)
+  local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
 
-    local anAttr = Ghost_AttrOfVector()
-    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-    for i = 2, aD:Size() do
-      local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
-      __ghost__:AddVector(aV, aP, anAttr, false)
-    end
+  local anAttr = Ghost_AttrOfVector()
+  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+  for i = 2, aD:Size() do
+    local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
+    __ghost__:AddVector(aV, aP, anAttr, false)
   end
 
   -- Check!

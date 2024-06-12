@@ -27,15 +27,13 @@ end
 
 local aDisc = naivecgl.bndshape.EnclosingDisc.new()
 aDisc:ReBuild(aPoints)
-local ok, o, r = aDisc:Circle()
+local o, r = aDisc:Circle()
 aDisc:Dispose()
 
-if ok then
-  local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:X(), o:Y(), 0), gp.DZ()), r)
-  local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
-  local anAttr = Ghost_Attribute()
-  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
-  __ghost__:AddShape(edge, anAttr, false)
-end
+local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:X(), o:Y(), 0), gp.DZ()), r)
+local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
+local anAttr = Ghost_Attribute()
+anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+__ghost__:AddShape(edge, anAttr, false)
 
 doc:UpdateView()
