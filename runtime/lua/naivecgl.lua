@@ -86,13 +86,13 @@ typedef unsigned char Naive_Logical_t;
 
 /* Naive_XY_t */
 
-typedef struct {
+typedef struct Naive_XY_s {
   double x, y;
 } Naive_XY_t;
 
 /* Naive_XYZ_t */
 
-typedef struct {
+typedef struct Naive_XYZ_s {
   double x, y, z;
 } Naive_XYZ_t;
 
@@ -114,26 +114,26 @@ typedef Naive_XYZ_t Naive_Point3d_t;
 
 /* Naive_Interval_t */
 
-typedef struct {
+typedef struct Naive_Interval_s {
   double t0, t1;
 } Naive_Interval_t;
 
 /* Naive_Triangle_t */
 
-typedef struct {
+typedef struct Naive_Triangle_s {
   int n0, n1, n2;
 } Naive_Triangle_t;
 
-/* Naive_Axis1_t */
+/* Naive_Axis1_sf_t */
 
-typedef struct {
+typedef struct Naive_Axis1_sf_s {
   Naive_Point3d_t location;
   Naive_Vector3d_t axis;
-} Naive_Axis1_t;
+} Naive_Axis1_sf_t;
 
 /* Naive_Axis2_sf_t */
 
-typedef struct {
+typedef struct Naive_Axis2_sf_s {
   Naive_Point3d_t location;
   Naive_Vector3d_t axis;
   Naive_Vector3d_t ref_direction;
@@ -141,13 +141,13 @@ typedef struct {
 
 /* Naive_Line_sf_t */
 
-typedef struct {
-  Naive_Axis1_t basis_set;
+typedef struct Naive_Line_sf_s {
+  Naive_Axis1_sf_t basis_set;
 } Naive_Line_sf_t;
 
 /* Naive_Plane_sf_t */
 
-typedef struct {
+typedef struct Naive_Plane_sf_s {
   Naive_Axis2_sf_t basis_set;
 } Naive_Plane_sf_t;
 
@@ -165,16 +165,16 @@ typedef int Naive_Algorithm_t;
 /* Naive_boolean_function */
 
 typedef enum {
-  Naive_boolean_intersect = 0,
-  Naive_boolean_subtract,
-  Naive_boolean_unite,
+  Naive_boolean_intersect_c = 0,
+  Naive_boolean_subtract_c,
+  Naive_boolean_unite_c,
 } Naive_boolean_function;
 
 typedef int Naive_boolean_function_t;
 
 /* Naive_Body_boolean_o_t */
 
-typedef struct {
+typedef struct Naive_Body_boolean_o_s {
   Naive_boolean_function_t function;
 } Naive_Body_boolean_o_t;
 ]]
@@ -188,7 +188,7 @@ Naive_Code_t Naive_Math_Util_is_valid_real(
 
 /* Naive_Transient */
 
-Naive_Code_t Naive_Transient_release(Naive_Transient_t /* transient */);
+Naive_Code_t Naive_Transient_free(Naive_Transient_t /* transient */);
 
 /* Naive_Geometry */
 
@@ -666,7 +666,7 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
 
   local nurbsCurve = {
     myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Transient_release(theHandle)
+      naivecgl.NS.Naive_Transient_free(theHandle)
     end)
   }
   setmetatable(nurbsCurve, naivecgl.Naive_NurbsCurve)
@@ -829,7 +829,7 @@ end
 ---Dispose.
 function naivecgl.Naive_NurbsCurve:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Transient_release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Transient_free(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -908,7 +908,7 @@ function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
 
   local nurbsSurface = {
     myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Transient_release(theHandle)
+      naivecgl.NS.Naive_Transient_free(theHandle)
     end)
   }
   setmetatable(nurbsSurface, naivecgl.Naive_NurbsSurface)
@@ -947,7 +947,7 @@ end
 
 function naivecgl.Naive_NurbsSurface:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Transient_release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Transient_free(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -992,7 +992,7 @@ end
 function naivecgl.Naive_Poly.take(theH)
   local poly = {
     myH = ffi.gc(theH, function(theHandle)
-      naivecgl.NS.Naive_Transient_release(theHandle)
+      naivecgl.NS.Naive_Transient_free(theHandle)
     end),
   }
   setmetatable(poly, naivecgl.Naive_Poly)
@@ -1047,7 +1047,7 @@ end
 
 function naivecgl.Naive_Poly:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Transient_release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Transient_free(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -1076,7 +1076,7 @@ function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
 
   local ch2d = {
     myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Transient_release(theHandle)
+      naivecgl.NS.Naive_Transient_free(theHandle)
     end)
   }
   setmetatable(ch2d, naivecgl.bndshape.ConvexHull2D)
@@ -1129,7 +1129,7 @@ end
 
 function naivecgl.bndshape.ConvexHull2D:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Transient_release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Transient_free(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
@@ -1153,7 +1153,7 @@ function naivecgl.bndshape.EnclosingDisc.new()
 
   local ed = {
     myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Transient_release(theHandle)
+      naivecgl.NS.Naive_Transient_free(theHandle)
     end)
   }
   setmetatable(ed, naivecgl.bndshape.EnclosingDisc)
@@ -1180,7 +1180,7 @@ end
 
 function naivecgl.bndshape.EnclosingDisc:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Transient_release(ffi.gc(self.myH, nil))
+    naivecgl.NS.Naive_Transient_free(ffi.gc(self.myH, nil))
     self.myH = nil
   end
 end
