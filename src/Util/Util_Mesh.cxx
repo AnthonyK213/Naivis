@@ -40,14 +40,15 @@ Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly) {
   return new Poly_Triangulation(aPoints, aTriangles);
 }
 
-Handle_Naive_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh) {
+Handle_Naive_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) &
+                                    theMesh) {
   if (theMesh.IsNull())
     return nullptr;
 
   const Standard_Integer nbNodes = theMesh->NbNodes();
   const Standard_Integer nbTris = theMesh->NbTriangles();
-  Naive_Point3dList vertices{};
-  Naive_List<Naive_Triangle> triangles{};
+  Naive_Pnt3dList1 vertices{};
+  Naive_List1<Naive_Triangle> triangles{};
   vertices.reserve(nbNodes);
   triangles.reserve(nbTris);
 

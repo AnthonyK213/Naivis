@@ -24,13 +24,13 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
 
   Standard_Integer nbNodes =
       static_cast<Standard_Integer>(myMesh->NbVertices());
-  Naive_IntegerList aVertices = myMesh->GetAllVertices();
+  Naive_IntegerList1 aVertices = myMesh->GetAllVertices();
   myNodeCoords = new TColStd_HArray2OfReal(1, nbNodes, 1, 3);
 
   Standard_Integer idxNode = 1;
   for (Standard_Integer item : aVertices) {
     myNodes.Add(item);
-    const Naive_Point3d &xyz = myMesh->GetVertex(item)->Coord();
+    const Naive_Pnt3d &xyz = myMesh->GetVertex(item)->Coord();
 
     myNodeCoords->SetValue(idxNode, 1, xyz.X());
     myNodeCoords->SetValue(idxNode, 2, xyz.Y());
@@ -40,7 +40,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
   }
 
   Standard_Integer nbTris = static_cast<Standard_Integer>(myMesh->NbFaces());
-  Naive_IntegerList aTriangles = myMesh->GetAllFaces();
+  Naive_IntegerList1 aTriangles = myMesh->GetAllFaces();
   myElemNormals = new TColStd_HArray2OfReal(1, nbTris, 1, 3);
   myElemNodes = new TColStd_HArray2OfInteger(1, nbTris, 1, 3);
 
@@ -49,7 +49,7 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
     myElements.Add(item);
     const auto *aFace = myMesh->GetFace(item);
 
-    Naive_Point3d V[3];
+    Naive_Pnt3d V[3];
 
     Standard_Integer idxEdge = 1;
     for (auto it = myMesh->EdgeIter(item); it.More(); it.Next(), ++idxEdge) {
@@ -61,10 +61,10 @@ HalfEdgeMesh_DataSource::HalfEdgeMesh_DataSource(
       V[idxEdge - 1] = myMesh->GetVertex(aEdge->Origin())->Coord();
     }
 
-    Naive_Vector3d aV1 = V[1] - V[0];
-    Naive_Vector3d aV2 = V[2] - V[1];
+    Naive_Vec3d aV1 = V[1] - V[0];
+    Naive_Vec3d aV2 = V[2] - V[1];
 
-    Naive_Vector3d aN = aV1.Crossed(aV2);
+    Naive_Vec3d aN = aV1.Crossed(aV2);
     if (aN.SquareLength() > Precision::SquareConfusion())
       aN.Normalize();
     else
