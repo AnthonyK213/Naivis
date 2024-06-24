@@ -17,7 +17,7 @@
 #include <Standard_Address.hxx>
 #endif
 
-#include <naivecgl/Geometry/HalfEdgeMesh.h>
+#include <naivecgl/Geometry/Mesh.h>
 
 class HalfEdgeMesh_DataSource;
 DEFINE_STANDARD_HANDLE(HalfEdgeMesh_DataSource, MeshVS_DataSource)

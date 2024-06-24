@@ -182,5 +182,5 @@ Handle(Poly_Triangulation) HalfEdgeMesh_DataSource::GetTriangulation() const {
   if (!myIsValid)
     return nullptr;
 
-  return Util_Mesh::NaivePoly3DToMesh(*myMesh->Soup());
+  return Util_Mesh::NaivePoly3DToMesh(*myMesh->GetTriangulation());
 }
