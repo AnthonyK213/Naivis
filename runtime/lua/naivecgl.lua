@@ -181,11 +181,6 @@ typedef struct Naive_Body_boolean_o_s {
 
   -- NaiveCGL_c.h
   ffi.cdef [[
-/* Naive_Math_Util */
-
-Naive_Code_t Naive_Math_Util_is_valid_real(
-    const double /* real */, Naive_Logical_t *const /* is_valid */);
-
 /* Naive_Object */
 
 Naive_Code_t Naive_Object_free(Naive_Object_t /* transient */);
@@ -355,15 +350,9 @@ Naive_Code_t Naive_BndShape_EnclosingDisc_ask_circle(
     const Naive_EnclosingDisc_t /* enclosing_disc */,
     Naive_Point2d_t *const /* origin */, double *const /* radius */);
 
-/* Naive_Intersect_Intersection */
-
-Naive_Code_t Naive_Intersect_Intersection_line_plane(
-    const Naive_Line_t /* line */, const Naive_Plane_t /* plane */,
-    double *const /* t_line */);
-
 /* Naive_Tessellation */
 
-Naive_Code_t Naive_Tessellation_tetrasphere(
+Naive_Code_t Naive_Tessellation_Sphere_tetrasphere(
     const Naive_Point3d_t * /* center */, const double /* radius */,
     const int /* level */, Naive_Poly_t *const /* poly */);
 
@@ -1168,7 +1157,7 @@ function naivecgl.bndshape.EnclosingDisc:Dispose()
 end
 
 --------------------------------------------------------------------------------
---                    naivecgl::tessellation::TetraSphere                     --
+--                    naivecgl::tessellation::Sphere                          --
 --------------------------------------------------------------------------------
 
 ---Calculates the tetrasphere with a tessellation level.
@@ -1176,9 +1165,9 @@ end
 ---@param theRadius number
 ---@param theLevel integer
 ---@return naivecgl.Naive_Poly
-function naivecgl.tessellation.Naive_Tessellation_TetraSphere(theCenter, theRadius, theLevel)
+function naivecgl.tessellation.Naive_Tessellation_Sphere_TetraSphere(theCenter, theRadius, theLevel)
   local aPoly = ffi.new "Naive_Poly_t[1]"
-  check_code(naivecgl.NS.Naive_Tessellation_tetrasphere(theCenter:Data(), theRadius, theLevel, aPoly))
+  check_code(naivecgl.NS.Naive_Tessellation_Sphere_tetrasphere(theCenter:Data(), theRadius, theLevel, aPoly))
   return naivecgl.Naive_Poly.take(aPoly[0])
 end
 
