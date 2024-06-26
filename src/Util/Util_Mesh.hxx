@@ -7,19 +7,7 @@
 
 #include <Mesh/XSDRAWSTLVRML_DataSource_1.hxx>
 
-#include <naivecgl/Geometry/Triangulation.h>
-
 namespace Util_Mesh {
-
-/// @brief
-/// @param thePoly3D
-/// @return
-Handle(Poly_Triangulation) NaivePoly3DToMesh(const Naive_Poly &thePoly);
-
-/// @brief
-/// @param thePoly3D
-/// @return
-Handle_Naive_Poly MeshToNaivePoly3D(const Handle(Poly_Triangulation) & theMesh);
 
 /// @brief
 /// @param

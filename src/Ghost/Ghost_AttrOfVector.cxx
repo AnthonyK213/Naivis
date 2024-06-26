@@ -1,7 +1,5 @@
 #include "Ghost_AttrOfVector.hxx"
 
-#include <naivecgl/Math/Util.h>
-
 IMPLEMENT_STANDARD_RTTIEXT(Ghost_AttrOfVector, Ghost_Attribute)
 
 Naivis_GHOSTATTR_IMPLEMENT_GETSET(Ghost_AttrOfVector);
@@ -15,7 +13,7 @@ Ghost_AttrOfVector::Ghost_AttrOfVector() : Ghost_Attribute() {
 
 void Ghost_AttrOfVector::setData(const Standard_Integer theIndex,
                                  const Standard_Real theData) {
-  if (theData > Precision::Confusion() &&
-      naivecgl::math::Util::IsValidReal(theData))
+  if (theData > Precision::Confusion() && !::std::isinf(theData) &&
+      !::std::isnan(theData))
     myData[theIndex] = theData;
 }

@@ -28,7 +28,6 @@ include(cmake/FetchLuaBridge3.cmake)
 include(cmake/FetchNaiveCGL.cmake)
 include(cmake/FetchEigen3.cmake)
 include(cmake/Fetchluv.cmake)
-include(cmake/Fetchopencascade.cmake)
 include(cmake/FetchLuaPackages.cmake)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
@@ -77,7 +76,6 @@ include_directories(
   ${luajit_BINARY_DIR}
   ${luabridge3_SOURCE_DIR}/Source
   ${luaocct_SOURCE_DIR}/include
-  ${naivecgl_SOURCE_DIR}/include
   )
 
 link_directories(

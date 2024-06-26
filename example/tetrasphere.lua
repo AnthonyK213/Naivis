@@ -1,11 +1,16 @@
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
 local naivecgl = require("naivecgl")
+
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
 local Poly_Triangle = LuaOCCT.Poly.Poly_Triangle
 local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
-local doc = Naivis.NaiveDoc.ActiveDoc
 
+local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
+if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
+__ghost__:Clear(false)
 
 local tetrasphere = naivecgl.tessellation.Naive_Tessellation_Sphere_TetraSphere(naivecgl.Naive_XYZ(), 10, 10)
 local aVertices = tetrasphere:Vertices()

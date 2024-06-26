@@ -64,10 +64,14 @@ target_link_libraries(
   Qt${QT_VERSION_MAJOR}::OpenGL
   ${OpenCASCADE_LIBRARIES}
   ${OPENGL_LIBRARIES}
-  NaiveCGL
   luajit::lib
   luajit::header
   luaocct
+  )
+
+add_dependencies(
+  Naivis
+  NaiveCGL
   )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

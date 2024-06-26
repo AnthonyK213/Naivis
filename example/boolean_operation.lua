@@ -19,9 +19,9 @@ __ghost__:Clear(false)
 local aCyl = BRepPrimAPI_MakeCylinder(gp_Ax2(), 5, 45):Shape()
 local aSph = BRepPrimAPI_MakeSphere(gp_Pnt(7, 0, 0), 12):Shape()
 
-local aFuse = BRepAlgoAPI_Common(aCyl, aSph, Message_ProgressRange())
-if aFuse:IsDone() then
-  doc:Objects():AddShape(aFuse:Shape(), LODoc_Attribute(), false)
+local aBoolRes = BRepAlgoAPI_Common(aCyl, aSph, Message_ProgressRange())
+if aBoolRes:IsDone() then
+  doc:Objects():AddShape(aBoolRes:Shape(), LODoc_Attribute(), false)
 end
 
 doc:UpdateView()

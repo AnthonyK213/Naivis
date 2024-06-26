@@ -1,13 +1,18 @@
-local doc = Naivis.NaiveDoc.ActiveDoc
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
+local inspect = require("inspect")
+
 local gp = LuaOCCT.gp.gp
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local Geom_Circle = LuaOCCT.Geom.Geom_Circle
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
 local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local inspect = require("inspect")
 
+local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
+if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
+__ghost__:Clear(false)
 
 local circle = Geom_Circle(gp.XOY(), 9)
 local edge = BRepBuilderAPI_MakeEdge(circle):Edge()

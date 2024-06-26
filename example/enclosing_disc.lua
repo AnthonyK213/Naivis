@@ -1,4 +1,7 @@
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
 local naivecgl = require("naivecgl")
+
 local gp = LuaOCCT.gp.gp
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local gp_Ax2 = LuaOCCT.gp.gp_Ax2

@@ -1,3 +1,5 @@
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
 local naivecgl = require("naivecgl")
 
 local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge

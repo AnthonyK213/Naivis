@@ -1,3 +1,6 @@
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
+
 local Ghost_AttrOfVector = Naivis.Ghost.Ghost_AttrOfVector
 local gp = LuaOCCT.gp.gp
 local gp_Ax3 = LuaOCCT.gp.gp_Ax3

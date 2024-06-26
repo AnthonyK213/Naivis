@@ -1,3 +1,6 @@
+local Naivis = Naivis
+local LuaOCCT = LuaOCCT
+
 local gp_Pnt = LuaOCCT.gp.gp_Pnt
 local Bnd_OBB = LuaOCCT.Bnd.Bnd_OBB
 local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
