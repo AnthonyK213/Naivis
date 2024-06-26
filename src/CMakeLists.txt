@@ -109,14 +109,14 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_BINARY_DIR}/binder-gen/_meta"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/_meta"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${naivecgl_BINARY_DIR}/src/$<CONFIG>"
+      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
   )
 
 if(WIN32)
   add_custom_command(
     TARGET Naivis POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${naivecgl_BINARY_DIR}/src/$<CONFIG>"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${luaocct_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
@@ -138,7 +138,7 @@ elseif(UNIX AND NOT APPLE)
         "${CMAKE_INSTALL_PREFIX}/lib"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${naivecgl_BINARY_DIR}/src/$<CONFIG>/*.so"
-        "${CMAKE_INSTALL_PREFIX}/lib"
+        "${CMAKE_INSTALL_PREFIX}/bin"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${luaocct_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"
