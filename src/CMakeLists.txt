@@ -27,6 +27,7 @@ set(
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(Naivis
     MANUAL_FINALIZATION
+    WIN32 ${CMAKE_SOURCE_DIR}/resources/icon.rc
     ${PROJECT_SOURCES}
     ${CMAKE_SOURCE_DIR}/resources/res.qrc
     )
