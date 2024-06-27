@@ -1,13 +1,12 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
-local inspect = require("inspect")
+local nvs = nvs
 
-local gp = LuaOCCT.gp.gp
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local Geom_Circle = LuaOCCT.Geom.Geom_Circle
-local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
-local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
+local gp = nvs.occ.gp.gp
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local Geom_Circle = nvs.occ.Geom.Geom_Circle
+local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local BRepBuilderAPI_MakeEdge = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -22,8 +21,8 @@ local point = gp_Pnt(5, 1, 4)
 local vertex = BRepBuilderAPI_MakeVertex(point):Vertex()
 doc:Objects():AddShape(vertex, LODoc_Attribute(), false)
 
-local tList = LuaOCCT.LOUtil.LOUtil_Curve.ClosestParameters(circle, point)
-print("closest_parameters:", inspect(tList))
+local tList = nvs.occ.LOUtil.LOUtil_Curve.ClosestParameters(circle, point)
+nvs.print("closest_parameters:", tList)
 
 for _, t in ipairs(tList) do
   local pnt = circle:Value(t)

@@ -1,15 +1,15 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 local naivecgl = require("naivecgl")
 
-local gp = LuaOCCT.gp.gp
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local gp_Ax2 = LuaOCCT.gp.gp_Ax2
-local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
-local Geom_Circle = LuaOCCT.Geom.Geom_Circle
-local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local gp = nvs.occ.gp.gp
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local gp_Ax2 = nvs.occ.gp.gp_Ax2
+local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local Geom_Circle = nvs.occ.Geom.Geom_Circle
+local BRepBuilderAPI_MakeEdge = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
+local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 local P2 = naivecgl.Naive_XY
 
@@ -36,7 +36,7 @@ aDisc:Dispose()
 local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:X(), o:Y(), 0), gp.DZ()), r)
 local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
 local anAttr = Ghost_Attribute()
-anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
 __ghost__:AddShape(edge, anAttr, false)
 
 doc:UpdateView()

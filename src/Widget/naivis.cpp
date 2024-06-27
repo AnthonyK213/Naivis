@@ -39,17 +39,31 @@ static QString getLuaDir(const QString &relativePath = QString()) {
 
 class Naivis::LuaManager {
 public:
-  LuaManager() : myL(luaL_newstate()) {
+  LuaManager() : myL(nullptr) {}
+
+  ~LuaManager() { lua_close(myL); }
+
+  bool init() {
+    myL = luaL_newstate();
+
+    if (myL == nullptr) {
+      std::cout << "Cannot create state: not enough memory\n";
+      return false;
+    }
+
+    lua_gc(myL, LUA_GCSTOP, 0);
     luaL_openlibs(myL);
+    lua_gc(myL, LUA_GCRESTART, -1);
+
     luaopen_luaocct(myL);
     Ext_Load(myL);
 
     auto rtp = getExeDir().toUtf8().toStdString();
     pathAppend(rtp + "/runtime/lua");
     cpathAppend(rtp);
-  }
 
-  ~LuaManager() { lua_close(myL); }
+    return true;
+  }
 
   operator lua_State *() { return myL; }
 
@@ -371,8 +385,11 @@ void Naivis::setupScriptEditor() {
   QFont f = QFontDatabase::font(fontName, "", fontSize);
 }
 
-void Naivis::setupLua() {
+bool Naivis::setupLua() {
   myLuaMgr = new LuaManager;
+
+  if (!myLuaMgr->init())
+    return false;
 
   /* Define alias and import third-party lua libraries.
    * [luv](https://github.com/luvit/luv)
@@ -382,7 +399,7 @@ void Naivis::setupLua() {
    */
 
   std::string anErr;
-  if (!myLuaMgr->doFile(getLuaDir("naivis.lua").toUtf8().toStdString(),
+  if (!myLuaMgr->doFile(getLuaDir("__init__.lua").toUtf8().toStdString(),
                         anErr)) {
     std::cout << anErr << '\n';
   }
@@ -407,6 +424,8 @@ void Naivis::setupLua() {
       .End_Namespace()
 
       .End_Namespace();
+
+  return true;
 }
 
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }

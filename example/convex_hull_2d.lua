@@ -1,12 +1,12 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 local naivecgl = require("naivecgl")
 
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
-local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local BRepBuilderAPI_MakeEdge = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
+local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 local P2 = naivecgl.Naive_XY
 
@@ -41,7 +41,7 @@ if aCode == naivecgl.NS.Naive_Code_ok then
     local p2 = gp_Pnt(aPoints[nextIndex]:X(), aPoints[nextIndex]:Y(), 0)
 
     local anAttr = Ghost_Attribute()
-    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+    anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
     __ghost__:AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), anAttr, false)
   end
 else

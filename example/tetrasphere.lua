@@ -1,11 +1,11 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 local naivecgl = require("naivecgl")
 
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local Poly_Triangle = LuaOCCT.Poly.Poly_Triangle
-local Poly_Triangulation = LuaOCCT.Poly.Poly_Triangulation
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
+local Poly_Triangle = nvs.occ.Poly.Poly_Triangle
+local Poly_Triangulation = nvs.occ.Poly.Poly_Triangulation
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)

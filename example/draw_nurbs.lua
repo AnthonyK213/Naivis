@@ -1,19 +1,19 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 local naivecgl = require("naivecgl")
 
-local BRepBuilderAPI_MakeEdge = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
-local BRepBuilderAPI_MakeVertex = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
-local BRepBuilderAPI_MakeFace = LuaOCCT.BRepBuilderAPI.BRepBuilderAPI_MakeFace
-local BRepPrimAPI_MakeSphere = LuaOCCT.BRepPrimAPI.BRepPrimAPI_MakeSphere
-local Geom_BSplineCurve = LuaOCCT.Geom.Geom_BSplineCurve
-local Geom_BSplineSurface = LuaOCCT.Geom.Geom_BSplineSurface
-local gp = LuaOCCT.gp.gp
-local gp_Ax2 = LuaOCCT.gp.gp_Ax2
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local gp_Vec = LuaOCCT.gp.gp_Vec
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
-local Quantity_Color = LuaOCCT.Quantity.Quantity_Color
+local BRepBuilderAPI_MakeEdge = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeEdge
+local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
+local BRepBuilderAPI_MakeFace = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeFace
+local BRepPrimAPI_MakeSphere = nvs.occ.BRepPrimAPI.BRepPrimAPI_MakeSphere
+local Geom_BSplineCurve = nvs.occ.Geom.Geom_BSplineCurve
+local Geom_BSplineSurface = nvs.occ.Geom.Geom_BSplineSurface
+local gp = nvs.occ.gp.gp
+local gp_Ax2 = nvs.occ.gp.gp_Ax2
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local gp_Vec = nvs.occ.gp.gp_Vec
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
+local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local Ghost_Attribute = Naivis.Ghost.Ghost_Attribute
 local Ghost_AttrOfVector = Naivis.Ghost.Ghost_AttrOfVector
 local P3 = naivecgl.Naive_XYZ
@@ -46,7 +46,7 @@ local function display_nurbs_curve(theCrv, theN)
   local t1 = theCrv:LastParameter()
 
   local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
+  pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
   -- Draw control points.
 
@@ -59,7 +59,7 @@ local function display_nurbs_curve(theCrv, theN)
   -- Draw control polygon.
 
   local cpAttr = Ghost_Attribute()
-  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  cpAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
   for i = 1, nbPoles - 1 do
     local aThis = aPoles:Value(i)
     local aNext = aPoles:Value(i + 1)
@@ -71,7 +71,7 @@ local function display_nurbs_curve(theCrv, theN)
 
   local prevPnt = xyz_to_pnt(theCrv:PointAt(t0))
   local segAttr = Ghost_Attribute()
-  segAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
+  segAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
   for i = 1, theN do
     local aPnt = xyz_to_pnt(theCrv:PointAt(t0 + i * (t1 - t0) / theN))
     if aPnt then
@@ -117,7 +117,7 @@ local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDeg
     local aBS = Geom_BSplineCurve(poles, theWeights, theKnots, theMults, theDegree, false, false)
     local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
     local anAttr = Ghost_Attribute()
-    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+    anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
     __ghost__:AddShape(aShape, anAttr, false)
 
     return aNurbsCurve, aBS
@@ -153,7 +153,7 @@ local function draw_nurbs_curve(N)
   local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
 
   local anVecAttr = Ghost_AttrOfVector()
-  anVecAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+  anVecAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
   for i = 2, aD:Size() do
     local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
     __ghost__:AddVector(aV:Multiplied(vecRatio), aP, anVecAttr, false)
@@ -168,7 +168,7 @@ local function draw_nurbs_curve(N)
   if aBS then
     local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
     local anAttr = Ghost_Attribute()
-    anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+    anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
     local aBS_2 = aBS:DN(t, 2)
     __ghost__:AddShape(aShape, anAttr, false)
     __ghost__:AddVector(aBS_2:Multiplied(vecRatio), aBS:Value(t), Ghost_AttrOfVector(), false)
@@ -200,7 +200,7 @@ local function draw_nurbs_surface(N)
     aUDegree, aVDegree)
 
   local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
+  pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
   for _, c in ipairs(aPoles) do
     for _, p in ipairs(c) do
@@ -210,7 +210,7 @@ local function draw_nurbs_surface(N)
   end
 
   local cpAttr = Ghost_Attribute()
-  cpAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+  cpAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
   for i = 1, #aPoles do
     local aColThis = aPoles[i]
     local aColNext = aPoles[i + 1]
@@ -249,7 +249,7 @@ local function draw_nurbs_surface(N)
   local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
 
   local anAttr = Ghost_AttrOfVector()
-  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+  anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
   for i = 2, aD:Size() do
     local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
     __ghost__:AddVector(aV, aP, anAttr, false)
@@ -267,7 +267,7 @@ local function draw_nurbs_surface(N)
   local aBS = Geom_BSplineSurface(poles, aWeights, aUKnots, aVKnots, aUMults, aVMults, aUDegree, aVDegree, false, false)
   local aShape = BRepBuilderAPI_MakeFace(aBS, 1e-2):Face()
   local anAttr = Ghost_Attribute()
-  anAttr:SetColor(Quantity_Color(LuaOCCT.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+  anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
   local aBS_2 = aBS:DN(u, v, 1, 1)
   __ghost__:AddShape(aShape, anAttr, false)
   __ghost__:AddVector(aBS_2, aBS:Value(u, v), Ghost_AttrOfVector(), false)

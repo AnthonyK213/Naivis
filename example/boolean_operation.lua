@@ -1,15 +1,15 @@
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 
-local BRepAlgoAPI_Cut = LuaOCCT.BRepAlgoAPI.BRepAlgoAPI_Cut
-local BRepAlgoAPI_Fuse = LuaOCCT.BRepAlgoAPI.BRepAlgoAPI_Fuse
-local BRepAlgoAPI_Common = LuaOCCT.BRepAlgoAPI.BRepAlgoAPI_Common
-local BRepPrimAPI_MakeSphere = LuaOCCT.BRepPrimAPI.BRepPrimAPI_MakeSphere
-local BRepPrimAPI_MakeCylinder = LuaOCCT.BRepPrimAPI.BRepPrimAPI_MakeCylinder
-local gp = LuaOCCT.gp.gp
-local gp_Ax2 = LuaOCCT.gp.gp_Ax2
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local Message_ProgressRange = LuaOCCT.Message.Message_ProgressRange
-local LODoc_Attribute = LuaOCCT.LODoc.LODoc_Attribute
+local BRepAlgoAPI_Cut = nvs.occ.BRepAlgoAPI.BRepAlgoAPI_Cut
+local BRepAlgoAPI_Fuse = nvs.occ.BRepAlgoAPI.BRepAlgoAPI_Fuse
+local BRepAlgoAPI_Common = nvs.occ.BRepAlgoAPI.BRepAlgoAPI_Common
+local BRepPrimAPI_MakeSphere = nvs.occ.BRepPrimAPI.BRepPrimAPI_MakeSphere
+local BRepPrimAPI_MakeCylinder = nvs.occ.BRepPrimAPI.BRepPrimAPI_MakeCylinder
+local gp = nvs.occ.gp.gp
+local gp_Ax2 = nvs.occ.gp.gp_Ax2
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local Message_ProgressRange = nvs.occ.Message.Message_ProgressRange
+local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)

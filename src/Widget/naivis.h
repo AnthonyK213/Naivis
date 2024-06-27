@@ -82,7 +82,7 @@ private:
 
   void setupScriptEditor();
 
-  void setupLua();
+  bool setupLua();
 
   Widget_OcctViewer *occtViewer();
 

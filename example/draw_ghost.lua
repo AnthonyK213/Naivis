@@ -1,11 +1,11 @@
 local Naivis = Naivis
-local LuaOCCT = LuaOCCT
+local nvs = nvs
 
 local Ghost_AttrOfVector = Naivis.Ghost.Ghost_AttrOfVector
-local gp = LuaOCCT.gp.gp
-local gp_Ax3 = LuaOCCT.gp.gp_Ax3
-local gp_Pnt = LuaOCCT.gp.gp_Pnt
-local gp_Vec = LuaOCCT.gp.gp_Vec
+local gp = nvs.occ.gp.gp
+local gp_Ax3 = nvs.occ.gp.gp_Ax3
+local gp_Pnt = nvs.occ.gp.gp_Pnt
+local gp_Vec = nvs.occ.gp.gp_Vec
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)

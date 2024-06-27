@@ -7,9 +7,9 @@
         "./build/deps/lua_json/"
     ],
     "diagnostics.globals": [
-        "LuaOCCT",
         "Naivis",
-        "Qt"
+        "Qt",
+        "nvs"
     ],
     "telemetry.enable": false,
     "format.defaultConfig": {
