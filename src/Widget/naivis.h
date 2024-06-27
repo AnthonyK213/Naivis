@@ -6,18 +6,17 @@
 #include <QMainWindow>
 #include <QString>
 
-#include <IO/IO_LogStream.hxx>
-#include <NaiveApp/NaiveApp_Settings.hxx>
 #include <NaiveDoc/NaiveDoc_Document.hxx>
-#include <Widget/Widget_OcctViewer.hxx>
-
-#include <lua.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Naivis;
 }
 QT_END_NAMESPACE
+
+class IO_LogStream;
+class NaiveApp_Settings;
+class Widget_OcctViewer;
 
 class Naivis : public QMainWindow {
   Q_OBJECT

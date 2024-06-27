@@ -8,15 +8,20 @@
 #include <QStyle>
 
 #include <Ghost/Ghost_Document.hxx>
+#include <IO/IO_LogStream.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
+#include <NaiveApp/NaiveApp_Settings.hxx>
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
+#include <Widget/Widget_OcctViewer.hxx>
 
 #include <luaocct/LOUtil_OCAF.hxx>
 #include <luaocct/luaocct.h>
 
 #include <Ext/Ext_Bind.hxx>
 #include <Ext/Ext_Load.hxx>
+
+#include <lua.hpp>
 
 static QString getExeDir(const QString &relativePath = QString()) {
   QString p = QCoreApplication::applicationDirPath();
