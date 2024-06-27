@@ -53,10 +53,9 @@ public:
 
     lua_gc(myL, LUA_GCSTOP, 0);
     luaL_openlibs(myL);
-    lua_gc(myL, LUA_GCRESTART, -1);
-
     luaopen_luaocct(myL);
     Ext_Load(myL);
+    lua_gc(myL, LUA_GCRESTART, -1);
 
     auto rtp = getExeDir().toUtf8().toStdString();
     pathAppend(rtp + "/runtime/lua");
