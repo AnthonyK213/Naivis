@@ -56,36 +56,36 @@ target_include_directories(
   )
 
 if(WIN32)
-target_link_libraries(
-  Naivis
-  PRIVATE
-  Qt${QT_VERSION_MAJOR}::Core
-  Qt${QT_VERSION_MAJOR}::Gui
-  Qt${QT_VERSION_MAJOR}::Widgets
-  Qt${QT_VERSION_MAJOR}::OpenGLWidgets
-  Qt${QT_VERSION_MAJOR}::OpenGL
-  ${OpenCASCADE_LIBRARIES}
-  ${OPENGL_LIBRARIES}
-  luaocct
-  luajit::lib
-  luajit::header
-  )
+  target_link_libraries(
+    Naivis
+    PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+    Qt${QT_VERSION_MAJOR}::OpenGL
+    ${OpenCASCADE_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    luaocct
+    luajit::lib
+    luajit::header
+    )
 else(WIN32)
-target_link_libraries(
-  Naivis
-  PRIVATE
-  Qt${QT_VERSION_MAJOR}::Core
-  Qt${QT_VERSION_MAJOR}::Gui
-  Qt${QT_VERSION_MAJOR}::Widgets
-  Qt${QT_VERSION_MAJOR}::OpenGLWidgets
-  Qt${QT_VERSION_MAJOR}::OpenGL
-  ${OpenCASCADE_LIBRARIES}
-  ${OPENGL_LIBRARIES}
-  luaocct
-  -Wl,-E
-  luajit::lib
-  luajit::header
-  )
+  target_link_libraries(
+    Naivis
+    PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+    Qt${QT_VERSION_MAJOR}::OpenGL
+    ${OpenCASCADE_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    luaocct
+    -Wl,-E
+    luajit::lib
+    luajit::header
+    )
 endif(WIN32)
 
 add_dependencies(
@@ -144,6 +144,9 @@ if(WIN32)
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${OpenCASCADE_LIBRARY_DIR}/../bin$<$<CONFIG:Debug>:d>"
+        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_PROPERTY:libluajit,BINARY_DIR>/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND $ENV{QT_DIR}/bin/windeployqt.exe
         $<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/Naivis.exe
