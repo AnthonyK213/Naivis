@@ -88,11 +88,6 @@ else(WIN32)
     )
 endif(WIN32)
 
-add_dependencies(
-  Naivis
-  NaiveCGL
-  )
-
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
@@ -128,9 +123,6 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_BINARY_DIR}/binder-gen/_meta"
       "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>/_meta"
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "${naivecgl_BINARY_DIR}/src/$<CONFIG>"
-      "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
   )
 
 if(WIN32)
@@ -166,9 +158,6 @@ elseif(UNIX AND NOT APPLE)
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${luv_BINARY_DIR}/$<CONFIG>/luv.so"
-        "${CMAKE_INSTALL_PREFIX}/bin"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${naivecgl_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/bin"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${luaocct_BINARY_DIR}/src/$<CONFIG>/*.so"

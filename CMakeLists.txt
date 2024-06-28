@@ -25,8 +25,6 @@ include(cmake/FetchLuaOCCT.cmake)
 include(cmake/FetchBinder.cmake)
 include(cmake/FetchLuaJIT.cmake)
 include(cmake/FetchLuaBridge3.cmake)
-include(cmake/FetchNaiveCGL.cmake)
-include(cmake/FetchEigen3.cmake)
 include(cmake/Fetchluv.cmake)
 include(cmake/FetchLuaPackages.cmake)
 
@@ -58,12 +56,6 @@ message("OpenCASCADE_INCLUDE_DIR: ${OpenCASCADE_INCLUDE_DIR}")
 message("OpenCASCADE_LIBRARY_DIR: ${OpenCASCADE_LIBRARY_DIR}")
 message("OpenCASCADE_LIBRARIES: ${OpenCASCADE_LIBRARIES}")
 
-message("naivecgl_SOURCE_DIR: ${naivecgl_SOURCE_DIR}")
-message("naivecgl_BINARY_DIR: ${naivecgl_BINARY_DIR}")
-
-message("eigen3_SOURCE_DIR: ${eigen3_SOURCE_DIR}")
-message("eigen3_BINARY_DIR: ${eigen3_BINARY_DIR}")
-
 message("luabridge3_SOURCE_DIR: ${luabridge3_SOURCE_DIR}")
 message("luabridge3_BINARY_DIR: ${luabridge3_BINARY_DIR}")
 
@@ -72,7 +64,6 @@ message("luaocct_BINARY_DIR: ${luaocct_BINARY_DIR}")
 
 include_directories(
   ${OpenCASCADE_INCLUDE_DIR}
-  ${eigen3_SOURCE_DIR}
   ${luajit_BINARY_DIR}
   ${luabridge3_SOURCE_DIR}/Source
   ${luaocct_SOURCE_DIR}/include
