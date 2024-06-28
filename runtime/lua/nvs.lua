@@ -3,11 +3,7 @@ local M = {}
 M.inspect = require("inspect")
 M.json = require("json")
 M.occ = LuaOCCT
-
---- FIXME: Require error on Linux.
-if jit.os == "Windows" then
-  M.uv = require("luv")
-end
+M.uv = require("luv")
 
 function M.print(...)
   for i = 1, select('#', ...) do
