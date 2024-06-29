@@ -2,11 +2,12 @@
 #define _Naivis_NaiveApp_Settings_HeaderFile
 
 #include <QSettings>
-#include <QSharedPointer>
 
-class NaiveApp_Settings {
+class NaiveApp_Settings : public QObject {
+  Q_OBJECT
+
 public:
-  NaiveApp_Settings(const QString &thePath);
+  NaiveApp_Settings(const QString &thePath, QObject *theParent = nullptr);
 
   void Init(const QString &thePath);
 
@@ -16,7 +17,7 @@ public:
                 const QVariant &theValue);
 
 private:
-  QSharedPointer<QSettings> mySettings;
+  QSettings *mySettings;
 };
 
 #endif

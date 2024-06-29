@@ -1,5 +1,6 @@
 ﻿#include "Ext_Load.hxx"
 
+extern void Ext_Ext(lua_State *L);
 extern void Ext_Ghost(lua_State *L);
 extern void Ext_NaiveApp(lua_State *L);
 extern void Ext_NaiveDoc(lua_State *L);

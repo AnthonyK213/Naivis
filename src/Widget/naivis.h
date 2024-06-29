@@ -1,10 +1,7 @@
 ﻿#ifndef _Naivis_Widget_Naivis_Header
 #define _Naivis_Widget_Naivis_Header
 
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QMainWindow>
-#include <QString>
 
 #include <NaiveDoc/NaiveDoc_Document.hxx>
 
@@ -14,6 +11,8 @@ class Naivis;
 }
 QT_END_NAMESPACE
 
+class NaiveApp_ExtensionMgr;
+class NaiveApp_LuaMgr;
 class IO_LogStream;
 class NaiveApp_Settings;
 class Widget_OcctViewer;
@@ -25,6 +24,9 @@ public:
   Naivis(QWidget *parent = nullptr);
 
   ~Naivis();
+
+public:
+  NaiveApp_LuaMgr *getLuaMgr() const;
 
 private slots:
   // File {{{
@@ -84,11 +86,15 @@ private:
 
   bool setupLua();
 
+  bool setupExtension();
+
   Widget_OcctViewer *occtViewer();
 
   const Handle(NaiveDoc_Document) & document() const;
 
   NaiveApp_Settings *settings() const;
+
+  NaiveApp_ExtensionMgr *extensionMgr() const;
 
   void setViewProjectionType(Graphic3d_Camera::Projection projectionType);
 
@@ -97,13 +103,11 @@ private:
   void setupAssemblyTree();
 
 private:
-  class LuaManager;
-
-private:
   Ui::Naivis *ui;
   IO_LogStream *myLogStream;
   NaiveApp_Settings *mySettings;
-  LuaManager *myLuaMgr;
+  NaiveApp_LuaMgr *myLuaMgr;
+  NaiveApp_ExtensionMgr *myExtMgr;
 };
 
 #endif // NAIVIS_H

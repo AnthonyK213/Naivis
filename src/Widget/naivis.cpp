@@ -1,22 +1,27 @@
 ﻿#include "naivis.h"
 #include "./ui_naivis.h"
 
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QFont>
 #include <QFontDatabase>
 #include <QIcon>
 #include <QStack>
+#include <QStandardPaths>
+#include <QString>
 #include <QStyle>
 
 #include <Ghost/Ghost_Document.hxx>
 #include <IO/IO_LogStream.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
+#include <NaiveApp/NaiveApp_ExtensionMgr.hxx>
+#include <NaiveApp/NaiveApp_LuaMgr.hxx>
 #include <NaiveApp/NaiveApp_Settings.hxx>
 #include <Util/Util_AIS.hxx>
 #include <Util/Util_Mesh.hxx>
 #include <Widget/Widget_OcctViewer.hxx>
 
 #include <luaocct/LOUtil_OCAF.hxx>
-#include <luaocct/luaocct.h>
 
 #include <Ext/Ext_Bind.hxx>
 #include <Ext/Ext_Load.hxx>
@@ -37,120 +42,15 @@ static QString getLuaDir(const QString &relativePath = QString()) {
   return p + '/' + relativePath;
 }
 
-class Naivis::LuaManager {
-public:
-  LuaManager() : myL(nullptr) {}
+static QString getDataDir(const QString &relativePath = QString()) {
+  QString p =
+      QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 
-  ~LuaManager() { lua_close(myL); }
+  if (relativePath.isNull() || relativePath.isEmpty())
+    return p;
 
-  bool init() {
-    myL = luaL_newstate();
-
-    if (myL == nullptr) {
-      std::cout << "Cannot create state: not enough memory\n";
-      return false;
-    }
-
-    lua_gc(myL, LUA_GCSTOP, 0);
-    luaL_openlibs(myL);
-    luaopen_luaocct(myL);
-    Ext_Load(myL);
-    lua_gc(myL, LUA_GCRESTART, -1);
-
-    auto rtp = getExeDir().toUtf8().toStdString();
-    pathAppend(rtp + "/runtime/lua");
-    cpathAppend(rtp);
-
-    return true;
-  }
-
-  operator lua_State *() { return myL; }
-
-  lua_State *L() const { return myL; }
-
-  const QString &file() const { return myFile; }
-
-  bool setFile(const QString &theFile) {
-    myFile = theFile;
-
-    /// WORKAROUND: Add the file directory to the runtime path.
-    QFileInfo info(myFile);
-    auto rtp = info.dir().absolutePath().toUtf8().toStdString();
-    pathAppend(rtp);
-    cpathAppend(rtp);
-
-    return true;
-  }
-
-  bool doString(const std::string &theCode, std::string &theErr) {
-    if (luaL_dostring(myL, theCode.c_str()) != 0) {
-      theErr = lua_tostring(myL, -1);
-      lua_pop(myL, -1);
-      return false;
-    }
-
-    return true;
-  }
-
-  bool doFile(std::string &theErr) const {
-    return doFile(myFile.toUtf8().toStdString(), theErr);
-  }
-
-  bool doFile(const std::string &theFile, std::string &theErr) const {
-    if (luaL_dofile(myL, theFile.c_str()) != 0) {
-      theErr = lua_tostring(myL, -1);
-      lua_pop(myL, -1);
-      return false;
-    }
-
-    return true;
-  }
-
-private:
-  bool pathAppend(const std::string &thePath, bool theToComplete = true) const {
-    lua_getglobal(myL, "package");
-    lua_getfield(myL, -1, "path");
-    std::string path = lua_tostring(myL, -1);
-    if (!path.empty())
-      path.append(";");
-    path.append(thePath);
-    if (theToComplete)
-      path.append("/?.lua");
-    lua_pop(myL, 1);
-    lua_pushstring(myL, path.c_str());
-    lua_setfield(myL, -2, "path");
-    lua_pop(myL, 1);
-
-    return true;
-  }
-
-  bool cpathAppend(const std::string &thePath,
-                   bool theToComplete = true) const {
-    lua_getglobal(myL, "package");
-    lua_getfield(myL, -1, "cpath");
-    std::string path = lua_tostring(myL, -1);
-    if (!path.empty())
-      path.append(";");
-    path.append(thePath);
-    if (theToComplete) {
-#ifdef _WIN32
-      path.append("/?.dll");
-#else
-      path.append("/?.so");
-#endif
-    }
-    lua_pop(myL, 1);
-    lua_pushstring(myL, path.c_str());
-    lua_setfield(myL, -2, "cpath");
-    lua_pop(myL, 1);
-
-    return true;
-  }
-
-private:
-  lua_State *myL;
-  QString myFile;
-};
+  return p + '/' + relativePath;
+}
 
 Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   ui->setupUi(this);
@@ -165,6 +65,7 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
   setupAssemblyTree();
   setupSelectionPropertiesTable();
   setupLua();
+  setupExtension();
 
   NaiveApp_InitPrsDrivers();
 
@@ -172,11 +73,11 @@ Naivis::Naivis(QWidget *parent) : QMainWindow(parent), ui(new Ui::Naivis) {
 }
 
 Naivis::~Naivis() {
-  delete myLuaMgr;
-  delete mySettings;
   delete myLogStream;
   delete ui;
 }
+
+NaiveApp_LuaMgr *Naivis::getLuaMgr() const { return myLuaMgr; }
 
 // SLOTS {{{
 
@@ -229,7 +130,7 @@ void Naivis::openScript() {
 
   QFile file{filePath};
   if (file.open(QFile::ReadOnly | QFile::Text)) {
-    myLuaMgr->setFile(filePath);
+    myLuaMgr->SetFile(filePath);
   }
 }
 
@@ -296,7 +197,7 @@ void Naivis::deleteCurrentSelection() {
 
 void Naivis::runScript() {
   std::string anErr;
-  if (!myLuaMgr->doFile(anErr)) {
+  if (!myLuaMgr->DoFile(anErr)) {
     std::cout << anErr << '\n';
   }
 }
@@ -304,8 +205,8 @@ void Naivis::runScript() {
 // }}}
 
 void Naivis::setupSettings() {
-  QString aPath = getExeDir("NaivisSettings.ini");
-  mySettings = new NaiveApp_Settings(aPath);
+  QString aPath = getDataDir("settings.ini");
+  mySettings = new NaiveApp_Settings(aPath, this);
 }
 
 #define CONNECT_ACTION(A, F) connect(A, &QAction::triggered, this, &Naivis::F);
@@ -385,9 +286,9 @@ void Naivis::setupScriptEditor() {
 }
 
 bool Naivis::setupLua() {
-  myLuaMgr = new LuaManager;
+  myLuaMgr = new NaiveApp_LuaMgr(this);
 
-  if (!myLuaMgr->init())
+  if (!myLuaMgr->Init())
     return false;
 
   /* Define alias and import third-party lua libraries.
@@ -398,7 +299,7 @@ bool Naivis::setupLua() {
    */
 
   std::string anErr;
-  if (!myLuaMgr->doFile(getLuaDir("__init__.lua").toUtf8().toStdString(),
+  if (!myLuaMgr->DoFile(getLuaDir("__init__.lua").toUtf8().toStdString(),
                         anErr)) {
     std::cout << anErr << '\n';
   }
@@ -408,6 +309,7 @@ bool Naivis::setupLua() {
 
       .Begin_Namespace(NaiveApp)
       .addProperty("Settings", [this]() { return settings(); })
+      .addProperty("ExtensionMgr", [this]() { return extensionMgr(); })
       .addFunction("Clear", [this]() { clearOutputBuffer(); })
       .End_Namespace()
 
@@ -427,6 +329,17 @@ bool Naivis::setupLua() {
   return true;
 }
 
+bool Naivis::setupExtension() {
+  myExtMgr = new NaiveApp_ExtensionMgr(getDataDir("extensions"), this);
+  if (!myExtMgr->Init())
+    return false;
+
+  if (!myExtMgr->LoadExts())
+    return false;
+
+  return true;
+}
+
 Widget_OcctViewer *Naivis::occtViewer() { return ui->occtViewer; }
 
 const Handle(NaiveDoc_Document) & Naivis::document() const {
@@ -434,6 +347,8 @@ const Handle(NaiveDoc_Document) & Naivis::document() const {
 }
 
 NaiveApp_Settings *Naivis::settings() const { return mySettings; }
+
+NaiveApp_ExtensionMgr *Naivis::extensionMgr() const { return myExtMgr; }
 
 void Naivis::setViewProjectionType(
     Graphic3d_Camera::Projection projectionType) {

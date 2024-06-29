@@ -3,11 +3,13 @@
 #include <QFile>
 #include <QHash>
 
-NaiveApp_Settings::NaiveApp_Settings(const QString &thePath) { Init(thePath); }
+NaiveApp_Settings::NaiveApp_Settings(const QString &thePath, QObject *theParent)
+    : QObject(theParent) {
+  Init(thePath);
+}
 
 void NaiveApp_Settings::Init(const QString &thePath) {
-  mySettings =
-      QSharedPointer<QSettings>(new QSettings(thePath, QSettings::IniFormat));
+  mySettings = new QSettings(thePath, QSettings::IniFormat, this);
 
   QFile aFile(thePath);
   if (!aFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
