@@ -16,8 +16,6 @@ public:
 
   bool Init();
 
-  operator lua_State *() { return myL; }
-
   lua_State *L() const;
 
   const QString &File() const;
@@ -26,13 +24,13 @@ public:
 
   bool DoString(const std::string &theCode, std::string &theErr);
 
-  bool DoFile(std::string &theErr) const;
+  bool DoFile(std::string &theErr);
 
-  bool DoFile(const std::string &theFile, std::string &theErr) const;
+  bool DoFile(const std::string &theFile, std::string &theErr);
 
-  bool PathAppend(const std::string &thePath, bool theToComplete = true) const;
+  bool PathAppend(const std::string &thePath, bool theToComplete = true);
 
-  bool CPathAppend(const std::string &thePath, bool theToComplete = true) const;
+  bool CPathAppend(const std::string &thePath, bool theToComplete = true);
 
 private:
   lua_State *myL;

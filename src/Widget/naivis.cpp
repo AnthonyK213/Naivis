@@ -12,9 +12,9 @@
 #include <QStyle>
 
 #include <Ghost/Ghost_Document.hxx>
-#include <IO/IO_LogStream.hxx>
 #include <NaiveApp/NaiveApp_Application.hxx>
 #include <NaiveApp/NaiveApp_ExtensionMgr.hxx>
+#include <NaiveApp/NaiveApp_LogStream.hxx>
 #include <NaiveApp/NaiveApp_LuaMgr.hxx>
 #include <NaiveApp/NaiveApp_Settings.hxx>
 #include <Util/Util_AIS.hxx>
@@ -269,7 +269,7 @@ void Naivis::setupActionIcons() {
 
 void Naivis::setupOutputBuffer() {
   ui->outputBuffer->document()->setMaximumBlockCount(9001);
-  myLogStream = new IO_LogStream(std::cout, ui->outputBuffer);
+  myLogStream = new NaiveApp_LogStream(std::cout, ui->outputBuffer);
 }
 
 void Naivis::setupScriptEditor() {

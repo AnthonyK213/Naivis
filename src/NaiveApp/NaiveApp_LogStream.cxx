@@ -1,13 +1,13 @@
-﻿#include "IO_LogStream.hxx"
+﻿#include "NaiveApp_LogStream.hxx"
 
-IO_LogStream::IO_LogStream(std::ostream &stream, QTextBrowser *textBrowser)
+NaiveApp_LogStream::NaiveApp_LogStream(std::ostream &stream, QTextBrowser *textBrowser)
     : myStream(stream) {
   mylogWindow = textBrowser;
   myOldBuf = stream.rdbuf();
   stream.rdbuf(this);
 }
 
-IO_LogStream::~IO_LogStream() {
+NaiveApp_LogStream::~NaiveApp_LogStream() {
   // output anything that is left
   if (!myString.empty())
     mylogWindow->append(myString.c_str());
@@ -15,7 +15,7 @@ IO_LogStream::~IO_LogStream() {
   myStream.rdbuf(myOldBuf);
 }
 
-std::streambuf::int_type IO_LogStream::overflow(int_type v) {
+std::streambuf::int_type NaiveApp_LogStream::overflow(int_type v) {
   if (v == '\n') {
     mylogWindow->append(myString.c_str());
     myString.erase(myString.begin(), myString.end());
@@ -25,7 +25,7 @@ std::streambuf::int_type IO_LogStream::overflow(int_type v) {
   return v;
 }
 
-std::streamsize IO_LogStream::xsputn(const char *p, std::streamsize n) {
+std::streamsize NaiveApp_LogStream::xsputn(const char *p, std::streamsize n) {
   myString.append(p, p + n);
 
   size_t pos = 0;

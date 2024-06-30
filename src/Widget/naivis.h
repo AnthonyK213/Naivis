@@ -12,8 +12,8 @@ class Naivis;
 QT_END_NAMESPACE
 
 class NaiveApp_ExtensionMgr;
+class NaiveApp_LogStream;
 class NaiveApp_LuaMgr;
-class IO_LogStream;
 class NaiveApp_Settings;
 class Widget_OcctViewer;
 
@@ -104,7 +104,7 @@ private:
 
 private:
   Ui::Naivis *ui;
-  IO_LogStream *myLogStream;
+  NaiveApp_LogStream *myLogStream;
   NaiveApp_Settings *mySettings;
   NaiveApp_LuaMgr *myLuaMgr;
   NaiveApp_ExtensionMgr *myExtMgr;

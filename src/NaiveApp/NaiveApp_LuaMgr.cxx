@@ -63,12 +63,11 @@ bool NaiveApp_LuaMgr::DoString(const std::string &theCode,
   return true;
 }
 
-bool NaiveApp_LuaMgr::DoFile(std::string &theErr) const {
+bool NaiveApp_LuaMgr::DoFile(std::string &theErr) {
   return DoFile(myFile.toUtf8().toStdString(), theErr);
 }
 
-bool NaiveApp_LuaMgr::DoFile(const std::string &theFile,
-                             std::string &theErr) const {
+bool NaiveApp_LuaMgr::DoFile(const std::string &theFile, std::string &theErr) {
   if (luaL_dofile(myL, theFile.c_str()) != 0) {
     theErr = lua_tostring(myL, -1);
     lua_pop(myL, -1);
@@ -79,7 +78,7 @@ bool NaiveApp_LuaMgr::DoFile(const std::string &theFile,
 }
 
 bool NaiveApp_LuaMgr::PathAppend(const std::string &thePath,
-                                 bool theToComplete) const {
+                                 bool theToComplete) {
   lua_getglobal(myL, "package");
   lua_getfield(myL, -1, "path");
   std::string path = lua_tostring(myL, -1);
@@ -97,7 +96,7 @@ bool NaiveApp_LuaMgr::PathAppend(const std::string &thePath,
 }
 
 bool NaiveApp_LuaMgr::CPathAppend(const std::string &thePath,
-                                  bool theToComplete) const {
+                                  bool theToComplete) {
   lua_getglobal(myL, "package");
   lua_getfield(myL, -1, "cpath");
   std::string path = lua_tostring(myL, -1);

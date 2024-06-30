@@ -1,5 +1,5 @@
-﻿#ifndef _Naivis_IO_LogStream_HeaderFile
-#define _Naivis_IO_LogStream_HeaderFile
+﻿#ifndef _Naivis_NaiveApp_LogStream_HeaderFile
+#define _Naivis_NaiveApp_LogStream_HeaderFile
 
 #include <QTextBrowser>
 
@@ -7,11 +7,11 @@
 #include <streambuf>
 #include <string>
 
-class IO_LogStream : public std::basic_streambuf<char> {
+class NaiveApp_LogStream : public std::basic_streambuf<char> {
 public:
-  IO_LogStream(std::ostream &stream, QTextBrowser *textBrowser);
+  NaiveApp_LogStream(std::ostream &stream, QTextBrowser *textBrowser);
 
-  ~IO_LogStream();
+  ~NaiveApp_LogStream();
 
 protected:
   virtual int_type overflow(int_type v) override;
