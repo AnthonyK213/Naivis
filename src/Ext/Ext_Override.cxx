@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-static int extPrint(lua_State *L) {
+static int printToStdout(lua_State *L) {
   int n = lua_gettop(L);
   int i;
   lua_getglobal(L, "tostring");
@@ -25,13 +25,13 @@ static int extPrint(lua_State *L) {
     lua_pop(L, 1); /* pop result */
   }
 
-  std::cout << '\n';
+  std::cout << std::endl;
 
   return 0;
 }
 
 static const struct luaL_Reg overrideLib[] = {
-    {"print", extPrint},
+    {"print", printToStdout},
     {NULL, NULL},
 };
 
