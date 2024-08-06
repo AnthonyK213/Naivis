@@ -269,11 +269,7 @@ void Naivis::setupActionIcons() {
 
 void Naivis::setupOutputBuffer() {
   ui->outputBuffer->document()->setMaximumBlockCount(9001);
-#ifndef NDEBUG
-  myLogStream = nullptr;
-#else
   myLogStream = new NaiveApp_LogStream(std::cout, ui->outputBuffer);
-#endif
 }
 
 void Naivis::setupScriptEditor() {

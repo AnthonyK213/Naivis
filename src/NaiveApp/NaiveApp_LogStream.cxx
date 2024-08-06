@@ -1,42 +1,52 @@
 ﻿#include "NaiveApp_LogStream.hxx"
 
-NaiveApp_LogStream::NaiveApp_LogStream(std::ostream &stream, QTextBrowser *textBrowser)
-    : myStream(stream) {
-  mylogWindow = textBrowser;
-  myOldBuf = stream.rdbuf();
-  stream.rdbuf(this);
+#include <cstdio>
+
+NaiveApp_LogStream::NaiveApp_LogStream(::std::ostream &theStream,
+                                       QTextBrowser *theTB)
+    : myStream(theStream) {
+  myLogWindow = theTB;
+  myOldBuf = theStream.rdbuf();
+  theStream.rdbuf(this);
 }
 
 NaiveApp_LogStream::~NaiveApp_LogStream() {
-  // output anything that is left
   if (!myString.empty())
-    mylogWindow->append(myString.c_str());
-
+    myLogWindow->append(myString.c_str());
   myStream.rdbuf(myOldBuf);
 }
 
-std::streambuf::int_type NaiveApp_LogStream::overflow(int_type v) {
-  if (v == '\n') {
-    mylogWindow->append(myString.c_str());
+::std::streambuf::int_type NaiveApp_LogStream::overflow(int_type theV) {
+  if (theV == '\n') {
+#ifndef NDEBUG
+    ::std::printf("%s\n", myString.c_str());
+    ::std::fflush(stdout);
+#endif
+    myLogWindow->append(myString.c_str());
     myString.erase(myString.begin(), myString.end());
   } else
-    myString += v;
+    myString += theV;
 
-  return v;
+  return theV;
 }
 
-std::streamsize NaiveApp_LogStream::xsputn(const char *p, std::streamsize n) {
-  myString.append(p, p + n);
+::std::streamsize NaiveApp_LogStream::xsputn(const char *theP,
+                                             std::streamsize theN) {
+  myString.append(theP, theP + theN);
 
-  size_t pos = 0;
-  while (pos != std::string::npos) {
-    pos = myString.find('\n');
-    if (pos != std::string::npos) {
-      std::string tmp(myString.begin(), myString.begin() + pos);
-      mylogWindow->append(tmp.c_str());
-      myString.erase(myString.begin(), myString.begin() + pos + 1);
+  size_t aPos = 0;
+  while (aPos != ::std::string::npos) {
+    aPos = myString.find('\n');
+    if (aPos != ::std::string::npos) {
+      ::std::string aTmp(myString.begin(), myString.begin() + aPos);
+#ifndef NDEBUG
+      ::std::printf("%s\n", aTmp.c_str());
+      ::std::fflush(stdout);
+#endif
+      myLogWindow->append(aTmp.c_str());
+      myString.erase(myString.begin(), myString.begin() + aPos + 1);
     }
   }
 
-  return n;
+  return theN;
 }

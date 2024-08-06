@@ -7,22 +7,23 @@
 #include <streambuf>
 #include <string>
 
-class NaiveApp_LogStream : public std::basic_streambuf<char> {
+class NaiveApp_LogStream : public ::std::basic_streambuf<char> {
 public:
-  NaiveApp_LogStream(std::ostream &stream, QTextBrowser *textBrowser);
+  NaiveApp_LogStream(::std::ostream &theStream, QTextBrowser *theTB);
 
   ~NaiveApp_LogStream();
 
 protected:
-  virtual int_type overflow(int_type v) override;
+  virtual int_type overflow(int_type theV) override;
 
-  virtual std::streamsize xsputn(const char *p, std::streamsize n) override;
+  virtual ::std::streamsize xsputn(const char *theP,
+                                   ::std::streamsize theN) override;
 
 private:
-  std::ostream &myStream;
-  std::streambuf *myOldBuf;
-  std::string myString;
-  QTextBrowser *mylogWindow;
+  ::std::string myString;
+  ::std::ostream &myStream;
+  ::std::streambuf *myOldBuf;
+  QTextBrowser *myLogWindow;
 };
 
 #endif
