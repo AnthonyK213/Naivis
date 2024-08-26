@@ -1,59 +1,15 @@
 ---@meta _
 error('Cannot require a meta file')
 
-Naivis.NaiveApp = {}
-
----@class NaiveApp_Settings
-Naivis.NaiveApp.NaiveApp_Settings = {}
-
----@type NaiveApp_Settings
-Naivis.NaiveApp.Settings = {}
-
----@class NaiveApp_Extension
-Naivis.NaiveApp.NaiveApp_Extension = {}
-
----@return boolean
-function Naivis.NaiveApp.NaiveApp_Extension:IsValid() end
-
----@return boolean
-function Naivis.NaiveApp.NaiveApp_Extension:IsLoaded() end
-
----@return string
-function Naivis.NaiveApp.NaiveApp_Extension:Path() end
-
----@return string
-function Naivis.NaiveApp.NaiveApp_Extension:Name() end
-
----@class NaiveApp_ExtensionMgr
-Naivis.NaiveApp.NaiveApp_ExtensionMgr = {}
-
----@type NaiveApp_ExtensionMgr
-Naivis.NaiveApp.ExtensionMgr = {}
-
----@param theName string
----@return NaiveApp_Extension
-function Naivis.NaiveApp.NaiveApp_ExtensionMgr:Find(theName) end
-
----Clear the output buffer.
-function Naivis.NaiveApp.Clear() end
-
-Naivis.NaiveDoc = {}
-
----@class NaiveDoc_Document : LODoc_Document
-Naivis.NaiveDoc.NaiveDoc_Document = {}
-
----@type NaiveDoc_Document
-Naivis.NaiveDoc.ActiveDoc = {}
-
 Naivis.Ghost = {}
 
 ---@enum Ghost_ObjectType
 Naivis.Ghost.Ghost_ObjectType = {
-  Ghost_OTNone = 0,
-  Ghost_OTShape = 1,
-  Ghost_OTMesh = 2,
+  Ghost_OTNone   = 0,
+  Ghost_OTShape  = 1,
+  Ghost_OTMesh   = 2,
   Ghost_OTVector = 3,
-  Ghost_OTAx3 = 4,
+  Ghost_OTAx3    = 4,
 }
 
 ---@class Ghost_Id
@@ -67,7 +23,7 @@ function Naivis.Ghost.Ghost_Id:IsNull() end
 ---@return string
 function Naivis.Ghost.Ghost_Id:ToString() end
 
----@class Ghost_Object : Standard_Transient
+---@class Ghost_Object : LODoc_Document
 Naivis.Ghost.Ghost_Object = {}
 
 ---@class Ghost_Attribute : LODoc_Attribute
