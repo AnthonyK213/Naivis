@@ -34,8 +34,9 @@ Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   for (TColStd_PackedMapOfInteger::Iterator anIter(
            aDataSource->GetAllElements());
        anIter.More(); anIter.Next()) {
-    aColorPrsBuilder->SetColor1(
-        anIter.Key(), Quantity_Color(0.5, 0.8, 0.88, Quantity_TOC_sRGB));
+    aColorPrsBuilder->SetColor2(
+        anIter.Key(), Quantity_Color(0.50, 0.80, 0.88, Quantity_TOC_sRGB),
+        Quantity_Color(0.94, 0.70, 0.67, Quantity_TOC_sRGB));
   }
 
   aMeshPrs->AddBuilder(aColorPrsBuilder, Standard_False);
