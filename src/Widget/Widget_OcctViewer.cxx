@@ -210,7 +210,7 @@ Aspect_VKey qtKey2VKey(int theKey) {
   }
 }
 
-} // namespace
+} /* namespace */
 
 //! OpenGL FBO subclass for wrapping FBO created by Qt using GL_RGBA8 texture
 //! format instead of GL_SRGB8_ALPHA8. This FBO is set to

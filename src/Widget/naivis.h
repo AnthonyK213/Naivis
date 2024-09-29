@@ -29,7 +29,7 @@ public:
   NaiveApp_LuaMgr *getLuaMgr() const;
 
 private slots:
-  // File {{{
+  /* File {{{ */
 
   void importFile();
 
@@ -41,9 +41,9 @@ private slots:
 
   void quit();
 
-  // }}}
+  /* }}} */
 
-  // Edit {{{
+  /* Edit {{{ */
 
   void undo();
 
@@ -59,13 +59,13 @@ private slots:
 
   void deleteCurrentSelection();
 
-  // }}}
+  /* }}} */
 
-  // Script {{{
+  /* Script {{{ */
 
   void runScript();
 
-  // }}}
+  /* }}} */
 
   void updateSelectionPropertiesTable(const NaiveDoc_ObjectList &theSelections);
 
@@ -110,6 +110,6 @@ private:
   NaiveApp_ExtensionMgr *myExtMgr;
 };
 
-#endif // NAIVIS_H
+#endif /* NAIVIS_H */
 
-// vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0:
+/* vim: set foldmarker={{{,}}} foldmethod=marker foldlevel=0: */

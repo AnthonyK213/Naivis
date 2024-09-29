@@ -22,7 +22,7 @@ public:
   DEFINE_STANDARD_RTTIEXT(NaiveDoc_Document, LODoc_Document)
 
 private:
-  virtual void initDriverID() Standard_OVERRIDE;
+  void initDriverID();
 
 signals:
   void OnAddObject(const Handle(NaiveDoc_Document) & theDoc);

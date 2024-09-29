@@ -68,4 +68,4 @@ Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh) {
   return aMeshPrs;
 }
 
-} // namespace Util_Mesh
+} /* namespace Util_Mesh */

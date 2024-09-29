@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
 #ifdef _WIN32
-  // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
+  /* never use ANGLE on Windows, since OCCT 3D Viewer does not expect this. */
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
 

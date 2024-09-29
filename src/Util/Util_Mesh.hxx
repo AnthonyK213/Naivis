@@ -9,11 +9,8 @@
 
 namespace Util_Mesh {
 
-/// @brief
-/// @param
-/// @return
 Handle(MeshVS_Mesh) CreateMeshVS(const Handle(Poly_Triangulation) & theMesh);
 
-} // namespace Util_Mesh
+} /* namespace Util_Mesh */
 
 #endif

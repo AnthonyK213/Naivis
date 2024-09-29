@@ -79,7 +79,7 @@ Naivis::~Naivis() {
 
 NaiveApp_LuaMgr *Naivis::getLuaMgr() const { return myLuaMgr; }
 
-// SLOTS {{{
+/* SLOTS {{{ */
 
 void Naivis::importFile() {
   QString selectedFilter{};
@@ -154,7 +154,7 @@ void Naivis::transform() {}
 
 void Naivis::undo() {
   document()->Undo();
-  /// FIXME: How to excute this when needed?
+  /* FIXME: How to excute this when needed? */
   updateAssemblyTree(document());
   update();
 }
@@ -202,7 +202,7 @@ void Naivis::runScript() {
   }
 }
 
-// }}}
+/* }}} */
 
 void Naivis::setupSettings() {
   QString aPath = getDataDir("settings.ini");
@@ -212,14 +212,14 @@ void Naivis::setupSettings() {
 #define CONNECT_ACTION(A, F) connect(A, &QAction::triggered, this, &Naivis::F);
 
 void Naivis::setupActions() {
-  /// File
+  /* File */
   CONNECT_ACTION(ui->actionImport, importFile);
   CONNECT_ACTION(ui->actionExport, exportFile);
   CONNECT_ACTION(ui->actionOpenScript, openScript);
   CONNECT_ACTION(ui->actionSaveScript, saveScript);
   CONNECT_ACTION(ui->actionQuit, quit);
 
-  /// Edit
+  /* Edit */
   CONNECT_ACTION(ui->actionUndo, undo);
   CONNECT_ACTION(ui->actionRedo, redo);
   CONNECT_ACTION(ui->actionTransform, transform);
@@ -228,7 +228,7 @@ void Naivis::setupActions() {
   CONNECT_ACTION(ui->actionShowAll, showAll);
   CONNECT_ACTION(ui->actionDelete, deleteCurrentSelection);
 
-  /// View
+  /* View */
   connect(ui->actionOrthographic, &QAction::triggered, [this] {
     ui->actionOrthographic->setChecked(true);
     ui->actionPerspective->setChecked(false);
@@ -243,11 +243,10 @@ void Naivis::setupActions() {
     update();
   });
 
-  /// Script
+  /* Script */
   CONNECT_ACTION(ui->actionRunScript, runScript);
 
-  /// Help
-
+  /* Help */
   connect(occtViewer(), &Widget_OcctViewer::selectionChanged, this,
           &Naivis::updateSelectionPropertiesTable);
 }

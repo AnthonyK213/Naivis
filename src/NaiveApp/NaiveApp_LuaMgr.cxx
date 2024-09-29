@@ -43,7 +43,7 @@ const QString &NaiveApp_LuaMgr::File() const { return myFile; }
 bool NaiveApp_LuaMgr::SetFile(const QString &theFile) {
   myFile = theFile;
 
-  /// WORKAROUND: Add the file directory to the runtime path.
+  /* WORKAROUND: Add the file directory to the runtime path. */
   QFileInfo info(myFile);
   auto rtp = info.dir().absolutePath().toUtf8().toStdString();
   PathAppend(rtp);

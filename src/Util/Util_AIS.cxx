@@ -151,7 +151,7 @@ QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
       QString anIdName = theExtra[anIdStr].toString();
       aProps.push_back(anIdName);
 
-      // TODO: |ToString| for other attribute types.
+      /* TODO: `ToString` for other attribute types. */
       if (anAttr->IsKind(STANDARD_TYPE(TDataStd_Integer))) {
         auto anIntAttr = Handle(TDataStd_Integer)::DownCast(anAttr);
         aProps.push_back(QString::number(anIntAttr->Get()));
@@ -167,4 +167,4 @@ NaiveDoc_ObjectList GetSelections(const Handle(AIS_InteractiveContext) &
   return LOUtil_AIS::GetSelections(theCtx);
 }
 
-} // namespace Util_AIS
+} /* namespace Util_AIS */

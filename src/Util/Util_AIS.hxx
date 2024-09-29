@@ -17,6 +17,6 @@ QStringList GetObjectProperties(const Handle(AIS_InteractiveObject) & theObj,
 std::vector<Handle(AIS_InteractiveObject)>
 GetSelections(const Handle(AIS_InteractiveContext) & theCtx);
 
-} // namespace Util_AIS
+} /* namespace Util_AIS */
 
 #endif

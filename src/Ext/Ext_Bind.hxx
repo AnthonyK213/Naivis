@@ -150,7 +150,7 @@ struct Stack<QUuid::StringFormat>
     : Enum<QUuid::StringFormat, QUuid::StringFormat::WithBraces,
            QUuid::StringFormat::WithoutBraces, QUuid::StringFormat::Id128> {};
 
-} // namespace luabridge
+} /* namespace luabridge */
 
 #define LuaBridge__G(L) luabridge::getGlobalNamespace(L)
 

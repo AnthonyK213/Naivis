@@ -45,24 +45,37 @@ public:
 
   const Handle(NaiveDoc_Document) & Document() const { return myDoc; }
 
-  /// @return OpenGL informations.
+  /**
+   * @brief Get OpenGL informations.
+   *
+   * @return OpenGL informations.
+   */
   const QString &getGlInfo() const { return myGlInfo; }
 
-  /// @return Widget minimum size.
+  /**
+   * @brief Get widget minimum size.
+   *
+   * @return Widget minimum size.
+   */
   virtual QSize minimumSizeHint() const override { return QSize(200, 200); }
 
-  /// @return Widget default size.
+  /**
+   * @brief Get widget default size.
+   *
+   * @return Widget default size.
+   */
   virtual QSize sizeHint() const override { return QSize(720, 480); }
 
-  /// @brief Display the viewCube
+  /**
+   * @brief  Display the viewCube
+   *
+   */
   void displayViewCube();
 
 protected:
   virtual void initializeGL() override;
 
   virtual void paintGL() override;
-
-  // virtual void resizeGL(int , int ) override;
 
 protected:
   virtual void closeEvent(QCloseEvent *theEvent) override;

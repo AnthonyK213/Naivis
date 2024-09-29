@@ -1,20 +1,4 @@
-﻿// Created on: 2004-06-10
-// Created by: Alexander SOLOVYOV
-// Copyright (c) 2004-2014 OPEN CASCADE SAS
-//
-// This file is part of Open CASCADE Technology software library.
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation, with special exception defined in the file
-// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in
-// OCCT distribution for complete text of the license and disclaimer of any
-// warranty.
-//
-// Alternatively, this file may be used under the terms of Open CASCADE
-// commercial license or contractual agreement.
-
-#include <Precision.hxx>
+﻿#include <Precision.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_DataMapOfIntegerReal.hxx>
 
@@ -22,10 +6,6 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(XSDRAWSTLVRML_DataSource_1, MeshVS_DataSource)
 
-//================================================================
-// Function : Constructor
-// Purpose  :
-//================================================================
 XSDRAWSTLVRML_DataSource_1::XSDRAWSTLVRML_DataSource_1(
     const Handle(Poly_Triangulation) & theMesh) {
   myMesh = theMesh;
@@ -84,10 +64,6 @@ XSDRAWSTLVRML_DataSource_1::XSDRAWSTLVRML_DataSource_1(
   std::cout << "Construction is finished" << std::endl;
 }
 
-//================================================================
-// Function : GetGeom
-// Purpose  :
-//================================================================
 Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetGeom(
     const Standard_Integer ID, const Standard_Boolean IsElement,
     TColStd_Array1OfReal &Coords, Standard_Integer &NbNodes,
@@ -121,10 +97,6 @@ Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetGeom(
     return Standard_False;
 }
 
-//================================================================
-// Function : GetGeomType
-// Purpose  :
-//================================================================
 Standard_Boolean
 XSDRAWSTLVRML_DataSource_1::GetGeomType(const Standard_Integer,
                                         const Standard_Boolean IsElement,
@@ -138,20 +110,12 @@ XSDRAWSTLVRML_DataSource_1::GetGeomType(const Standard_Integer,
   }
 }
 
-//================================================================
-// Function : GetAddr
-// Purpose  :
-//================================================================
 Standard_Address
 XSDRAWSTLVRML_DataSource_1::GetAddr(const Standard_Integer,
                                     const Standard_Boolean) const {
   return NULL;
 }
 
-//================================================================
-// Function : GetNodesByElement
-// Purpose  :
-//================================================================
 Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNodesByElement(
     const Standard_Integer ID, TColStd_Array1OfInteger &theNodeIDs,
     Standard_Integer & /*theNbNodes*/) const {
@@ -168,28 +132,16 @@ Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNodesByElement(
   return Standard_False;
 }
 
-//================================================================
-// Function : GetAllNodes
-// Purpose  :
-//================================================================
 const TColStd_PackedMapOfInteger &
 XSDRAWSTLVRML_DataSource_1::GetAllNodes() const {
   return myNodes;
 }
 
-//================================================================
-// Function : GetAllElements
-// Purpose  :
-//================================================================
 const TColStd_PackedMapOfInteger &
 XSDRAWSTLVRML_DataSource_1::GetAllElements() const {
   return myElements;
 }
 
-//================================================================
-// Function : GetNormal
-// Purpose  :
-//================================================================
 Standard_Boolean XSDRAWSTLVRML_DataSource_1::GetNormal(
     const Standard_Integer Id, const Standard_Integer Max, Standard_Real &nx,
     Standard_Real &ny, Standard_Real &nz) const {
