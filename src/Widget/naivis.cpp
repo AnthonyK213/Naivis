@@ -310,6 +310,14 @@ bool Naivis::setupLua() {
       .addProperty("Settings", [this]() { return settings(); })
       .addProperty("ExtensionMgr", [this]() { return extensionMgr(); })
       .addFunction("Clear", [this]() { clearOutputBuffer(); })
+      .addFunction("CurrentScriptDir",
+                   [this]() -> QString {
+                     const QString &aFile = getLuaMgr()->File();
+                     if (aFile.isNull())
+                       return "";
+                     QFileInfo anInfo(aFile);
+                     return anInfo.dir().absolutePath();
+                   })
       .End_Namespace()
 
       .Begin_Namespace(NaiveDoc)

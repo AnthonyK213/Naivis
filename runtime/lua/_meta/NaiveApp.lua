@@ -36,3 +36,6 @@ function Naivis.NaiveApp.NaiveApp_ExtensionMgr:Find(theName) end
 
 ---Clear the output buffer.
 function Naivis.NaiveApp.Clear() end
+
+---@return string
+function Naivis.NaiveApp.CurrentScriptDir() end

@@ -11,7 +11,7 @@
 #include <iostream>
 
 NaiveApp_LuaMgr::NaiveApp_LuaMgr(QObject *theParent)
-    : QObject(theParent), myL(nullptr) {}
+    : QObject(theParent), myL(nullptr), myFile() {}
 
 NaiveApp_LuaMgr::~NaiveApp_LuaMgr() { lua_close(myL); }
 
