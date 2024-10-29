@@ -122,6 +122,20 @@
   </Expand>
 </Type>
 
+<Type Name="NCollection_Vector&lt;*&gt;">
+  <DisplayString>NCollection_Vector [{myLength}]</DisplayString>
+    <Expand>
+      <IndexListItems Condition="myData->Length&lt;myLength">
+        <Size>myData-&gt;Length</Size>
+        <ValueNode>*($T1*)((char*)myData-&gt;DataPtr + $i * myItemSize)</ValueNode>
+      </IndexListItems>
+      <IndexListItems Condition="myData->Length&gt;=myLength">
+        <Size>myLength</Size>
+        <ValueNode>*($T1*)((char*)myData-&gt;DataPtr + $i * myItemSize)</ValueNode>
+      </IndexListItems>
+    </Expand>
+</Type>
+
 <Type Name="NCollection_DynamicArray&lt;*&gt;">
   <DisplayString>NCollection_DynamicArray [{myUsedSize}]</DisplayString>
   <Expand>
@@ -153,6 +167,91 @@
       <NextPointer>myNext</NextPointer>
       <ValueNode>*($T1*)(sizeof(NCollection_SeqNode) + ((char *)this))</ValueNode>
     </LinkedListItems>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_Map&lt;*,*&gt;">
+  <DisplayString>NCollection_Map [{mySize}]</DisplayString>
+  <Expand>
+    <CustomListItems>
+      <Variable Name="iBucket" InitialValue="1"/>
+      <Variable Name="i" InitialValue="0"/>
+      <Variable Name="aMapNode" InitialValue="(NCollection_Map&lt;$T1,$T2&gt;::MapNode*)0"/>
+      <Loop Condition="iBucket&lt;=myNbBuckets">
+        <If Condition="myData1[iBucket]!=0">
+          <Exec>aMapNode = (NCollection_Map&lt;$T1,$T2&gt;::MapNode*)(myData1[iBucket])</Exec>
+          <Loop Condition="aMapNode!=0">
+            <Item Name="[{i}]">aMapNode-&gt;myValue</Item>
+            <Exec>aMapNode = (NCollection_Map&lt;$T1,$T2&gt;::MapNode*)(aMapNode-&gt;myNext)</Exec>
+            <Exec>++i</Exec>
+            <Break Condition="i&gt;=mySize"/>
+          </Loop>
+        </If>
+        <Exec>++iBucket</Exec>
+      </Loop>
+    </CustomListItems>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_IndexedMap&lt;*,*&gt;::IndexedMapNode">
+  <DisplayString>{{{myValue}, {myIndex}}}</DisplayString>
+  <Expand>
+    <Item Name="myKey">myValue</Item>
+    <Item Name="myIndex">myIndex</Item>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_IndexedMap&lt;*,*&gt;">
+  <DisplayString>NCollection_IndexedMap [{mySize}]</DisplayString>
+  <Expand>
+    <CustomListItems>
+      <Variable Name="iBucket" InitialValue="1"/>
+      <Variable Name="i" InitialValue="0"/>
+      <Variable Name="aIndexedMapNode" InitialValue="(NCollection_IndexedMap&lt;$T1,$T2&gt;::IndexedMapNode*)0"/>
+      <Loop Condition="iBucket&lt;=myNbBuckets">
+        <If Condition="myData1[iBucket]!=0">
+          <Exec>aIndexedMapNode = (NCollection_IndexedMap&lt;$T1,$T2&gt;::IndexedMapNode*)(myData1[iBucket])</Exec>
+          <Loop Condition="aIndexedMapNode!=0">
+            <Item Name="[{i}]">*aIndexedMapNode</Item>
+            <Exec>aIndexedMapNode = (NCollection_IndexedMap&lt;$T1,$T2&gt;::IndexedMapNode*)(aIndexedMapNode-&gt;myNext)</Exec>
+            <Exec>++i</Exec>
+            <Break Condition="i&gt;=mySize"/>
+          </Loop>
+        </If>
+        <Exec>++iBucket</Exec>
+      </Loop>
+    </CustomListItems>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_DataMap&lt;*,*,*&gt;::DataMapNode">
+  <DisplayString>{{{myKey}, {myValue}}}</DisplayString>
+  <Expand>
+    <Item Name="myKey">myKey</Item>
+    <Item Name="myValue">myValue</Item>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_DataMap&lt;*,*,*&gt;">
+  <DisplayString>NCollection_DataMap [{mySize}]</DisplayString>
+  <Expand>
+    <CustomListItems>
+      <Variable Name="iBucket" InitialValue="1"/>
+      <Variable Name="i" InitialValue="0"/>
+      <Variable Name="aDataMapNode" InitialValue="(NCollection_DataMap&lt;$T1,$T2,$T3&gt;::DataMapNode*)0"/>
+      <Loop Condition="iBucket&lt;=myNbBuckets">
+        <If Condition="myData1[iBucket]!=0">
+          <Exec>aDataMapNode = (NCollection_DataMap&lt;$T1,$T2,$T3&gt;::DataMapNode*)(myData1[iBucket])</Exec>
+          <Loop Condition="aDataMapNode!=0">
+            <Item Name="[{i}]">*aDataMapNode</Item>
+            <Exec>aDataMapNode = (NCollection_DataMap&lt;$T1,$T2,$T3&gt;::DataMapNode*)(aDataMapNode-&gt;myNext)</Exec>
+            <Exec>++i</Exec>
+            <Break Condition="i&gt;=mySize"/>
+          </Loop>
+        </If>
+        <Exec>++iBucket</Exec>
+      </Loop>
+    </CustomListItems>
   </Expand>
 </Type>
 
