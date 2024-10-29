@@ -50,7 +50,7 @@
 
 <Type Name="Handle_Standard_Transient">
   <DisplayString Condition="entity==0x00000000">NULL</DisplayString>
-  <DisplayString Condition="entity!=0x00000000">[rc={entity->myRefCount_}]</DisplayString>
+  <DisplayString Condition="entity!=0x00000000">[rc={entity-&gt;myRefCount_}]</DisplayString>
   <Expand>
     <ExpandedItem>*entity</ExpandedItem>
   </Expand>
@@ -58,15 +58,15 @@
 
 <Type Name="NCollection_Handle&lt;*&gt;">
   <DisplayString Condition="entity==0x00000000">NULL</DisplayString>
-  <DisplayString Condition="entity!=0x00000000">{(void*)entity} [rc={entity->myRefCount_}]</DisplayString>
+  <DisplayString Condition="entity!=0x00000000">{(void*)entity} [rc={entity-&gt;myRefCount_}]</DisplayString>
   <Expand>
-    <ExpandedItem>*((NCollection_Handle&lt;$T1&gt;::Ptr*)entity)->myPtr</ExpandedItem>
+    <ExpandedItem>*((NCollection_Handle&lt;$T1&gt;::Ptr*)entity)-&gt;myPtr</ExpandedItem>
   </Expand>
 </Type>
 
 <Type Name="opencascade::handle&lt;*&gt;">
   <DisplayString Condition="entity==0x00000000">NULL</DisplayString>
-  <DisplayString Condition="entity!=0x00000000">{(void*)entity} [rc={entity->myRefCount_}]</DisplayString>
+  <DisplayString Condition="entity!=0x00000000">{(void*)entity} [rc={entity-&gt;myRefCount_}]</DisplayString>
   <Expand>
     <ExpandedItem>entity</ExpandedItem>
   </Expand>
@@ -174,7 +174,7 @@
 
 <Type Name="TDF_Label">
   <DisplayString Condition="myLabelNode==0">NULL</DisplayString>
-  <DisplayString Condition="myLabelNode!=0">[:{myLabelNode->myTag}]</DisplayString>
+  <DisplayString Condition="myLabelNode!=0">[:{myLabelNode-&gt;myTag}]</DisplayString>
   <Expand>
     <ExpandedItem>*myLabelNode</ExpandedItem>
   </Expand>
@@ -192,7 +192,7 @@
 <Type Name="Handle_TDF_Attribute">
   <DisplayString Condition="entity==0x00000000">NULL</DisplayString>
   <DisplayString Condition="entity!=0x00000000">
-    [transaction={((TDF_Attribute*)entity)->myTransaction}]
+    [transaction={((TDF_Attribute*)entity)-&gt;myTransaction}]
   </DisplayString>
   <Expand>
     <ExpandedItem>(TDF_Attribute*)entity</ExpandedItem>
