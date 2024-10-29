@@ -104,7 +104,7 @@
   <Expand>
     <ArrayItems>
       <Size>mySize</Size>
-      <ValuePointer>($T1*)(myPointer) + myLowerBound</ValuePointer>
+      <ValuePointer>($T1*)(myPointer)</ValuePointer>
     </ArrayItems>
   </Expand>
 </Type>
