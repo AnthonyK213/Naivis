@@ -255,6 +255,38 @@
   </Expand>
 </Type>
 
+<Type Name="NCollection_IndexedDataMap&lt;*,*,*&gt;::IndexedDataMapNode">
+  <DisplayString>{{{myKey1}, {myValue}, {myIndex}}}</DisplayString>
+  <Expand>
+    <Item Name="myKey">myKey1</Item>
+    <Item Name="myValue">myValue</Item>
+    <Item Name="myIndex">myIndex</Item>
+  </Expand>
+</Type>
+
+<Type Name="NCollection_IndexedDataMap&lt;*,*,*&gt;">
+  <DisplayString>NCollection_IndexedDataMap [{mySize}]</DisplayString>
+  <Expand>
+    <CustomListItems>
+      <Variable Name="iBucket" InitialValue="1"/>
+      <Variable Name="i" InitialValue="0"/>
+      <Variable Name="aIndexedDataMapNode" InitialValue="(NCollection_IndexedDataMap&lt;$T1,$T2,$T3&gt;::IndexedDataMapNode*)0"/>
+      <Loop Condition="iBucket&lt;=myNbBuckets">
+        <If Condition="myData1[iBucket]!=0">
+          <Exec>aIndexedDataMapNode = (NCollection_IndexedDataMap&lt;$T1,$T2,$T3&gt;::IndexedDataMapNode*)(myData1[iBucket])</Exec>
+          <Loop Condition="aIndexedDataMapNode!=0">
+            <Item Name="[{i}]">*aIndexedDataMapNode</Item>
+            <Exec>aIndexedDataMapNode = (NCollection_IndexedDataMap&lt;$T1,$T2,$T3&gt;::IndexedDataMapNode*)(aIndexedDataMapNode-&gt;myNext)</Exec>
+            <Exec>++i</Exec>
+          </Loop>
+        </If>
+        <Break Condition="i&gt;=mySize"/>
+        <Exec>++iBucket</Exec>
+      </Loop>
+    </CustomListItems>
+  </Expand>
+</Type>
+
 <Type Name="Bnd_B2f">
   <AlternativeType Name="Bnd_B2d"></AlternativeType>
   <DisplayString Condition="myCenter[0] &gt; 1000000000000000000.">VOID</DisplayString>
@@ -303,7 +335,8 @@
 </Type>
 
 <Type Name="TopoDS_Shape">
-  <DisplayString>{myOrient} {myTShape} loc={myLocation}</DisplayString>
+  <DisplayString Condition="myTShape.entity==0x00000000">TopoDS_Shape (NULL)</DisplayString>
+  <DisplayString>TopoDS_Shape (Shape)</DisplayString>
 </Type>
 
 <Type Name="TopoDS_TShape">
