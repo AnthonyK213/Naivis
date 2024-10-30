@@ -185,8 +185,8 @@
             <Exec>aMapNode = (NCollection_Map&lt;$T1,$T2&gt;::MapNode*)(aMapNode-&gt;myNext)</Exec>
             <Exec>++i</Exec>
           </Loop>
-          <Break Condition="i&gt;=mySize"/>
         </If>
+        <Break Condition="i&gt;=mySize"/>
         <Exec>++iBucket</Exec>
       </Loop>
     </CustomListItems>
@@ -216,8 +216,8 @@
             <Exec>aIndexedMapNode = (NCollection_IndexedMap&lt;$T1,$T2&gt;::IndexedMapNode*)(aIndexedMapNode-&gt;myNext)</Exec>
             <Exec>++i</Exec>
           </Loop>
-          <Break Condition="i&gt;=mySize"/>
         </If>
+        <Break Condition="i&gt;=mySize"/>
         <Exec>++iBucket</Exec>
       </Loop>
     </CustomListItems>
@@ -247,8 +247,8 @@
             <Exec>aDataMapNode = (NCollection_DataMap&lt;$T1,$T2,$T3&gt;::DataMapNode*)(aDataMapNode-&gt;myNext)</Exec>
             <Exec>++i</Exec>
           </Loop>
-          <Break Condition="i&gt;=mySize"/>
         </If>
+        <Break Condition="i&gt;=mySize"/>
         <Exec>++iBucket</Exec>
       </Loop>
     </CustomListItems>
