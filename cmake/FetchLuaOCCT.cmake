@@ -10,6 +10,7 @@ else()
     LuaOCCT
     GIT_REPOSITORY https://github.com/AnthonyK213/LuaOCCT
     GIT_TAG origin/main
+    GIT_SHALLOW 1
     SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/LuaOCCT
     )
 endif()

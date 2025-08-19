@@ -4,6 +4,7 @@ FetchContent_Declare(
   lua_inspect
   GIT_REPOSITORY https://github.com/kikito/inspect.lua
   GIT_TAG origin/master
+  GIT_SHALLOW 1
   SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/lua_inspect
   )
 
@@ -11,6 +12,7 @@ FetchContent_Declare(
   lua_json
   GIT_REPOSITORY https://github.com/rxi/json.lua
   GIT_TAG origin/master
+  GIT_SHALLOW 1
   SOURCE_DIR ${CMAKE_BINARY_DIR}/deps/lua_json
   )
 

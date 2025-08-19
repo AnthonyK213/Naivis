@@ -128,9 +128,9 @@ add_custom_command(
 if(WIN32)
   add_custom_command(
     TARGET Naivis POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${luv_BINARY_DIR}/$<CONFIG>/luv.dll"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+    # COMMAND ${CMAKE_COMMAND} -E copy
+    #     "${luv_BINARY_DIR}/$<CONFIG>/luv.dll"
+    #     "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${luaocct_BINARY_DIR}/src/$<CONFIG>"
         "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
@@ -153,12 +153,12 @@ elseif(UNIX AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy
         "$ENV{OCCT_DIR}/lib/*.so*"
         "${CMAKE_INSTALL_PREFIX}/lib"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${luv_BINARY_DIR}/$<CONFIG>/luv.so"
-        "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${luv_BINARY_DIR}/$<CONFIG>/luv.so"
-        "${CMAKE_INSTALL_PREFIX}/bin"
+    # COMMAND ${CMAKE_COMMAND} -E copy
+    #     "${luv_BINARY_DIR}/$<CONFIG>/luv.so"
+    #     "$<TARGET_PROPERTY:Naivis,BINARY_DIR>/$<CONFIG>"
+    # COMMAND ${CMAKE_COMMAND} -E copy
+    #     "${luv_BINARY_DIR}/$<CONFIG>/luv.so"
+    #     "${CMAKE_INSTALL_PREFIX}/bin"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${luaocct_BINARY_DIR}/src/$<CONFIG>/*.so"
         "${CMAKE_INSTALL_PREFIX}/lib"

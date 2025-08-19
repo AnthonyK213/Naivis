@@ -1,3 +1,3 @@
 local nvs = nvs
 
-nvs.print("uptime", nvs.uv.uptime())
+-- nvs.print("uptime", nvs.uv.uptime())

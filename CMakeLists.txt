@@ -25,7 +25,7 @@ include(cmake/FetchLuaOCCT.cmake)
 include(cmake/FetchBinder.cmake)
 include(cmake/FetchLuaJIT.cmake)
 include(cmake/FetchLuaBridge3.cmake)
-include(cmake/Fetchluv.cmake)
+# include(cmake/Fetchluv.cmake)
 include(cmake/FetchLuaPackages.cmake)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS

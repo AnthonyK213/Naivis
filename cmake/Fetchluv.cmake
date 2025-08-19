@@ -3,7 +3,8 @@ include(ExternalProject)
 ExternalProject_Add(
   luv
   GIT_REPOSITORY https://github.com/luvit/luv.git
-  GIT_TAG 572e67ad9300cd5b29d5f50a5507e35ec73c0d23
+  GIT_TAG origin/master
+  # GIT_SHALLOW 1
   INSTALL_COMMAND ""
   )
 
